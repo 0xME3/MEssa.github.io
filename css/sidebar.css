@@ -120,7 +120,10 @@
   height: 2.5em;
   display: block;
   text-align: center;
-  background: #36e;
+/*
+    background: $color-search-background;
+    */
+  background: #33363b;
   color: #fff;
   padding-top: 0.5em;
 }
@@ -129,7 +132,10 @@
   height: 1.8em;
   border: none;
   border-bottom: 0.1em dotted #fff;
-  background: #36e;
+/*
+      background: $color-search-background;
+      */
+  background: #33363b;
   color: #fff;
   -webkit-transition: 0.3s ease-in-out;
   -moz-transition: 0.3s ease-in-out;
