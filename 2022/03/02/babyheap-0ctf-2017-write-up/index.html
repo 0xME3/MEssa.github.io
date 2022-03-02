@@ -210,7 +210,7 @@
       </div>
     </header>
     <main class="post-main" itemprop="articleBody">
-      <p>第一次解出堆题,我很开心，虽然不是独立解出的，但我还是很开心。</p>
+      <p>第一次解出堆题，我很开心，虽然不是独立解出的，但我还是很开心。</p>
 <span id="more"></span>
 <p>分析程序的几个功能，allocate可以申请堆空间；free可以释放堆空间；fill可以向堆空间中写入；dump可以将堆空间的内容打印出来。</p>
 <p>解题思路：先利用fastbin attach，修改单链表中的地址，使一个堆地址拥有两个序号使其释放后能够继续执行dump，从而泄露出main_arena的地址，再通过它泄露libc。同样的操作，将我们需要修改的libc地址伪造成chunk，再对其进行改写，这里我们选择将__malloc_hook写为one_gadget。</p>
