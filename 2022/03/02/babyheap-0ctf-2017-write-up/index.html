@@ -214,7 +214,7 @@
 <span id="more"></span>
 <p>分析程序的几个功能，allocate可以申请堆空间；free可以释放堆空间；fill可以向堆空间中写入；dump可以将堆空间的内容打印出来。</p>
 <p>解题思路：先利用fastbin attach，修改单链表中的地址，使一个堆地址拥有两个序号使其释放后能够继续执行dump，从而泄露出main_arena的地址，再通过它泄露libc。同样的操作，将我们需要修改的libc地址伪造成chunk，再对其进行改写，这里我们选择将__malloc_hook写为one_gadget。</p>
-<p>我们首先申请几个fastchunk，并且释放两个，将其指针放入fastbin中，然后利用堆溢出漏洞，使第二个fastbin中的fd改写成smallchunk。</p>
+<h2 id="泄漏libc"><a href="#泄漏libc" class="headerlink" title="泄漏libc"></a>泄漏libc</h2><p>我们首先申请几个fastchunk，并且释放两个，将其指针放入fastbin中，然后利用堆溢出漏洞，使第二个fastbin中的fd改写成smallchunk。</p>
 <figure class="hljs highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">fastbins</span><br><span class="line">0x20: 0x55c9e24f5040 —▸ 0x55c9e24f5020 ◂— 0x0</span><br><span class="line">					↓</span><br><span class="line">fastbins</span><br><span class="line">0x20: 0x55c9e24f5040 —▸ 0x55c9e24f5080 ◂— 0x0</span><br></pre></td></tr></table></figure>
 
 <p>但是此时系统还不会认定这个smallchunk为fastchunk，我们需要改变smallchunk的chunksize来通过malloc的安全检测，即chunksize是否与fastbin序号对应。</p>
@@ -225,7 +225,7 @@
 <figure class="hljs highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Allocated chunk | PREV_INUSE</span><br><span class="line">Addr: 0x55c9e24f5080</span><br><span class="line">Size: 0x21</span><br><span class="line">			↓</span><br><span class="line">Allocated chunk | PREV_INUSE</span><br><span class="line">Addr: 0x55c9e24f5080</span><br><span class="line">Size: 0x91</span><br></pre></td></tr></table></figure>
 
 <p>然后我们再申请一次，将这个smallchunk与top chunk分开，防止合并。接着释放掉2(或者4)，然后它会被放入unsortedbin中，再dump4(或者2)，即可泄露出main_arena，再通过libc文件中的malloc_trim函数，得知main_arena的偏移，然后libc就泄露完毕了。</p>
-<p>此时这块smallchunk被放入了unsortedbin当中，并且还有个index2指向它，我们要想释放2，还需要申请一次堆，防止重复释放，并且这次会从unsortedbin中获取，再将其释放才行，然后我们会得到一个能指定内容的freechunk。</p>
+<h2 id="修改内容"><a href="#修改内容" class="headerlink" title="修改内容"></a>修改内容</h2><p>此时这块smallchunk被放入了unsortedbin当中，并且还有个index2指向它，我们要想释放2，还需要申请一次堆，防止重复释放，并且这次会从unsortedbin中获取，再将其释放才行，然后我们会得到一个能指定内容的freechunk。</p>
 <p>利用fastbin attack，先将这块freechunk的fd写为libc中的地址，那么就能将libc地址放入fastbin中，下次从fastbin中获取时就能对libc中的内容进行更改。</p>
 <p>但mallco之前还是得注意通过安全检测。</p>
 <p>我们在__malloc_hook旁边寻找合适的地址，并没有什么比较合适的，利用偏移的方法，强行是使chunksize为一个合适的大小。这里我们使用的地址是 <code>__mallco_hook-35</code>。</p>
@@ -312,7 +312,7 @@
     <hr>
     <div class="post-toc sidebar-item" id="toc-div">
       <div><i class="fas fa-list-ol"></i>Table of Contents</div>
-      <div class="post-toc-content"><ol class="list-group toc"><li class="toc-item toc-level-2"><a class="list-group-item toc-link" href="#exp"><span class="toc-text">exp</span></a></li></ol></div>
+      <div class="post-toc-content"><ol class="list-group toc"><li class="toc-item toc-level-2"><a class="list-group-item toc-link" href="#%E6%B3%84%E6%BC%8Flibc"><span class="toc-text">泄漏libc</span></a></li><li class="toc-item toc-level-2"><a class="list-group-item toc-link" href="#%E4%BF%AE%E6%94%B9%E5%86%85%E5%AE%B9"><span class="toc-text">修改内容</span></a></li><li class="toc-item toc-level-2"><a class="list-group-item toc-link" href="#exp"><span class="toc-text">exp</span></a></li></ol></div>
     </div>
     
     
