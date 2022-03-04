@@ -223,9 +223,9 @@
 <p>利用这两个基本操作外，我们根据栈溢出漏洞攻击的思路进行攻击，也有格式化字符串漏洞攻击的技巧。</p>
 <h3 id="利用漏洞技巧"><a href="#利用漏洞技巧" class="headerlink" title="利用漏洞技巧"></a>利用漏洞技巧</h3><h4 id="泄露地址"><a href="#泄露地址" class="headerlink" title="泄露地址"></a>泄露地址</h4><p>能利用格式化字符串漏洞泄露栈上内容，因此可以得到出现在栈上的libc函数的地址再计算offset泄露libc的基地址；当开启了随机化保护时，也可以找到栈上main函数的<code>push rbp</code>，即main函数的首地址来计算开栈的基地址以绕过。</p>
 <h4 id="对地址块中间的内容进行修改"><a href="#对地址块中间的内容进行修改" class="headerlink" title="对地址块中间的内容进行修改"></a>对地址块中间的内容进行修改</h4><p>由于缓冲区大小的限制，导致我们不能覆盖内容为一个很大的数。因此，我们经常使用<code>hn</code>或<code>hhn</code>来进行改写内容，但由于64位模式下，一个地址块的大小为8字节，所以我们直接以该地址为任意写的地址，我们只能改到最多低2字节。但是我们如果给该地址加上一点偏移作为任意写的地址，就能对地址块中间的内容进行修改。举一个直观的例子：</p>
-<p>假设栈上地址<code>0x00</code>的内存块的内容为<code>0xDEADBEEFDEADBEEF</code></p>
-<p>如果我们欲修改<code>0x00</code>地址的中间的<code>0xEF</code>内容的这一个字节。直接以<code>0x00</code>为地址，显然修改的就是最后的<code>0xEF</code>。所以我们要使用<code>0x04</code>为任意写地址，那么就能修改到中间的<code>0xEF</code>了。</p>
-<p>需要注意的是，由于Linux是小端序的系统，所以<code>0x00</code>地址块的内容实际为<code>0xEFBEADDEEFBEADDE</code>因此，我们要修改的中间的<code>0xEF</code>的偏移是4，而不是3。</p>
+<p>假设栈上地址<code>0x00</code>的内存块的内容为<code>0xAABBCCDDEEFFGGHH</code></p>
+<p>如果我们欲修改<code>0x00</code>地址的中间的<code>0xEE</code>内容的这一个字节。直接以<code>0x00</code>为地址，修改的就是最后的<code>0xHH</code>。所以我们要使用<code>0x03</code>为任意写地址，那么就能修改到中间的<code>0xEE</code>了。</p>
+<p>需要注意的是，由于Linux是小端序的系统，所以<code>0x00</code>地址块的内容实际为<code>0xHHGGFFEEDDCCBBAA</code>因此，我们要修改的中间的<code>0xEE</code>的偏移是3，而不是4。</p>
 <h4 id="栈上的partial-overwrite"><a href="#栈上的partial-overwrite" class="headerlink" title="栈上的partial overwrite"></a>栈上的partial overwrite</h4><p>栈上的partial overwrite除了利用栈溢出漏洞进行改写，也可以使用格式化字符串漏洞进行低位地址的修改，但是由于需要修改低12位地址，因此还需要泄露待改写函数的倒数第二字节的内容。</p>
 <h4 id="利用栈上的链式结构进行任意地址改写"><a href="#利用栈上的链式结构进行任意地址改写" class="headerlink" title="利用栈上的链式结构进行任意地址改写"></a>利用栈上的链式结构进行任意地址改写</h4><p>常用于非栈上的格式化字符串漏洞，即我们写入的格式化字符串并不是在栈上，所以我们不能通过写入任意地址进行改写。</p>
 <p>常利用<code>rbp</code>的链式结构(栈帧中的内容总是上一个栈帧或0)对任意地址进行改写。以当前栈帧(rbp中的地址)中存储的上一个栈帧的地址作为任意写的地址并对其中内容进行改写为我们需要修改的内容，再对上一个栈帧中的存储的地址作为任意写的地址并对其中内容进行改写。画一个更直观的图：</p>
