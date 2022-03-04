@@ -239,7 +239,7 @@
 <li>若待写变量在bss段，也能更改bss段中的内容</li>
 </ul>
 <p>我们想要改写地址的目的无非是<strong>直接或者间接地控制程序执行流程</strong>。</p>
-<p>而利用栈溢出漏洞最常见的攻击方式，就是ROP了，了解可以看看这篇文章。</p>
+<p>而利用栈溢出漏洞最常见的攻击方式，就是ROP了，了解可以看看这篇<a target="_blank" rel="noopener" href="http://110.42.161.158/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/">文章</a>。</p>
 <h2 id="栈溢出技巧"><a href="#栈溢出技巧" class="headerlink" title="栈溢出技巧"></a>栈溢出技巧</h2><p>由于本人水平有限，仅简单介绍CTF Wiki上的花式栈溢出技巧。</p>
 <h3 id="stack-pivot"><a href="#stack-pivot" class="headerlink" title="stack pivot"></a>stack pivot</h3><p>合理使用<code>jmp esp</code>或<code>pop esp</code>指令将栈顶指针跳转到指定的地址，执行<code>ret</code>指令后将从该位置执行。我们常将构造的rop chain或shellcode写入一些可写入地址，然后将栈顶迁移到这些地址或后门函数，并在此处开栈执行设计好的流程。</p>
 <h3 id="frame-faking"><a href="#frame-faking" class="headerlink" title="frame faking"></a>frame faking</h3><p>构造一个虚假的栈帧来控制程序的执行流</p>
