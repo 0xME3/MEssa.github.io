@@ -231,7 +231,7 @@
 <h2 id="栈溢出技巧"><a href="#栈溢出技巧" class="headerlink" title="栈溢出技巧"></a>栈溢出技巧</h2><p>由于本人水平有限，仅简单介绍CTF Wiki上的花式栈溢出技巧。</p>
 <h3 id="stack-pivot"><a href="#stack-pivot" class="headerlink" title="stack pivot"></a>stack pivot</h3><p>合理使用<code>jmp esp</code>或<code>pop esp</code>指令将栈顶指针跳转到指定的地址，执行<code>ret</code>指令后将从该位置执行。我们常将构造的rop chain或shellcode写入一些可写入地址，然后将栈顶迁移到这些地址或后门函数，并在此处开栈执行设计好的流程。</p>
 <h3 id="frame-faking"><a href="#frame-faking" class="headerlink" title="frame faking"></a>frame faking</h3><p>构造一个虚假的栈帧来控制程序的执行流</p>
-<p>我感觉其实就是栈迁移，只不过当我们没有合适的指令改变栈顶指针时，通过<code>leave;ret</code>指令的重复使用，将栈帧迁移到我们指定的地址为<code>rip</code>寄存器赋值为我们构造的rop chain。</p>
+<p>我感觉其实就是栈迁移，只不过当我们没有合适的指令改变栈顶指针时，通过<code>leave;ret</code>指令的重复使用，将栈帧迁移到我们指定的地址，然后将<code>rip</code>寄存器赋值为我们构造的rop chain。</p>
 <p>先在合适的地方将我们构造的rop chain或shellcode，再利用栈溢出将<strong>指令的首地址+8</strong>的指针写入栈帧部分，再将<code>leave;ret</code>指令的地址写入return address。那么加上原本程序中的<code>leave;ret</code>，我们将执行两次。执行了两次后将栈顶搬到了指定地址，最后的<code>ret</code>指令就会将写入的指令写入<code>rip</code>寄存器，接着执行你设计的执行流。</p>
 <p>根据下图加深印象：</p>
 <p><img src="https://s2.loli.net/2022/03/04/FftxCI8Ey3KrHpb.png" alt="5"></p>
