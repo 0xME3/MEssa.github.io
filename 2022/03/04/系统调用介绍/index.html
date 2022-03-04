@@ -155,7 +155,7 @@
     </script>
     
     <script defer type="text/javascript" src="/js/custom.js"></script>
-    <title>Archive | Rabbit's blog - We don't choose who we are, but we do choose who we become.</title>
+    <title>系统调用介绍 | Rabbit's blog - We don't choose who we are, but we do choose who we become.</title>
   <meta name="generator" content="Hexo 5.4.0"></head>
   <body itemscope itemtype="http://schema.org/WebPage" lang="default"  data-spy="scroll" data-target=".list-group">
     
@@ -183,87 +183,71 @@
         <div class="main-container">
           <div class="content">
             
-<div id="archive" class="archive page">
-  <h1 class="page-title">Archive</h1>
-  <h2 class="page-counter">
-    
-    You have 9 posts!
-    
-  </h2>
-  
-  
-  
-  
-  <h2 class="page-title">2022</h1>
+<div id="post" class="page">
   
   <article class="article post card" itemscope itemtype="http://schema.org/Article">
-    <header id="post-header" class="post-header">
-      <h1 class="post-title-simple" itemprop="name headline">
-        <a class="post-title-link post-title-link-external" href="/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/" itemprop="url">系统调用介绍</a>
-      </h1>
-      
-      <span class="post-date">
-        <time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T14:25:55+08:00">03-04</time>
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+       <meta itemprop="name" content="Rabbit">
+       <meta itemprop="description" content="">
+       <meta itemprop="image" content="/images/myavatar.png">
       </span>
-      
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+       <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">系统调用介绍</h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T14:25:55+08:00">2022-03-04 14:25:55</time></span>
+        </span>
+        
+        
+        
+      </div>
     </header>
+    <main class="post-main" itemprop="articleBody">
+      <p>稍微介绍了一下Linux不同模式的系统调用。</p>
+<span id="more"></span>
+
+<h2 id="Linux下的系统调用"><a href="#Linux下的系统调用" class="headerlink" title="Linux下的系统调用"></a>Linux下的系统调用</h2><p>系统调用和普通库函数调用非常相似，只是系统调用由操作系统内核提供，运行于内核态，而普通的库函数调用由函数库或用户自己提供，运行于用户态。</p>
+<p>当我们进行一次攻击，使用到系统调用时，根据操作系统的不同模式需要考虑到以下几点。</p>
+<h3 id="Linux-x86"><a href="#Linux-x86" class="headerlink" title="Linux-x86"></a>Linux-x86</h3><p>传参方式：系统调用的参数存储在<code>ebx</code>,<code>ecx</code>,<code>edx</code>中，返回值存在eax寄存器</p>
+<p>系统调用号：将系统调用号存入eax</p>
+<p>调用方式：使用<code>int 0x80</code>中断调用使系统进入内核态，执行系统调用</p>
+<p>具体包括系统调用好可以看这篇<a target="_blank" rel="noopener" href="https://blog.csdn.net/xiaominthere/article/details/17287965">文章</a>。</p>
+<h3 id="Linux-64"><a href="#Linux-64" class="headerlink" title="Linux-64"></a>Linux-64</h3><p>传参方式：参数依次存入<code>rdi</code>，<code>rsi</code>，<code>rdx</code>寄存器中，返回值存在rax寄存器</p>
+<p>系统调用号：系统调用号传入<code>rax</code></p>
+<p>调用方式：使用<code>syscall</code>进行系统调用</p>
+<p>若将系统调用号看作参数，实际上可以将64位的系统调用看作<code>syscall([rax],[rdi],[rsi],[rdx])</code></p>
+<p>系统调用号可以看这篇<a target="_blank" rel="noopener" href="http://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/">文章</a>。</p>
+
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fas fa-tags"></i>笔记</a>
+        
+      </div>
+      
+    </footer>
   </article>
   
   
-  <article class="article post card" itemscope itemtype="http://schema.org/Article">
-    <header id="post-header" class="post-header">
-      <h1 class="post-title-simple" itemprop="name headline">
-        <a class="post-title-link post-title-link-external" href="/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/" itemprop="url">入栈顺序</a>
-      </h1>
+  <nav class="page-nav">
+    <div class="page-nav-next page-nav-item">
       
-      <span class="post-date">
-        <time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T12:10:05+08:00">03-04</time>
-      </span>
+      <a href="/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/" rel="next" title="入栈顺序"><i class="fas fa-angle-left"></i><span class="nav-title">入栈顺序</span></a>
       
-    </header>
-  </article>
-  
-  
-  <article class="article post card" itemscope itemtype="http://schema.org/Article">
-    <header id="post-header" class="post-header">
-      <h1 class="post-title-simple" itemprop="name headline">
-        <a class="post-title-link post-title-link-external" href="/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/" itemprop="url">栈介绍</a>
-      </h1>
+    </div>
+    <div class="page-nav-prev page-nav-item">
       
-      <span class="post-date">
-        <time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T09:05:42+08:00">03-04</time>
-      </span>
-      
-    </header>
-  </article>
-  
-  
-  <article class="article post card" itemscope itemtype="http://schema.org/Article">
-    <header id="post-header" class="post-header">
-      <h1 class="post-title-simple" itemprop="name headline">
-        <a class="post-title-link post-title-link-external" href="/2022/03/03/wustctf2020-babyfmt-writeup/" itemprop="url">wustctf2020-babyfmt-writeup</a>
-      </h1>
-      
-      <span class="post-date">
-        <time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-03T15:19:55+08:00">03-03</time>
-      </span>
-      
-    </header>
-  </article>
-  
-  
-  <article class="article post card" itemscope itemtype="http://schema.org/Article">
-    <header id="post-header" class="post-header">
-      <h1 class="post-title-simple" itemprop="name headline">
-        <a class="post-title-link post-title-link-external" href="/2022/03/02/babyheap-0ctf-2017-writeup/" itemprop="url">babyheap-0ctf-2017-writeup</a>
-      </h1>
-      
-      <span class="post-date">
-        <time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-02T14:45:34+08:00">03-02</time>
-      </span>
-      
-    </header>
-  </article>
+    </div>
+  </nav>
   
   
 </div>
@@ -296,6 +280,17 @@
 
 
   <div class="sidebar-sticky">
+    
+    
+    
+    
+    
+    <hr>
+    <div class="post-toc sidebar-item" id="toc-div">
+      <div><i class="fas fa-list-ol"></i>Table of Contents</div>
+      <div class="post-toc-content"><ol class="list-group toc"><li class="toc-item toc-level-2"><a class="list-group-item toc-link" href="#Linux%E4%B8%8B%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-text">Linux下的系统调用</span></a><ol class="list-group toc-child"><li class="toc-item toc-level-3"><a class="list-group-item toc-link" href="#Linux-x86"><span class="toc-text">Linux-x86</span></a></li><li class="toc-item toc-level-3"><a class="list-group-item toc-link" href="#Linux-64"><span class="toc-text">Linux-64</span></a></li></ol></li></ol></div>
+    </div>
+    
     
     
     
