@@ -155,7 +155,7 @@
     </script>
     
     <script defer type="text/javascript" src="/js/custom.js"></script>
-    <title>Archive | Rabbit's blog - We don't choose who we are, but we do choose who we become.</title>
+    <title>入栈顺序 | Rabbit's blog - We don't choose who we are, but we do choose who we become.</title>
   <meta name="generator" content="Hexo 5.4.0"></head>
   <body itemscope itemtype="http://schema.org/WebPage" lang="default"  data-spy="scroll" data-target=".list-group">
     
@@ -183,31 +183,75 @@
         <div class="main-container">
           <div class="content">
             
-<div id="archive" class="archive page">
-  <h1 class="page-title">Archive</h1>
-  <h2 class="page-counter">
-    
-    You have 8 posts!
-    
-  </h2>
-  
-  
-  
-  
-  <h2 class="page-title">2022</h1>
+<div id="post" class="page">
   
   <article class="article post card" itemscope itemtype="http://schema.org/Article">
-    <header id="post-header" class="post-header">
-      <h1 class="post-title-simple" itemprop="name headline">
-        <a class="post-title-link post-title-link-external" href="/2022/02/08/alphanumeric-shellcode/" itemprop="url">alphanumeric_shellcode</a>
-      </h1>
-      
-      <span class="post-date">
-        <time title="post-date" itemprop="dateCreated datePublished" datetime="2022-02-08T17:52:00+08:00">02-08</time>
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+       <meta itemprop="name" content="Rabbit">
+       <meta itemprop="description" content="">
+       <meta itemprop="image" content="/images/myavatar.png">
       </span>
-      
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+       <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">入栈顺序</h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T12:10:05+08:00">2022-03-04 12:10:05</time></span>
+        </span>
+        
+        
+        
+      </div>
     </header>
+    <main class="post-main" itemprop="articleBody">
+      <p>对于参数和局部变量入栈顺序我选择做一个小实验来说明。</p>
+<span id="more"></span>
+
+<p>使用c编写一个程序</p>
+<figure class="hljs highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">int</span> a = <span class="number">0</span>, b = <span class="number">1</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d %d %d&quot;</span>, i, ++i, i++);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	test();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>画出调用printf之前的局部栈：</p>
+<p><img src="https://s2.loli.net/2022/03/04/kUDVNFTisnBCOLu.png" alt="局部变量在栈中到位置"></p>
+<p>从上可以看出从上往下依次是<code>b</code>,<code>a</code>,<code>i</code>，因此栈帧中的局部变量是倒着压入栈的。</p>
+<p>然后运行程序，输出结果为’2 2 0’。</p>
+<p>这说明函数的参数的入栈顺序是倒着的：</p>
+<ol>
+<li>先执行<code>i++</code>，将返回的<code>0</code>压入栈，此时<code>i=1</code></li>
+<li>再执行<code>++i</code>，将返回的<code>2</code>压入栈，此时<code>i=2</code></li>
+<li>最后压入<code>i</code></li>
+</ol>
+<p>根据调试结果，画出<code>call printf</code>前的局部栈：</p>
+<p><img src="https://s2.loli.net/2022/03/04/ai4sQmRKu23yjlw.png" alt="参数在栈中的位置"></p>
+
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fas fa-tags"></i>笔记</a>
+        
+      </div>
+      
+    </footer>
   </article>
+  
+  
+  <nav class="page-nav">
+    <div class="page-nav-next page-nav-item">
+      
+      <a href="/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/" rel="next" title="栈介绍"><i class="fas fa-angle-left"></i><span class="nav-title">栈介绍</span></a>
+      
+    </div>
+    <div class="page-nav-prev page-nav-item">
+      
+    </div>
+  </nav>
   
   
 </div>
@@ -240,6 +284,11 @@
 
 
   <div class="sidebar-sticky">
+    
+    
+    
+    
+    
     
     
     
