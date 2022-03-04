@@ -1,154 +1,216 @@
-<!DOCTYPE html><html lang="default" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ROP介绍 | Rabbit's blog</title><meta name="keywords" content="CTF,笔记"><meta name="author" content="Rabbit"><meta name="copyright" content="Rabbit"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="简单介绍以下ROP攻击，主要以CTF WIki上的内容为骨架。">
-<meta property="og:type" content="article">
-<meta property="og:title" content="ROP介绍">
-<meta property="og:url" content="http://www.rabb1t.xyz/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/index.html">
-<meta property="og:site_name" content="Rabbit&#39;s blog">
-<meta property="og:description" content="简单介绍以下ROP攻击，主要以CTF WIki上的内容为骨架。">
-<meta property="og:locale">
-<meta property="og:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg">
-<meta property="article:published_time" content="2022-03-04T10:46:55.000Z">
-<meta property="article:modified_time" content="2022-03-04T11:39:14.656Z">
-<meta property="article:author" content="Rabbit">
-<meta property="article:tag" content="CTF">
-<meta property="article:tag" content="笔记">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://www.rabb1t.xyz/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
-  copy: {
-    success: 'Copy successfully',
-    error: 'Copy error',
-    noSupport: 'The browser does not support'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  date_suffix: {
-    just: 'Just',
-    min: 'minutes ago',
-    hour: 'hours ago',
-    day: 'days ago',
-    month: 'months ago'
-  },
-  copyright: undefined,
-  lightbox: 'fancybox',
-  Snackbar: undefined,
-  source: {
-    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
-    justifiedGallery: {
-      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
-    },
-    fancybox: {
-      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
-    }
-  },
-  isPhotoFigcaption: false,
-  islazyload: false,
-  isanchor: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'ROP介绍',
-  isPost: true,
-  isHome: false,
-  isHighlightShrink: false,
-  isToc: true,
-  postUpdate: '2022-03-04 19:39:14'
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
-
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-    win.saveToLocal = {
-      set: function setWithExpiry(key, value, ttl) {
-        if (ttl === 0) return
-        const now = new Date()
-        const expiryDay = ttl * 86400000
-        const item = {
-          value: value,
-          expiry: now.getTime() + expiryDay,
-        }
-        localStorage.setItem(key, JSON.stringify(item))
-      },
-
-      get: function getWithExpiry(key) {
-        const itemStr = localStorage.getItem(key)
-
-        if (!itemStr) {
-          return undefined
-        }
-        const item = JSON.parse(itemStr)
-        const now = new Date()
-
-        if (now.getTime() > item.expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return item.value
-      }
-    }
-  
-    win.getScript = url => new Promise((resolve, reject) => {
-      const script = document.createElement('script')
-      script.src = url
-      script.async = true
-      script.onerror = reject
-      script.onload = script.onreadystatechange = function() {
-        const loadState = this.readyState
-        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-        script.onload = script.onreadystatechange = null
-        resolve()
-      }
-      document.head.appendChild(script)
-    })
-  
-      win.activateDarkMode = function () {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = function () {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     
-          if (t === 'dark') activateDarkMode()
-          else if (t === 'light') activateLightMode()
+    <meta name="theme-color" content="#33363b">
+    <meta name="msapplication-TileColor" content="#33363b">
+    
+    
+    
+    
+    <meta name="keywords" content="blog, pwn, ctf">
+    
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+    
+    
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-192x192.png">
+    
+    
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
+    
+    
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
+    
+    
+    <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#33363b">
+    
+    
+    <link rel="manifest" href="/favicons/site.webmanifest">
+    
+    
+    <meta name="msapplication-config" content="/favicons/browserconfig.xml">
+    
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="/favicons/favicon.ico">
+    
+    
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lato|Montserrat|Roboto+Condensed|Skranji|Ubuntu|Ubuntu+Mono">
+    
+    <link rel="stylesheet" type="text/css" href="/css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="/css/index.css">
+    
+    <link rel="stylesheet" type="text/css" href="/css/sidebar.css">
+    
+    
+<link rel="stylesheet" type="text/css" href="/css/page.css">
+<link rel="stylesheet" type="text/css" href="/css/post.css">
+
+    <link rel="stylesheet" type="text/css" href="/css/custom.css">
+    <link rel="stylesheet" type="text/css" href="/css/atom-one-dark.css">
+    <link rel="stylesheet" type="text/css" href="/css/lightgallery.min.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script defer type="text/javascript" src="/js/util.js"></script>
+    <script defer type="text/javascript" src="/js/clipboard.min.js"></script>
+    <script defer type="text/javascript" src="/js/scrollspy.js"></script>
+    <script defer type="text/javascript" src="/js/fontawesome-all.min.js"></script>
+    <script defer type="text/javascript" src="/js/lightgallery.min.js"></script>
+    <script defer type="text/javascript" src="/js/lg-fullscreen.min.js"></script>
+    <script defer type="text/javascript" src="/js/lg-hash.min.js"></script>
+    <script defer type="text/javascript" src="/js/lg-pager.min.js"></script>
+    <script defer type="text/javascript" src="/js/lg-thumbnail.min.js"></script>
+    <script defer type="text/javascript" src="/js/lg-zoom.min.js"></script>
+    
+    
+    <script defer type="text/javascript" src="/js/search.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+      var searchPath = "search.xml";
+      if (searchPath.length === 0) {
+        searchPath = "search.xml";
+      }
+      var path = "/" + searchPath;
+      searchFunc(path, "search-input", "search-result");
+    });
+    </script>
+    
+    
+    <script defer type="text/javascript" src="/js/index.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+      var cb = null;
+      var els = $(".post figure.highlight");
+      if (els.length) {
+        // Enabled Hexo highlight line number.
+        $(els).each(function (i, e) {
+          // $(e).before("<button class=\"copy button\">Copy</button>");
+          $(e).before([
+            "<div class=\"code-titlebar\">",
+              "<div class=\"titlebar-left\">",
+                "<button class=\"copy\" aria-label=\"Copy\"><i class=\"far fa-copy\"></i></button>",
+              "</div>",
+              "<div class=\"titlebar-center\">",
+                "code",
+              "</div>",
+              "<div class=\"titlebar-right\">",
+                "<button class=\"button-dot dot-minimize\" aria-label=\"Decoration\"></button>",
+                "<button class=\"button-dot dot-maximize\" aria-label=\"Decoration\"></button>",
+                "<button class=\"button-dot dot-close\" aria-label=\"Decoration\"></button>",
+              "</div>",
+            "</div>"
+          ].join(""));
+        });
+        cb = new ClipboardJS("button.copy", {
+          "target": function (trigger) {
+              // Get target element by DOM API.
+              return trigger.parentNode.parentNode.nextElementSibling.firstChild.firstChild.firstChild.lastChild.firstChild.firstChild;
+          }
+        });
+      } else {
+        // Disabled Hexo highlight line number.
+        els = $(".post pre code");
+        $(els).each(function (i, e) {
+          // Add button before pre, not code.
+          // $(e).parent().before("<button class=\"copy button\">Copy</button>");
+          $(e).before([
+            "<div class=\"code-titlebar\">",
+              "<div class=\"titlebar-left\">",
+                "<button class=\"copy\" aria-label=\"Copy\"><i class=\"far fa-copy\"></i></button>",
+              "</div>",
+              "<div class=\"titlebar-center\">",
+                "code",
+              "</div>",
+              "<div class=\"titlebar-right\">",
+                "<button class=\"button-dot dot-minimize\" aria-label=\"Decoration\"></button>",
+                "<button class=\"button-dot dot-maximize\" aria-label=\"Decoration\"></button>",
+                "<button class=\"button-dot dot-close\" aria-label=\"Decoration\"></button>",
+              "</div>",
+            "</div>"
+          ].join(""));
+        });
+        cb = new ClipboardJS("button.copy", {
+          "target": function (trigger) {
+              // Get target element by DOM API.
+              return trigger.parentNode.parentNode.nextElementSibling;
+          }
+        });
+      }
+      cb.on("success", function (e) {
+        e.clearSelection();
+        var trigger = e.trigger;
+        // Change button text as a user tip.
+        trigger.innerHTML = "<i class=\"far fa-check-square\"></i>";
+        $(trigger).addClass("copied");
+        // Change button text back;
+        setTimeout(function () {
+          trigger.innerHTML = "<i class=\"far fa-copy\"></i>";
+          $(trigger).removeClass("copied");
+        }, 1500);
+      });
+    });
+    </script>
+    
+    <script defer type="text/javascript" src="/js/custom.js"></script>
+    <title>ROP介绍 | Rabbit's blog - We don't choose who we are, but we do choose who we become.</title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+  <body itemscope itemtype="http://schema.org/WebPage" lang="default"  data-spy="scroll" data-target=".list-group">
+    
+<header id="header" class="header" style="background: #33363b;">
+  <div class="container">
+    <div class="header-container">
+      <div class="header-title">
+        <h1 class="title"><a href="/">Rabbit's blog</a></h1>
+        <h2 class="subtitle">We don't choose who we are, but we do choose who we become.</h2>
+      </div>
+      
+    </div>
+    <nav id="nav" class="nav">
+      <a id="nav-toggle" class="nav-toggle" aria-hidden="true"><i class="fas fa-bars" aria-label="Toggle Navbar"></i></a>
+      <ul id="menu" role="menubar" aria-hidden="false">
         
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
-        }
-      }
-    
-    const detectApple = () => {
-      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">6</div></a></div></div></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Rabbit's blog</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">ROP介绍</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2022-03-04T10:46:55.000Z" title="Created 2022-03-04 18:46:55">2022-03-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2022-03-04T11:39:14.656Z" title="Updated 2022-03-04 19:39:14">2022-03-04</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="ROP介绍"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>简单介绍以下ROP攻击，主要以CTF WIki上的内容为骨架。</p>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <main id="main" class="main">
+      <div class="container">
+        <div class="main-container">
+          <div class="content">
+            
+<div id="post" class="page">
+  
+  <article class="article post card" itemscope itemtype="http://schema.org/Article">
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+       <meta itemprop="name" content="Rabbit">
+       <meta itemprop="description" content="">
+       <meta itemprop="image" content="/images/myavatar.png">
+      </span>
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+       <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">ROP介绍</h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T18:46:55+08:00">2022-03-04 18:46:55</time></span>
+        </span>
+        
+        
+        
+      </div>
+    </header>
+    <main class="post-main" itemprop="articleBody">
+      <p>简单介绍以下ROP攻击，主要以CTF WIki上的内容为骨架。</p>
 <span id="more"></span>
 
 <h2 id="ROP"><a href="#ROP" class="headerlink" title="ROP"></a>ROP</h2><p>Return-oriented Programming(面向返回的编程)，也是我们常见的利用栈溢出漏洞的攻击方法。</p>
@@ -159,17 +221,126 @@
 <h4 id="ret2shellcode"><a href="#ret2shellcode" class="headerlink" title="ret2shellcode"></a>ret2shellcode</h4><p>控制程序执行shellcode代码，<strong>一般来说，shellcode 需要我们自己填充。这其实是另外一种典型的利用方法，即此时我们需要自己去填充一些可执行的代码</strong>。但是必须的是，我们写入shellcode的地址需要可执行权限。</p>
 <h4 id="ret2libc"><a href="#ret2libc" class="headerlink" title="ret2libc"></a>ret2libc</h4><p>控制程序执行动态链接的libc中的函数，通常是利用栈溢出，改写return address为某个函数的plt表地址，或者函数的具体位置(存储在got表中)。并且由于常用来get shell的system函数一般不会用在程序中，所以利用其他函数泄露libc版本成为经常要做的操作。需要注意的是，动态链接具有<strong>延迟绑定机制</strong>，即需要函数执行过一次，got表中才会有该函数的地址。</p>
 <p>这里我放上自己的ret2libc.sublime-snippet，方便做题使用。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;snippet&gt;</span><br><span class="line">	&lt;content&gt;&lt;![CDATA[</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ret2libc</span>(<span class="params">func,func_addr,module=<span class="number">1</span>,one_gadget_addr=<span class="number">0</span></span>):</span></span><br><span class="line">    <span class="keyword">if</span> module:</span><br><span class="line">        <span class="comment"># libc=ELF(libc_file)</span></span><br><span class="line">        libc=elf.libc</span><br><span class="line">        libc_base=func_addr-libc.sym[func]</span><br><span class="line">        sys_addr=libc_base+libc.sym[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line">        binsh=libc_base+libc.search(<span class="string">&#x27;/bin/sh&#x27;</span>).<span class="built_in">next</span>()</span><br><span class="line">        environ=libc_base+libc.sym[<span class="string">&#x27;__environ&#x27;</span>]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">    	<span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line">    	libc=LibcSearcher(func,func_addr)</span><br><span class="line">    	libc_base=func_addr-libc.dump(func)</span><br><span class="line">        sys_addr=libc_base+libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">        binsh=libc_base+libc.dump(<span class="string">&#x27;str_bin_sh&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&#x27;libc_base&#x27;</span>:libc_base,<span class="string">&#x27;system&#x27;</span>:sys_addr,<span class="string">&#x27;binsh&#x27;</span>:binsh,<span class="string">&#x27;environ&#x27;</span>:environ&#125;</span><br><span class="line"></span><br><span class="line">libc=ret2libc($&#123;<span class="number">1</span>:func&#125;,$&#123;<span class="number">2</span>:func_addr&#125;)</span><br><span class="line">]]&gt;&lt;/content&gt;</span><br><span class="line">	&lt;!-- <span class="type">Optional</span>: <span class="type">Set</span> a tabTrigger to define how to trigger the snippet --&gt;</span><br><span class="line">	&lt;tabTrigger&gt;ret2libc&lt;/tabTrigger&gt;</span><br><span class="line">	&lt;!-- <span class="type">Optional</span>: <span class="type">Set</span> a scope to limit where the snippet will trigger --&gt;</span><br><span class="line">	&lt;!-- &lt;scope&gt;source.python&lt;/scope&gt; --&gt;</span><br><span class="line">&lt;/snippet&gt;</span><br></pre></td></tr></table></figure>
+<figure class="hljs highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;snippet&gt;</span><br><span class="line">	&lt;content&gt;&lt;![CDATA[</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ret2libc</span>(<span class="params">func,func_addr,module=<span class="number">1</span>,one_gadget_addr=<span class="number">0</span></span>):</span></span><br><span class="line">    <span class="keyword">if</span> module:</span><br><span class="line">        <span class="comment"># libc=ELF(libc_file)</span></span><br><span class="line">        libc=elf.libc</span><br><span class="line">        libc_base=func_addr-libc.sym[func]</span><br><span class="line">        sys_addr=libc_base+libc.sym[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line">        binsh=libc_base+libc.search(<span class="string">&#x27;/bin/sh&#x27;</span>).<span class="built_in">next</span>()</span><br><span class="line">        environ=libc_base+libc.sym[<span class="string">&#x27;__environ&#x27;</span>]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">    	<span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line">    	libc=LibcSearcher(func,func_addr)</span><br><span class="line">    	libc_base=func_addr-libc.dump(func)</span><br><span class="line">        sys_addr=libc_base+libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">        binsh=libc_base+libc.dump(<span class="string">&#x27;str_bin_sh&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&#x27;libc_base&#x27;</span>:libc_base,<span class="string">&#x27;system&#x27;</span>:sys_addr,<span class="string">&#x27;binsh&#x27;</span>:binsh,<span class="string">&#x27;environ&#x27;</span>:environ&#125;</span><br><span class="line"></span><br><span class="line">libc=ret2libc($&#123;<span class="number">1</span>:func&#125;,$&#123;<span class="number">2</span>:func_addr&#125;)</span><br><span class="line">]]&gt;&lt;/content&gt;</span><br><span class="line">	&lt;!-- <span class="type">Optional</span>: <span class="type">Set</span> a tabTrigger to define how to trigger the snippet --&gt;</span><br><span class="line">	&lt;tabTrigger&gt;ret2libc&lt;/tabTrigger&gt;</span><br><span class="line">	&lt;!-- <span class="type">Optional</span>: <span class="type">Set</span> a scope to limit where the snippet will trigger --&gt;</span><br><span class="line">	&lt;!-- &lt;scope&gt;source.python&lt;/scope&gt; --&gt;</span><br><span class="line">&lt;/snippet&gt;</span><br></pre></td></tr></table></figure>
 
 <p>其中使用了pwnlib.elf模块。默认使用了本地的libc文件，如果使用的是下载的libc文件就把注释取消了将libc_file替换为文件路径即可。</p>
 <h4 id="ret2syscall"><a href="#ret2syscall" class="headerlink" title="ret2syscall"></a>ret2syscall</h4><p>类似于ret2libc，不同是控制程序执行系统调用函数来get shell或泄露敏感文件内容，常需要构造rop chain或写入shellcode来使用。系统调用不了解可以看看这篇<a target="_blank" rel="noopener" href="http://110.42.161.158/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/">文章</a>。</p>
 <h3 id="中级ROP"><a href="#中级ROP" class="headerlink" title="中级ROP"></a>中级ROP</h3><h4 id="ret2csu"><a href="#ret2csu" class="headerlink" title="ret2csu"></a>ret2csu</h4><p>主要攻击方式以基本ROP为主，ret2csu的作用体现在对寄存器赋值上，个人觉得和高级ROP中的SROP功能差不多。原理是基于<code>__libc_csu_init</code> 中的 gadgets：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">……</span><br><span class="line">.text:0000000000400600 loc_400600:                             ; CODE XREF: __libc_csu_init+54j</span><br><span class="line">.text:0000000000400600                 mov     rdx, r13</span><br><span class="line">.text:0000000000400603                 mov     rsi, r14</span><br><span class="line">.text:0000000000400606                 mov     edi, r15d</span><br><span class="line">.text:0000000000400609                 call    qword ptr [r12+rbx*8]</span><br><span class="line">.text:000000000040060D                 add     rbx, 1</span><br><span class="line">.text:0000000000400611                 cmp     rbx, rbp</span><br><span class="line">.text:0000000000400614                 jnz     short loc_400600</span><br><span class="line">.text:0000000000400616</span><br><span class="line">.text:0000000000400616 loc_400616:                             ; CODE XREF: __libc_csu_init+34j</span><br><span class="line">.text:0000000000400616                 add     rsp, 8</span><br><span class="line">.text:000000000040061A                 pop     rbx</span><br><span class="line">.text:000000000040061B                 pop     rbp</span><br><span class="line">.text:000000000040061C                 pop     r12</span><br><span class="line">.text:000000000040061E                 pop     r13</span><br><span class="line">.text:0000000000400620                 pop     r14</span><br><span class="line">.text:0000000000400622                 pop     r15</span><br><span class="line">.text:0000000000400624                 retn</span><br><span class="line">……</span><br></pre></td></tr></table></figure>
+<figure class="hljs highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">……</span><br><span class="line">.text:0000000000400600 loc_400600:                             ; CODE XREF: __libc_csu_init+54j</span><br><span class="line">.text:0000000000400600                 mov     rdx, r13</span><br><span class="line">.text:0000000000400603                 mov     rsi, r14</span><br><span class="line">.text:0000000000400606                 mov     edi, r15d</span><br><span class="line">.text:0000000000400609                 call    qword ptr [r12+rbx*8]</span><br><span class="line">.text:000000000040060D                 add     rbx, 1</span><br><span class="line">.text:0000000000400611                 cmp     rbx, rbp</span><br><span class="line">.text:0000000000400614                 jnz     short loc_400600</span><br><span class="line">.text:0000000000400616</span><br><span class="line">.text:0000000000400616 loc_400616:                             ; CODE XREF: __libc_csu_init+34j</span><br><span class="line">.text:0000000000400616                 add     rsp, 8</span><br><span class="line">.text:000000000040061A                 pop     rbx</span><br><span class="line">.text:000000000040061B                 pop     rbp</span><br><span class="line">.text:000000000040061C                 pop     r12</span><br><span class="line">.text:000000000040061E                 pop     r13</span><br><span class="line">.text:0000000000400620                 pop     r14</span><br><span class="line">.text:0000000000400622                 pop     r15</span><br><span class="line">.text:0000000000400624                 retn</span><br><span class="line">……</span><br></pre></td></tr></table></figure>
 
 <p>这两段能完成对<code>rdx</code>,<code>rsi</code>,<code>edi</code>的赋值，其实主要是对<code>rdx</code>，一般有直接对寄存器<code>rsi</code>,<code>rdi</code>赋值的gadget，而对于<code>rdx</code>则无。</p>
 <p>需要注意的是寄存器<code>r12</code>,<code>r13</code>的内容，由于在gadget中有指令<code>cmp rbx,rbp;jnz short loc_xxxxxx</code>与<code>call qword ptr [r12+rbx*8]</code>，意思是程序将对<code>rbx，rbp</code>的内容进行比较，不同则跳转会首部再执行一次；从<code>r12+rbx*8</code>地址保存的指令开始执行。一般我们将r13置为0，则会通过cmp检测。而r12的值可以当作一次rip来进行写入。或者可以使用<code>_fini</code>中的指令，这一块的指令对于我们的操作是无害的，内容为：<code>sub rsp,8;add rsp,8</code>，<code>_fini</code>的地址存放在<strong>dynamic</strong>部分。</p>
 <p>这里我放上自己的ret2csu.sublime-snippet，方便做题使用。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&lt;snippet&gt;</span><br><span class="line">	&lt;content&gt;&lt;![CDATA[</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ret2csu</span>(<span class="params">r12,r13,r14,r15,system=<span class="number">0</span></span>):</span></span><br><span class="line">    rbx=<span class="number">0</span></span><br><span class="line">    rbp=<span class="number">1</span></span><br><span class="line">    pop=$&#123;<span class="number">1</span>:pop&#125;</span><br><span class="line">    mov=$&#123;<span class="number">2</span>:mov&#125;</span><br><span class="line">    payload=<span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">if</span> system:</span><br><span class="line">        payload+=p32(pop)+p32(rbx)+p32(rbp)+p32(r12)+p32(r13)+p32(r14)+p32(r15)+p32(mov)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        payload+=p64(pop)+p64(rbx)+p64(rbp)+p64(r12)+p64(r13)+p64(r14)+p64(r15)+p64(mov)</span><br><span class="line">  	<span class="keyword">return</span> payload</span><br><span class="line"></span><br><span class="line">payload+=ret2csu($&#123;<span class="number">3</span>:system&#125;,$&#123;<span class="number">4</span>:rip&#125;,$&#123;<span class="number">5</span>:edi&#125;,$&#123;<span class="number">6</span>:rsi&#125;,$&#123;<span class="number">7</span>:rdx&#125;)</span><br><span class="line">]]&gt;&lt;/content&gt;</span><br><span class="line">	&lt;!-- <span class="type">Optional</span>: <span class="type">Set</span> a tabTrigger to define how to trigger the snippet --&gt;</span><br><span class="line">	&lt;tabTrigger&gt;ret2csu&lt;/tabTrigger&gt;</span><br><span class="line">	&lt;!-- <span class="type">Optional</span>: <span class="type">Set</span> a scope to limit where the snippet will trigger --&gt;</span><br><span class="line">	&lt;!-- &lt;scope&gt;source.python&lt;/scope&gt; --&gt;</span><br><span class="line">&lt;/snippet&gt;</span><br></pre></td></tr></table></figure>
+<figure class="hljs highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&lt;snippet&gt;</span><br><span class="line">	&lt;content&gt;&lt;![CDATA[</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ret2csu</span>(<span class="params">r12,r13,r14,r15,system=<span class="number">0</span></span>):</span></span><br><span class="line">    rbx=<span class="number">0</span></span><br><span class="line">    rbp=<span class="number">1</span></span><br><span class="line">    pop=$&#123;<span class="number">1</span>:pop&#125;</span><br><span class="line">    mov=$&#123;<span class="number">2</span>:mov&#125;</span><br><span class="line">    payload=<span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">if</span> system:</span><br><span class="line">        payload+=p32(pop)+p32(rbx)+p32(rbp)+p32(r12)+p32(r13)+p32(r14)+p32(r15)+p32(mov)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        payload+=p64(pop)+p64(rbx)+p64(rbp)+p64(r12)+p64(r13)+p64(r14)+p64(r15)+p64(mov)</span><br><span class="line">  	<span class="keyword">return</span> payload</span><br><span class="line"></span><br><span class="line">payload+=ret2csu($&#123;<span class="number">3</span>:system&#125;,$&#123;<span class="number">4</span>:rip&#125;,$&#123;<span class="number">5</span>:edi&#125;,$&#123;<span class="number">6</span>:rsi&#125;,$&#123;<span class="number">7</span>:rdx&#125;)</span><br><span class="line">]]&gt;&lt;/content&gt;</span><br><span class="line">	&lt;!-- <span class="type">Optional</span>: <span class="type">Set</span> a tabTrigger to define how to trigger the snippet --&gt;</span><br><span class="line">	&lt;tabTrigger&gt;ret2csu&lt;/tabTrigger&gt;</span><br><span class="line">	&lt;!-- <span class="type">Optional</span>: <span class="type">Set</span> a scope to limit where the snippet will trigger --&gt;</span><br><span class="line">	&lt;!-- &lt;scope&gt;source.python&lt;/scope&gt; --&gt;</span><br><span class="line">&lt;/snippet&gt;</span><br></pre></td></tr></table></figure>
 
 <p>默认打包使用64位模式下的内存块大小，其中的pop指的是第二段gadget中的从<code>pop rbx</code>的地址，mov为第一段gadget的<code>mov rdx,r13</code>地址。</p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Rabbit</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://www.rabb1t.xyz/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/">http://www.rabb1t.xyz/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CTF/">CTF</a><a class="post-meta__tags" href="/tags/%E7%AC%94%E8%AE%B0/">笔记</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/"><img class="prev-cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">stack overflow漏洞小结</div></div></a></div><div class="next-post pull-right"><a href="/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/"><img class="next-cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">系统调用介绍</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="stack overflow漏洞小结"><img class="cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-03-04</div><div class="title">stack overflow漏洞小结</div></div></a></div><div><a href="/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/" title="入栈顺序"><img class="cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-03-04</div><div class="title">入栈顺序</div></div></a></div><div><a href="/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/" title="栈介绍"><img class="cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-03-04</div><div class="title">栈介绍</div></div></a></div><div><a href="/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/" title="系统调用介绍"><img class="cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-03-04</div><div class="title">系统调用介绍</div></div></a></div><div><a href="/2022/03/04/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="格式化字符串漏洞小结"><img class="cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-03-04</div><div class="title">格式化字符串漏洞小结</div></div></a></div><div><a href="/2021/12/24/ROP-Emporium-64%E4%BD%8D/" title="ROP Emporium (64位)-writeup"><img class="cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-24</div><div class="title">ROP Emporium (64位)-writeup</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Rabbit</div><div class="author-info__description"></div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">6</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ROP"><span class="toc-number">1.</span> <span class="toc-text">ROP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="toc-number">1.1.</span> <span class="toc-text">核心思想</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%ACROP"><span class="toc-number">1.2.</span> <span class="toc-text">基本ROP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ret2text"><span class="toc-number">1.2.1.</span> <span class="toc-text">ret2text</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ret2shellcode"><span class="toc-number">1.2.2.</span> <span class="toc-text">ret2shellcode</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ret2libc"><span class="toc-number">1.2.3.</span> <span class="toc-text">ret2libc</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ret2syscall"><span class="toc-number">1.2.4.</span> <span class="toc-text">ret2syscall</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E7%BA%A7ROP"><span class="toc-number">1.3.</span> <span class="toc-text">中级ROP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ret2csu"><span class="toc-number">1.3.1.</span> <span class="toc-text">ret2csu</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/03/04/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="格式化字符串漏洞小结"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="格式化字符串漏洞小结"/></a><div class="content"><a class="title" href="/2022/03/04/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="格式化字符串漏洞小结">格式化字符串漏洞小结</a><time datetime="2022-03-04T13:03:16.000Z" title="Created 2022-03-04 21:03:16">2022-03-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="stack overflow漏洞小结"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="stack overflow漏洞小结"/></a><div class="content"><a class="title" href="/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="stack overflow漏洞小结">stack overflow漏洞小结</a><time datetime="2022-03-04T11:32:03.000Z" title="Created 2022-03-04 19:32:03">2022-03-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/" title="ROP介绍"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ROP介绍"/></a><div class="content"><a class="title" href="/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/" title="ROP介绍">ROP介绍</a><time datetime="2022-03-04T10:46:55.000Z" title="Created 2022-03-04 18:46:55">2022-03-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/" title="系统调用介绍"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="系统调用介绍"/></a><div class="content"><a class="title" href="/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/" title="系统调用介绍">系统调用介绍</a><time datetime="2022-03-04T06:25:55.000Z" title="Created 2022-03-04 14:25:55">2022-03-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/" title="入栈顺序"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="入栈顺序"/></a><div class="content"><a class="title" href="/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/" title="入栈顺序">入栈顺序</a><time datetime="2022-03-04T04:10:05.000Z" title="Created 2022-03-04 12:10:05">2022-03-04</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Rabbit</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/CTF/" rel="tag"><i class="fas fa-tags"></i>CTF</a>
+        
+        <a class="post-tag button" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fas fa-tags"></i>笔记</a>
+        
+      </div>
+      
+    </footer>
+  </article>
+  
+  
+  <nav class="page-nav">
+    <div class="page-nav-next page-nav-item">
+      
+      <a href="/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/" rel="next" title="系统调用介绍"><i class="fas fa-angle-left"></i><span class="nav-title">系统调用介绍</span></a>
+      
+    </div>
+    <div class="page-nav-prev page-nav-item">
+      
+      <a href="/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" rel="prev" title="stack overflow漏洞小结"><span class="nav-title">stack overflow漏洞小结</span><i class="fas fa-angle-right"></i></a>
+      
+    </div>
+  </nav>
+  
+  
+</div>
+
+          </div>
+          
+          
+          
+<aside class="sidebar" id="sidebar" style="background: url(/images/background.png);">
+  
+  <div class="search">
+    <div class="form-group">
+      <i class="fas fa-search"></i><input type="search" id="search-input" name="q" results="0" placeholder="Search" class="form-control"/>
+    </div>
+  </div>
+  <div class="search-result-box" id="search-result"></div>
+  
+  
+<div class="info sidebar-item" id="info">
+  
+  <img class="author-avatar" src="/images/myavatar.png" alt="Rabbit">
+  
+  <h1 class="author-name">Rabbit</h1>
+  <h2 class="author-description"></h2>
+  <div class="site-count">
+    
+  </div>
+  
+</div>
+
+
+  <div class="sidebar-sticky">
+    
+    
+    
+    
+    
+    <hr>
+    <div class="post-toc sidebar-item" id="toc-div">
+      <div><i class="fas fa-list-ol"></i>Table of Contents</div>
+      <div class="post-toc-content"><ol class="list-group toc"><li class="toc-item toc-level-2"><a class="list-group-item toc-link" href="#ROP"><span class="toc-text">ROP</span></a><ol class="list-group toc-child"><li class="toc-item toc-level-3"><a class="list-group-item toc-link" href="#%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="toc-text">核心思想</span></a></li><li class="toc-item toc-level-3"><a class="list-group-item toc-link" href="#%E5%9F%BA%E6%9C%ACROP"><span class="toc-text">基本ROP</span></a><ol class="list-group toc-child"><li class="toc-item toc-level-4"><a class="list-group-item toc-link" href="#ret2text"><span class="toc-text">ret2text</span></a></li><li class="toc-item toc-level-4"><a class="list-group-item toc-link" href="#ret2shellcode"><span class="toc-text">ret2shellcode</span></a></li><li class="toc-item toc-level-4"><a class="list-group-item toc-link" href="#ret2libc"><span class="toc-text">ret2libc</span></a></li><li class="toc-item toc-level-4"><a class="list-group-item toc-link" href="#ret2syscall"><span class="toc-text">ret2syscall</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="list-group-item toc-link" href="#%E4%B8%AD%E7%BA%A7ROP"><span class="toc-text">中级ROP</span></a><ol class="list-group toc-child"><li class="toc-item toc-level-4"><a class="list-group-item toc-link" href="#ret2csu"><span class="toc-text">ret2csu</span></a></li></ol></li></ol></li></ol></div>
+    </div>
+    
+    
+    
+    
+  </div>
+</aside>
+
+
+          
+        </div>
+      </div>
+    </main>
+    
+<footer id="footer" class="footer" style="background: #33363b;">
+  <div class="container">
+    <div class="back-to-top">
+      <button id="back-to-top"><i class="fas fa-angle-double-up" aria-label="Back to Top"></i></button>
+    </div>
+    <div class="footer-container">
+      <div class="footer-left">
+        <div class="copyright">
+          <span class="author">Rabbit</span><span class="year"><i class="far fa-copyright"></i>Wed Dec 15 2021 08:00:00 GMT+0800 (China Standard Time) - 2022</span>
+        </div>
+        
+      </div>
+      <div class="footer-right">
+        <div class="custom-info">
+          
+        </div>
+        <div class="powered-by">
+          Proudly Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> | Theme is <a href="https://github.com/AlynxZhou/hexo-theme-aria/" target="_blank">ARIA</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+  </body>
+</html>

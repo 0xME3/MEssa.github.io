@@ -1,327 +1,705 @@
-<!DOCTYPE html><html lang="default" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rabbit's blog - We don't choose who we are, but we do choose who we become.</title><meta name="author" content="Rabbit"><meta name="copyright" content="Rabbit"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta property="og:type" content="website">
-<meta property="og:title" content="Rabbit&#39;s blog">
-<meta property="og:url" content="http://www.rabb1t.xyz/index.html">
-<meta property="og:site_name" content="Rabbit&#39;s blog">
-<meta property="og:locale">
-<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
-<meta property="article:author" content="Rabbit">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://www.rabb1t.xyz/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
-  copy: {
-    success: 'Copy successfully',
-    error: 'Copy error',
-    noSupport: 'The browser does not support'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  date_suffix: {
-    just: 'Just',
-    min: 'minutes ago',
-    hour: 'hours ago',
-    day: 'days ago',
-    month: 'months ago'
-  },
-  copyright: undefined,
-  lightbox: 'fancybox',
-  Snackbar: undefined,
-  source: {
-    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
-    justifiedGallery: {
-      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
-    },
-    fancybox: {
-      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
-    }
-  },
-  isPhotoFigcaption: false,
-  islazyload: false,
-  isanchor: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'Rabbit\'s blog',
-  isPost: false,
-  isHome: true,
-  isHighlightShrink: false,
-  isToc: false,
-  postUpdate: '2022-03-04 21:30:00'
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
-
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-    win.saveToLocal = {
-      set: function setWithExpiry(key, value, ttl) {
-        if (ttl === 0) return
-        const now = new Date()
-        const expiryDay = ttl * 86400000
-        const item = {
-          value: value,
-          expiry: now.getTime() + expiryDay,
-        }
-        localStorage.setItem(key, JSON.stringify(item))
-      },
-
-      get: function getWithExpiry(key) {
-        const itemStr = localStorage.getItem(key)
-
-        if (!itemStr) {
-          return undefined
-        }
-        const item = JSON.parse(itemStr)
-        const now = new Date()
-
-        if (now.getTime() > item.expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return item.value
-      }
-    }
-  
-    win.getScript = url => new Promise((resolve, reject) => {
-      const script = document.createElement('script')
-      script.src = url
-      script.async = true
-      script.onerror = reject
-      script.onload = script.onreadystatechange = function() {
-        const loadState = this.readyState
-        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-        script.onload = script.onreadystatechange = null
-        resolve()
-      }
-      document.head.appendChild(script)
-    })
-  
-      win.activateDarkMode = function () {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = function () {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     
-          if (t === 'dark') activateDarkMode()
-          else if (t === 'light') activateLightMode()
+    <meta name="theme-color" content="#33363b">
+    <meta name="msapplication-TileColor" content="#33363b">
+    
+    
+    
+    
+    <meta name="keywords" content="blog, pwn, ctf">
+    
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+    
+    
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-192x192.png">
+    
+    
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
+    
+    
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
+    
+    
+    <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#33363b">
+    
+    
+    <link rel="manifest" href="/favicons/site.webmanifest">
+    
+    
+    <meta name="msapplication-config" content="/favicons/browserconfig.xml">
+    
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="/favicons/favicon.ico">
+    
+    
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lato|Montserrat|Roboto+Condensed|Skranji|Ubuntu|Ubuntu+Mono">
+    
+    <link rel="stylesheet" type="text/css" href="/css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="/css/index.css">
+    
+    <link rel="stylesheet" type="text/css" href="/css/sidebar.css">
+    
+    
+<link rel="stylesheet" type="text/css" href="/css/page.css">
+<link rel="stylesheet" type="text/css" href="/css/post.css">
+
+    <link rel="stylesheet" type="text/css" href="/css/custom.css">
+    <link rel="stylesheet" type="text/css" href="/css/atom-one-dark.css">
+    <link rel="stylesheet" type="text/css" href="/css/lightgallery.min.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script defer type="text/javascript" src="/js/util.js"></script>
+    <script defer type="text/javascript" src="/js/clipboard.min.js"></script>
+    <script defer type="text/javascript" src="/js/scrollspy.js"></script>
+    <script defer type="text/javascript" src="/js/fontawesome-all.min.js"></script>
+    <script defer type="text/javascript" src="/js/lightgallery.min.js"></script>
+    <script defer type="text/javascript" src="/js/lg-fullscreen.min.js"></script>
+    <script defer type="text/javascript" src="/js/lg-hash.min.js"></script>
+    <script defer type="text/javascript" src="/js/lg-pager.min.js"></script>
+    <script defer type="text/javascript" src="/js/lg-thumbnail.min.js"></script>
+    <script defer type="text/javascript" src="/js/lg-zoom.min.js"></script>
+    
+    
+    <script defer type="text/javascript" src="/js/search.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+      var searchPath = "search.xml";
+      if (searchPath.length === 0) {
+        searchPath = "search.xml";
+      }
+      var path = "/" + searchPath;
+      searchFunc(path, "search-input", "search-result");
+    });
+    </script>
+    
+    
+    <script defer type="text/javascript" src="/js/index.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+      var cb = null;
+      var els = $(".post figure.highlight");
+      if (els.length) {
+        // Enabled Hexo highlight line number.
+        $(els).each(function (i, e) {
+          // $(e).before("<button class=\"copy button\">Copy</button>");
+          $(e).before([
+            "<div class=\"code-titlebar\">",
+              "<div class=\"titlebar-left\">",
+                "<button class=\"copy\" aria-label=\"Copy\"><i class=\"far fa-copy\"></i></button>",
+              "</div>",
+              "<div class=\"titlebar-center\">",
+                "code",
+              "</div>",
+              "<div class=\"titlebar-right\">",
+                "<button class=\"button-dot dot-minimize\" aria-label=\"Decoration\"></button>",
+                "<button class=\"button-dot dot-maximize\" aria-label=\"Decoration\"></button>",
+                "<button class=\"button-dot dot-close\" aria-label=\"Decoration\"></button>",
+              "</div>",
+            "</div>"
+          ].join(""));
+        });
+        cb = new ClipboardJS("button.copy", {
+          "target": function (trigger) {
+              // Get target element by DOM API.
+              return trigger.parentNode.parentNode.nextElementSibling.firstChild.firstChild.firstChild.lastChild.firstChild.firstChild;
+          }
+        });
+      } else {
+        // Disabled Hexo highlight line number.
+        els = $(".post pre code");
+        $(els).each(function (i, e) {
+          // Add button before pre, not code.
+          // $(e).parent().before("<button class=\"copy button\">Copy</button>");
+          $(e).before([
+            "<div class=\"code-titlebar\">",
+              "<div class=\"titlebar-left\">",
+                "<button class=\"copy\" aria-label=\"Copy\"><i class=\"far fa-copy\"></i></button>",
+              "</div>",
+              "<div class=\"titlebar-center\">",
+                "code",
+              "</div>",
+              "<div class=\"titlebar-right\">",
+                "<button class=\"button-dot dot-minimize\" aria-label=\"Decoration\"></button>",
+                "<button class=\"button-dot dot-maximize\" aria-label=\"Decoration\"></button>",
+                "<button class=\"button-dot dot-close\" aria-label=\"Decoration\"></button>",
+              "</div>",
+            "</div>"
+          ].join(""));
+        });
+        cb = new ClipboardJS("button.copy", {
+          "target": function (trigger) {
+              // Get target element by DOM API.
+              return trigger.parentNode.parentNode.nextElementSibling;
+          }
+        });
+      }
+      cb.on("success", function (e) {
+        e.clearSelection();
+        var trigger = e.trigger;
+        // Change button text as a user tip.
+        trigger.innerHTML = "<i class=\"far fa-check-square\"></i>";
+        $(trigger).addClass("copied");
+        // Change button text back;
+        setTimeout(function () {
+          trigger.innerHTML = "<i class=\"far fa-copy\"></i>";
+          $(trigger).removeClass("copied");
+        }, 1500);
+      });
+    });
+    </script>
+    
+    <script defer type="text/javascript" src="/js/custom.js"></script>
+    <title>Rabbit's blog - We don't choose who we are, but we do choose who we become.</title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+  <body itemscope itemtype="http://schema.org/WebPage" lang="default"  data-spy="scroll" data-target=".list-group">
+    
+<header id="header" class="header" style="background: #33363b;">
+  <div class="container">
+    <div class="header-container">
+      <div class="header-title">
+        <h1 class="title"><a href="/">Rabbit's blog</a></h1>
+        <h2 class="subtitle">We don't choose who we are, but we do choose who we become.</h2>
+      </div>
+      
+    </div>
+    <nav id="nav" class="nav">
+      <a id="nav-toggle" class="nav-toggle" aria-hidden="true"><i class="fas fa-bars" aria-label="Toggle Navbar"></i></a>
+      <ul id="menu" role="menubar" aria-hidden="false">
         
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
-        }
-      }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <main id="main" class="main">
+      <div class="container">
+        <div class="main-container">
+          <div class="content">
+            
+
+<div id="index" class="index page">
+  
+  <article class="article post card" itemscope itemtype="http://schema.org/Article">
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/04/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <meta itemprop="name" content="Rabbit">
+        <meta itemprop="description" content="">
+        <meta itemprop="image" content="/images/myavatar.png">
+      </span>
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">
+        <a class="post-title-link post-title-link-external" href="/2022/03/04/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" itemprop="url">格式化字符串漏洞小结</a>
+      </h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T21:03:16+08:00">2022-03-04 21:03:16</time></span>
+        </span>
+        
+        
+        
+      </div>
+    </header>
+    <main class="post-main" itemprop="articleBody">
+      
+      <p>记录自己对格式化字符串漏洞的理解。</p>
+      
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/CTF/" rel="tag"><i class="fas fa-tags"></i>CTF</a>
+        
+        <a class="post-tag button" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fas fa-tags"></i>笔记</a>
+        
+      </div>
+      
+    </footer>
+  </article>
+  
+  <article class="article post card" itemscope itemtype="http://schema.org/Article">
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <meta itemprop="name" content="Rabbit">
+        <meta itemprop="description" content="">
+        <meta itemprop="image" content="/images/myavatar.png">
+      </span>
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">
+        <a class="post-title-link post-title-link-external" href="/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" itemprop="url">stack overflow漏洞小结</a>
+      </h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T19:32:03+08:00">2022-03-04 19:32:03</time></span>
+        </span>
+        
+        
+        
+      </div>
+    </header>
+    <main class="post-main" itemprop="articleBody">
+      
+      <p>以<a target="_blank" rel="noopener" href="https://ctf-wiki.org/pwn/linux/user-mode/environment/">CTF Wiki</a>的目录为骨架，记录自己对栈溢出漏洞的理解。</p>
+      
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/CTF/" rel="tag"><i class="fas fa-tags"></i>CTF</a>
+        
+        <a class="post-tag button" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fas fa-tags"></i>笔记</a>
+        
+      </div>
+      
+    </footer>
+  </article>
+  
+  <article class="article post card" itemscope itemtype="http://schema.org/Article">
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <meta itemprop="name" content="Rabbit">
+        <meta itemprop="description" content="">
+        <meta itemprop="image" content="/images/myavatar.png">
+      </span>
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">
+        <a class="post-title-link post-title-link-external" href="/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/" itemprop="url">ROP介绍</a>
+      </h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T18:46:55+08:00">2022-03-04 18:46:55</time></span>
+        </span>
+        
+        
+        
+      </div>
+    </header>
+    <main class="post-main" itemprop="articleBody">
+      
+      <p>简单介绍以下ROP攻击，主要以CTF WIki上的内容为骨架。</p>
+      
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/CTF/" rel="tag"><i class="fas fa-tags"></i>CTF</a>
+        
+        <a class="post-tag button" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fas fa-tags"></i>笔记</a>
+        
+      </div>
+      
+    </footer>
+  </article>
+  
+  <article class="article post card" itemscope itemtype="http://schema.org/Article">
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <meta itemprop="name" content="Rabbit">
+        <meta itemprop="description" content="">
+        <meta itemprop="image" content="/images/myavatar.png">
+      </span>
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">
+        <a class="post-title-link post-title-link-external" href="/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/" itemprop="url">系统调用介绍</a>
+      </h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T14:25:55+08:00">2022-03-04 14:25:55</time></span>
+        </span>
+        
+        
+        
+      </div>
+    </header>
+    <main class="post-main" itemprop="articleBody">
+      
+      <p>稍微介绍了一下Linux不同模式的系统调用。</p>
+      
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/CTF/" rel="tag"><i class="fas fa-tags"></i>CTF</a>
+        
+        <a class="post-tag button" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fas fa-tags"></i>笔记</a>
+        
+      </div>
+      
+    </footer>
+  </article>
+  
+  <article class="article post card" itemscope itemtype="http://schema.org/Article">
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <meta itemprop="name" content="Rabbit">
+        <meta itemprop="description" content="">
+        <meta itemprop="image" content="/images/myavatar.png">
+      </span>
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">
+        <a class="post-title-link post-title-link-external" href="/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/" itemprop="url">入栈顺序</a>
+      </h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T12:10:05+08:00">2022-03-04 12:10:05</time></span>
+        </span>
+        
+        
+        
+      </div>
+    </header>
+    <main class="post-main" itemprop="articleBody">
+      
+      <p>对于参数和局部变量入栈顺序我选择做一个小实验来说明。</p>
+      
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/CTF/" rel="tag"><i class="fas fa-tags"></i>CTF</a>
+        
+        <a class="post-tag button" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fas fa-tags"></i>笔记</a>
+        
+      </div>
+      
+    </footer>
+  </article>
+  
+  <article class="article post card" itemscope itemtype="http://schema.org/Article">
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <meta itemprop="name" content="Rabbit">
+        <meta itemprop="description" content="">
+        <meta itemprop="image" content="/images/myavatar.png">
+      </span>
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">
+        <a class="post-title-link post-title-link-external" href="/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/" itemprop="url">栈介绍</a>
+      </h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T09:05:42+08:00">2022-03-04 09:05:42</time></span>
+        </span>
+        
+        
+        
+      </div>
+    </header>
+    <main class="post-main" itemprop="articleBody">
+      
+      <p>对于此数据结构，我们不过多讲述，仅以执行程序时内存中的栈来简单讲讲。</p>
+      
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/CTF/" rel="tag"><i class="fas fa-tags"></i>CTF</a>
+        
+        <a class="post-tag button" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fas fa-tags"></i>笔记</a>
+        
+      </div>
+      
+    </footer>
+  </article>
+  
+  <article class="article post card" itemscope itemtype="http://schema.org/Article">
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/03/wustctf2020-babyfmt-writeup/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <meta itemprop="name" content="Rabbit">
+        <meta itemprop="description" content="">
+        <meta itemprop="image" content="/images/myavatar.png">
+      </span>
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">
+        <a class="post-title-link post-title-link-external" href="/2022/03/03/wustctf2020-babyfmt-writeup/" itemprop="url">wustctf2020-babyfmt-writeup</a>
+      </h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-03T15:19:55+08:00">2022-03-03 15:19:55</time></span>
+        </span>
+        
+        
+        
+      </div>
+    </header>
+    <main class="post-main" itemprop="articleBody">
+      
+      <p>函数就不放了</p>
+      
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/CTF/" rel="tag"><i class="fas fa-tags"></i>CTF</a>
+        
+        <a class="post-tag button" href="/tags/pwn/" rel="tag"><i class="fas fa-tags"></i>pwn</a>
+        
+        <a class="post-tag button" href="/tags/writeup/" rel="tag"><i class="fas fa-tags"></i>writeup</a>
+        
+      </div>
+      
+    </footer>
+  </article>
+  
+  <article class="article post card" itemscope itemtype="http://schema.org/Article">
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/02/babyheap-0ctf-2017-writeup/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <meta itemprop="name" content="Rabbit">
+        <meta itemprop="description" content="">
+        <meta itemprop="image" content="/images/myavatar.png">
+      </span>
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">
+        <a class="post-title-link post-title-link-external" href="/2022/03/02/babyheap-0ctf-2017-writeup/" itemprop="url">babyheap-0ctf-2017-writeup</a>
+      </h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-02T14:45:34+08:00">2022-03-02 14:45:34</time></span>
+        </span>
+        
+        
+        
+      </div>
+    </header>
+    <main class="post-main" itemprop="articleBody">
+      
+      <p>第一次解出堆题，我很开心，虽然不是独立解出的，但我还是很开心。</p>
+      
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/CTF/" rel="tag"><i class="fas fa-tags"></i>CTF</a>
+        
+        <a class="post-tag button" href="/tags/pwn/" rel="tag"><i class="fas fa-tags"></i>pwn</a>
+        
+        <a class="post-tag button" href="/tags/writeup/" rel="tag"><i class="fas fa-tags"></i>writeup</a>
+        
+      </div>
+      
+    </footer>
+  </article>
+  
+  <article class="article post card" itemscope itemtype="http://schema.org/Article">
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/02/08/alphanumeric-shellcode/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <meta itemprop="name" content="Rabbit">
+        <meta itemprop="description" content="">
+        <meta itemprop="image" content="/images/myavatar.png">
+      </span>
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">
+        <a class="post-title-link post-title-link-external" href="/2022/02/08/alphanumeric-shellcode/" itemprop="url">alphanumeric_shellcode</a>
+      </h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-02-08T17:52:00+08:00">2022-02-08 17:52:00</time></span>
+        </span>
+        
+        
+        
+      </div>
+    </header>
+    <main class="post-main" itemprop="articleBody">
+      
+      <p>刷buu时做到一题限制了字符范围的题(mrctf2020_shellcode_revenge)。</p>
+      
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/CTF/" rel="tag"><i class="fas fa-tags"></i>CTF</a>
+        
+        <a class="post-tag button" href="/tags/pwn/" rel="tag"><i class="fas fa-tags"></i>pwn</a>
+        
+      </div>
+      
+    </footer>
+  </article>
+  
+  <article class="article post card" itemscope itemtype="http://schema.org/Article">
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/01/13/%E8%AF%BB%E5%AE%8C%E3%80%8A%E6%8C%AA%E5%A8%81%E7%9A%84%E6%A3%AE%E6%9E%97%E3%80%8B%E7%9A%84%E4%B8%80%E7%82%B9%E6%84%9F%E5%8F%97/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <meta itemprop="name" content="Rabbit">
+        <meta itemprop="description" content="">
+        <meta itemprop="image" content="/images/myavatar.png">
+      </span>
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+        <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">
+        <a class="post-title-link post-title-link-external" href="/2022/01/13/%E8%AF%BB%E5%AE%8C%E3%80%8A%E6%8C%AA%E5%A8%81%E7%9A%84%E6%A3%AE%E6%9E%97%E3%80%8B%E7%9A%84%E4%B8%80%E7%82%B9%E6%84%9F%E5%8F%97/" itemprop="url">读完《挪威的森林》的一点感受</a>
+      </h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-01-13T21:46:45+08:00">2022-01-13 21:46:45</time></span>
+        </span>
+        
+        
+        
+      </div>
+    </header>
+    <main class="post-main" itemprop="articleBody">
+      
+      <p>前几日把《挪威的森林》读完了，大概花了三天傍晚的时间。</p>
+      
+    </main>
+    <footer class="post-footer">
+      
+      <div class="post-tags">
+        
+        <a class="post-tag button" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag"><i class="fas fa-tags"></i>随笔</a>
+        
+      </div>
+      
+    </footer>
+  </article>
+  
+  
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fas fa-angle-right" aria-label="Next Page"></i></a>
+  </nav>
+  
+  
+</div>
+
+          </div>
+          
+          
+          
+<aside class="sidebar" id="sidebar" style="background: url(/images/background.png);">
+  
+  <div class="search">
+    <div class="form-group">
+      <i class="fas fa-search"></i><input type="search" id="search-input" name="q" results="0" placeholder="Search" class="form-control"/>
+    </div>
+  </div>
+  <div class="search-result-box" id="search-result"></div>
+  
+  
+<div class="info sidebar-item" id="info">
+  
+  <img class="author-avatar" src="/images/myavatar.png" alt="Rabbit">
+  
+  <h1 class="author-name">Rabbit</h1>
+  <h2 class="author-description"></h2>
+  <div class="site-count">
     
-    const detectApple = () => {
-      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">6</div></a></div></div></div><hr/></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Rabbit's blog</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">Rabbit's blog</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2022/03/04/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="格式化字符串漏洞小结">     <img class="post_bg" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="格式化字符串漏洞小结"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/03/04/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="格式化字符串漏洞小结">格式化字符串漏洞小结</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-03-04T13:03:16.000Z" title="Created 2022-03-04 21:03:16">2022-03-04</time></span></div><div class="content">记录自己对格式化字符串漏洞的理解。
+  </div>
+  
+</div>
 
 
-简介格式化字符串漏洞是利用程序员对格式化字符串函数的错误使用导致的对栈上的内容造成了泄露或内存中地址内容的改写。
-在利用格式化字符串漏洞前，我们需要对格式化字符串函数有个大概了解，CTF Wiki上写的很详细。
-漏洞利用格式化字符串漏洞的利用需要有程序执行格式化字符串函数的环节。
-基本利用泄露栈上内容通过%&#123;&#125;$p来泄露栈上地址。
-改写地址内容通过%&#123;&#125;$n和向栈上写入任意地址来实现改写任意地址内容。并且’n’为覆盖4字节内容，’hn’为覆盖2字节内容，’hhn’为覆盖1字节内容。
-需要注意的是，不同模式下的传参方式不同导致构造的payload中的格式化字符串的参数不同。32位模式下，参数都是在栈上保存的，没什么好说的；64位模式下，前6位参数保存在寄存器内，因此泄露或改写的地址一般从第7位开始计算。
-使用pwndbg的fmtarg指令获得泄露该地址的格式化字符串，或手动计算偏移得到格式化字符串。
-利用这两个基本操作外，我们根据栈溢出漏洞攻击的思路进行攻击，也有格式化字符串漏洞攻击的技巧。
-利用漏洞技巧泄露 ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="stack overflow漏洞小结">     <img class="post_bg" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="stack overflow漏洞小结"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="stack overflow漏洞小结">stack overflow漏洞小结</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-03-04T11:32:03.000Z" title="Created 2022-03-04 19:32:03">2022-03-04</time></span></div><div class="content">以CTF Wiki的目录为骨架，记录自己对栈溢出漏洞的理解。
+  <div class="sidebar-sticky">
+    
+    
+    
+  </div>
+</aside>
 
 
-对于CTF的pwn方向而言，我们实际上要做的就是通过一些漏洞来达到干扰程序的运行流程，以达到get shell或泄露敏感文件的内容的效果。
-在介绍stack overflow漏洞之前，我们需要对栈有一个基本的了解。
-介绍栈溢出指的是用户向栈中变量写入的长度超过了其本身的长度，导致其相邻栈数据被改写的情况。发生栈溢出的前提是：
-
-写入的位置在栈上
-写入的长度没被良好的控制
-
-相关危险函数通过上面提到的前提，我们知道要想利用栈溢出，则必须有用户输入的环节。包括的常见输入危险函数有：
-
- gets：从标准输入stdin中读取数据直到出现换行符或读到文件尾为止，最后加上NULL作为字符串结束。
- scanf：从标准输入 stdin 读取格式化输入。
-
-以上函数均没有较好的限制长度，所以容易产生溢出漏洞。
-除了输入环节，还有一些涉及到字符串赋值的环节也会产生栈溢出漏洞，包括的常见函数有：
-
- strcpy，字符串复制，遇到’\x00’停止
- strcat，字符串拼接，遇到’\x00’停止
-
-遇到上面两个函数时，也会因为被赋值变量的 ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/" title="ROP介绍">     <img class="post_bg" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ROP介绍"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/" title="ROP介绍">ROP介绍</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-03-04T10:46:55.000Z" title="Created 2022-03-04 18:46:55">2022-03-04</time></span></div><div class="content">简单介绍以下ROP攻击，主要以CTF WIki上的内容为骨架。
-
-
-ROPReturn-oriented Programming(面向返回的编程)，也是我们常见的利用栈溢出漏洞的攻击方法。
-核心思想当我们能控制程序流程时，我们会使用一些程序中可以利用的指令片段(称之为gadget)，这些指令片段均已ret 结尾。通过这些gadget的执行和跳转达到我们想要的结果，最终get shell。
-如何使用ROP，我也根据CTF Wiki来总结一下，但由于个人水平有限，仅记录一下基本和部分中级ROP。做题可以使用ROP Emporium上的题目，附上我以前写的ROP Emporium (64位)-writeup。
-基本ROP主要是一些攻击思维，操作根据实际搭配使用。
-ret2text程序保存在文件的文本段(.text)，而ret2text就是利用程序中已有的代码来进行攻击。如果我们知道敏感函数的地址，我们就可以利用栈溢出漏洞和gadget，来控制程序执行该函数。
-ret2shellcode控制程序执行shellcode代码，一般来说，shellcode 需要我们自己填充。这其实是另外一种典型的利 ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/" title="系统调用介绍">     <img class="post_bg" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="系统调用介绍"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/" title="系统调用介绍">系统调用介绍</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-03-04T06:25:55.000Z" title="Created 2022-03-04 14:25:55">2022-03-04</time></span></div><div class="content">稍微介绍了一下Linux不同模式的系统调用。
-
-
-Linux下的系统调用系统调用和普通库函数调用非常相似，只是系统调用由操作系统内核提供，运行于内核态，而普通的库函数调用由函数库或用户自己提供，运行于用户态。
-当我们进行一次攻击，使用到系统调用时，根据操作系统的不同模式需要考虑到以下几点。
-Linux-x86传参方式：系统调用的参数存储在ebx,ecx,edx中，返回值存在eax寄存器
-系统调用号：将系统调用号存入eax
-调用方式：使用int 0x80中断调用使系统进入内核态，执行系统调用
-具体包括系统调用好可以看这篇文章。
-Linux-64传参方式：参数依次存入rdi，rsi，rdx寄存器中，返回值存在rax寄存器
-系统调用号：系统调用号传入rax
-调用方式：使用syscall进行系统调用
-若将系统调用号看作参数，实际上可以将64位的系统调用看作syscall([rax],[rdi],[rsi],[rdx])
-系统调用号可以看这篇文章。
-</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/" title="入栈顺序">     <img class="post_bg" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="入栈顺序"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/" title="入栈顺序">入栈顺序</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-03-04T04:10:05.000Z" title="Created 2022-03-04 12:10:05">2022-03-04</time></span></div><div class="content">对于参数和局部变量入栈顺序我选择做一个小实验来说明。
+          
+        </div>
+      </div>
+    </main>
+    
+<footer id="footer" class="footer" style="background: #33363b;">
+  <div class="container">
+    <div class="back-to-top">
+      <button id="back-to-top"><i class="fas fa-angle-double-up" aria-label="Back to Top"></i></button>
+    </div>
+    <div class="footer-container">
+      <div class="footer-left">
+        <div class="copyright">
+          <span class="author">Rabbit</span><span class="year"><i class="far fa-copyright"></i>Wed Dec 15 2021 08:00:00 GMT+0800 (China Standard Time) - 2022</span>
+        </div>
+        
+      </div>
+      <div class="footer-right">
+        <div class="custom-info">
+          
+        </div>
+        <div class="powered-by">
+          Proudly Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> | Theme is <a href="https://github.com/AlynxZhou/hexo-theme-aria/" target="_blank">ARIA</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
 
 
-使用c编写一个程序
-123456789101112#include&lt;stdio.h&gt;void test()&#123;	int i = 0;	int a = 0, b = 1;	printf(&quot;%d %d %d&quot;, i, ++i, i++);&#125;int main() &#123;	test();	return 0;&#125;
-
-画出调用printf之前的局部栈：
-
-从上可以看出从上往下依次是b,a,i，因此栈帧中的局部变量是倒着压入栈的。
-然后运行程序，输出结果为’2 2 0’。
-这说明函数的参数的入栈顺序是倒着的：
-
-先执行i++，将返回的0压入栈，此时i=1
-再执行++i，将返回的2压入栈，此时i=2
-最后压入i
-
-根据调试结果，画出call printf前的局部栈：
-
-</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/" title="栈介绍">     <img class="post_bg" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="栈介绍"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/" title="栈介绍">栈介绍</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-03-04T01:05:42.000Z" title="Created 2022-03-04 09:05:42">2022-03-04</time></span></div><div class="content">对于此数据结构，我们不过多讲述，仅以执行程序时内存中的栈来简单讲讲。
-
-
-基本概念栈是一种只允许在一端插入或删除的线性表，且允许插入和删除的一端称为栈顶，另一端称为栈底。
-在执行程序时，系统会为这个程序分配一块虚拟地址空间，这块空间中的一部分为该程序对应的栈。用来保存函数调用的局部变量和其他信息，以此来控制程序流程。需要注意的是，程序的栈是从进程地址空间的高地址向低地址增长的。具体见下图
-
-特点后进先出(LIFO)：由于栈只允许在一端插入或删除，因此具有此特性，并称为LIFO(Last In First Out)。
-基本操作Push即入栈，插入新的元素作为栈顶。
-Pop即出栈，取出栈顶元素。
-在程序运行中也是以这压栈与出栈为基本操作。
-函数调用栈前面提到在程序运行中，栈会有属于自己的一块空间。并且有专门为栈服务的寄存器和其他储存数据的寄存器，这些寄存器会在其他文章中简单介绍。
-函数调用实际上是一个嵌套的过程。将一个函数调用时所使用到的栈空间片段称为栈帧(Stack Frame)。
-函数调用的大致流程为：
-
-将此函数所使用到的参数依次入栈，入栈顺序参考这篇文章。
-
-将下一条即将执行的操作 ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2022/03/03/wustctf2020-babyfmt-writeup/" title="wustctf2020-babyfmt-writeup">     <img class="post_bg" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="wustctf2020-babyfmt-writeup"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/03/03/wustctf2020-babyfmt-writeup/" title="wustctf2020-babyfmt-writeup">wustctf2020-babyfmt-writeup</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-03-03T07:19:55.000Z" title="Created 2022-03-03 15:19:55">2022-03-03</time></span></div><div class="content">函数就不放了
-
-
-除了利用字符串格式化漏洞的操作外，还要了解FILE结构。
-在执行程序时，通常会打开三标准文件：stdin(标准输入文件)，stdout(标准输出文件)和stderr(标准输出文件)，且后面两个都对应终端的屏幕。
-定义了一个指向FILE结构的指针来接受这个返回值，存放在bss段。解这道题就需要利用这点。
-更具体的内容可以看看CTF wiki。
-解题这道题有三个功能，leak,fmt_attack,get_flag。
-效果就如他们的名字一样，特殊的地方在于，leak和fmt_attack受一个栈上参数限制导致只能执行一次。但由于是在栈上，所以可以通过格式化字符串去改写，于是就能重复使用了。
-栈上地址我们可以利用程序开头询问时间的漏洞，输入三个与’%ld’不对应的字符，则不会写入内存，而爆出栈上内容，从而泄露。
-get_flag中有一个判断条件，是输入一串字符串与bss段上的secret进行比对。我们可以爆出这个值，但是由于leak只能泄露一位，我们需要重复利用leak，要想重复利用那么就要使用很多次fmt_attack才能将secret全部爆出。因此我们选择使用fmt_a ...</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2022/03/02/babyheap-0ctf-2017-writeup/" title="babyheap-0ctf-2017-writeup">     <img class="post_bg" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="babyheap-0ctf-2017-writeup"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/03/02/babyheap-0ctf-2017-writeup/" title="babyheap-0ctf-2017-writeup">babyheap-0ctf-2017-writeup</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-03-02T06:45:34.000Z" title="Created 2022-03-02 14:45:34">2022-03-02</time></span></div><div class="content">第一次解出堆题，我很开心，虽然不是独立解出的，但我还是很开心。
-
-分析程序的几个功能，allocate可以申请堆空间；free可以释放堆空间；fill可以向堆空间中写入；dump可以将堆空间的内容打印出来。
-解题思路：先利用fastbin attach，修改单链表中的地址，使一个堆地址拥有两个序号使其释放后能够继续执行dump，从而泄露出main_arena的地址，再通过它泄露libc。同样的操作，将我们需要修改的libc地址伪造成chunk，再对其进行改写，这里我们选择将__malloc_hook写为one_gadget。
-泄漏libc我们首先申请几个fastchunk，并且释放两个，将其指针放入fastbin中，然后利用堆溢出漏洞，使第二个fastbin中的fd改写成smallchunk。
-12345fastbins0x20: 0x55c9e24f5040 —▸ 0x55c9e24f5020 ◂— 0x0					↓fastbins0x20: 0x55c9e24f5040 —▸ 0x55c9e24f5080 ◂— 0x0
-
-但是此时系统还不会认定这个smallchunk为fastc ...</div></div></div><div class="recent-post-item"><div class="post_cover left_radius"><a href="/2022/02/08/alphanumeric-shellcode/" title="alphanumeric_shellcode">     <img class="post_bg" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="alphanumeric_shellcode"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/02/08/alphanumeric-shellcode/" title="alphanumeric_shellcode">alphanumeric_shellcode</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-02-08T09:52:00.000Z" title="Created 2022-02-08 17:52:00">2022-02-08</time></span></div><div class="content">刷buu时做到一题限制了字符范围的题(mrctf2020_shellcode_revenge)。
-
-
-需要使用alphanumeric shellcode(纯字符shellcode)。
-就是使用纯字符对应的汇编指令完成shellcode的编写，比如：
-
-
-
-ASCII字符
-Hex
-汇编指令
-
-
-
-P
-0x50
-push %rax
-
-
-Q
-0x51
-push %rcx
-
-
-R
-0x52
-push %rdx
-
-
-S
-0x53
-push %rbx
-
-
-T
-0x54
-push %rsp
-
-
-U
-0x55
-push %rbp
-
-
-V
-0x56
-push %rsi
-
-
-W
-0x57
-push %rdi
-
-
-X
-0x58
-pop %rax
-
-
-Y
-0x59
-pop %rcx
-
-
-Z
-0x5a
-pop %rdx
-
-
-我们可以使用一些工具来进行编码。
-详情如下：http://taqini.space/2020/03/31/alpha-shellcode-gen/#alphanumeric-shellcode
-</div></div></div><div class="recent-post-item"><div class="post_cover right_radius"><a href="/2022/01/13/%E8%AF%BB%E5%AE%8C%E3%80%8A%E6%8C%AA%E5%A8%81%E7%9A%84%E6%A3%AE%E6%9E%97%E3%80%8B%E7%9A%84%E4%B8%80%E7%82%B9%E6%84%9F%E5%8F%97/" title="读完《挪威的森林》的一点感受">     <img class="post_bg" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="读完《挪威的森林》的一点感受"></a></div><div class="recent-post-info"><a class="article-title" href="/2022/01/13/%E8%AF%BB%E5%AE%8C%E3%80%8A%E6%8C%AA%E5%A8%81%E7%9A%84%E6%A3%AE%E6%9E%97%E3%80%8B%E7%9A%84%E4%B8%80%E7%82%B9%E6%84%9F%E5%8F%97/" title="读完《挪威的森林》的一点感受">读完《挪威的森林》的一点感受</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">Created</span><time datetime="2022-01-13T13:46:45.000Z" title="Created 2022-01-13 21:46:45">2022-01-13</time></span></div><div class="content">前几日把《挪威的森林》读完了，大概花了三天傍晚的时间。
-
-
-整本书都给我一种忧郁的感觉，作者的笔下的每个人都具有一种忧郁却不阴郁的气质，尤其以主角和直子为最，并且无论是主人公一行人还是后面遇到的渔夫等配角，作者对于每个人都描述的有血有肉，给我留下了极深刻的映像。
-对于主角与其身边人的爱情故事我不大感兴趣，我对三位主要的男性角色更感兴趣。毕竟相比于把这本书看作是青春爱情小说，我更愿意把这本书看作是青春期的少年少女的迷失和救赎。木月、渡边彻、永泽，这三个人分别对应着三种人，木月像一个理想主义者，永泽像一个实用主义者，而渡边彻则是一个还在两者之间迷茫的人，最后却将两者结合的不错，看开了。或者说，这三个人仿佛就像成长中的三个阶段。
-木月只沉浸在自己的世界，除了主角和直子外，没有其他的交往对象了，最后在无法忍受最后一定会与外界这个必然结局中自杀了，十分极端。
-永泽作为实用主义者，是一个勇敢面对生活并享受人生、游戏人生的角色。我认为他的过去也一定像其他两人一样，是一个幻想破灭的理想主义者，尽管书中没有提及。很傲气也很自负，他也许很世俗，但却极端看不起那些对社会和自己人生不加思考、不焦虑的真正世俗的 ...</div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span><a class="page-number" href="/page/2/#content-inner">2</a><a class="extend next" rel="next" href="/page/2/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Rabbit</div><div class="author-info__description"></div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">12</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">6</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/03/04/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="格式化字符串漏洞小结"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="格式化字符串漏洞小结"/></a><div class="content"><a class="title" href="/2022/03/04/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="格式化字符串漏洞小结">格式化字符串漏洞小结</a><time datetime="2022-03-04T13:03:16.000Z" title="Created 2022-03-04 21:03:16">2022-03-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="stack overflow漏洞小结"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="stack overflow漏洞小结"/></a><div class="content"><a class="title" href="/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" title="stack overflow漏洞小结">stack overflow漏洞小结</a><time datetime="2022-03-04T11:32:03.000Z" title="Created 2022-03-04 19:32:03">2022-03-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/" title="ROP介绍"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ROP介绍"/></a><div class="content"><a class="title" href="/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/" title="ROP介绍">ROP介绍</a><time datetime="2022-03-04T10:46:55.000Z" title="Created 2022-03-04 18:46:55">2022-03-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/" title="系统调用介绍"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="系统调用介绍"/></a><div class="content"><a class="title" href="/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/" title="系统调用介绍">系统调用介绍</a><time datetime="2022-03-04T06:25:55.000Z" title="Created 2022-03-04 14:25:55">2022-03-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/" title="入栈顺序"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="入栈顺序"/></a><div class="content"><a class="title" href="/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/" title="入栈顺序">入栈顺序</a><time datetime="2022-03-04T04:10:05.000Z" title="Created 2022-03-04 12:10:05">2022-03-04</time></div></div></div></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>Tags</span></div><div class="card-tag-cloud"><a href="/tags/CTF/" style="font-size: 1.5em; color: #99a9bf">CTF</a> <a href="/tags/hexo/" style="font-size: 1.1em; color: #999">hexo</a> <a href="/tags/pwn/" style="font-size: 1.34em; color: #99a3b0">pwn</a> <a href="/tags/writeup/" style="font-size: 1.26em; color: #999fa8">writeup</a> <a href="/tags/%E7%AC%94%E8%AE%B0/" style="font-size: 1.42em; color: #99a6b7">笔记</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 1.18em; color: #999ca1">随笔</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>Archives</span></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/03/"><span class="card-archive-list-date">March 2022</span><span class="card-archive-list-count">8</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/02/"><span class="card-archive-list-date">February 2022</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/01/"><span class="card-archive-list-date">January 2022</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/12/"><span class="card-archive-list-date">December 2021</span><span class="card-archive-list-count">2</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>Info</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">Article :</div><div class="item-count">12</div></div><div class="webinfo-item"><div class="item-name">UV :</div><div class="item-count" id="busuanzi_value_site_uv"></div></div><div class="webinfo-item"><div class="item-name">PV :</div><div class="item-count" id="busuanzi_value_site_pv"></div></div><div class="webinfo-item"><div class="item-name">Last Push :</div><div class="item-count" id="last-push-date" data-lastPushDate="2022-03-04T13:30:00.347Z"></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Rabbit</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+  </body>
+</html>
