@@ -215,7 +215,7 @@
 
 <h2 id="ROP"><a href="#ROP" class="headerlink" title="ROP"></a>ROP</h2><p>Return-oriented Programming(面向返回的编程)，也是我们常见的利用栈溢出漏洞的攻击方法。</p>
 <h3 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h3><p>当我们能控制程序流程时，我们会使用一些程序中可以利用的指令片段(称之为gadget)，这些指令片段均已<code>ret</code> 结尾。通过这些gadget的执行和跳转达到我们想要的结果，最终get shell。</p>
-<p>如何使用ROP，我也根据CTF Wiki来总结一下，但由于个人水平有限，仅记录一下基本和部分中级ROP。做题可以使用<a target="_blank" rel="noopener" href="https://ropemporium.com/">ROP Emporium</a>上的题目。</p>
+<p>如何使用ROP，我也根据CTF Wiki来总结一下，但由于个人水平有限，仅记录一下基本和部分中级ROP。做题可以使用<a target="_blank" rel="noopener" href="https://ropemporium.com/">ROP Emporium</a>上的题目，附上我以前写的<a target="_blank" rel="noopener" href="http://110.42.161.158/2021/12/24/ROP-Emporium-64%E4%BD%8D/">ROP Emporium (64位)-writeup</a>。</p>
 <h3 id="基本ROP"><a href="#基本ROP" class="headerlink" title="基本ROP"></a>基本ROP</h3><p>主要是一些攻击思维，操作根据实际搭配使用。</p>
 <h4 id="ret2text"><a href="#ret2text" class="headerlink" title="ret2text"></a>ret2text</h4><p>程序保存在文件的文本段(.text)，而ret2text就是利用程序中已有的代码来进行攻击。如果我们知道敏感函数的地址，我们就可以利用栈溢出漏洞和gadget，来控制程序执行该函数。</p>
 <h4 id="ret2shellcode"><a href="#ret2shellcode" class="headerlink" title="ret2shellcode"></a>ret2shellcode</h4><p>控制程序执行shellcode代码，<strong>一般来说，shellcode 需要我们自己填充。这其实是另外一种典型的利用方法，即此时我们需要自己去填充一些可执行的代码</strong>。但是必须的是，我们写入shellcode的地址需要可执行权限。</p>
