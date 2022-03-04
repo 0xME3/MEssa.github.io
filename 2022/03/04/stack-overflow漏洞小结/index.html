@@ -246,7 +246,7 @@
 <p>我感觉其实就是栈迁移，只不过当我们没有合适的指令改变栈顶指针时，通过<code>leave;ret</code>指令的重复使用，将栈帧迁移到我们指定的地址为<code>rip</code>寄存器赋值为我们构造的rop chain。</p>
 <p>先在合适的地方将我们构造的rop chain或shellcode，再利用栈溢出将<strong>指令的首地址+8</strong>的指针写入栈帧部分，再将<code>leave;ret</code>指令的地址写入return address。那么加上原本程序中的<code>leave;ret</code>，我们将执行两次。执行了两次后将栈顶搬到了指定地址，最后的<code>ret</code>指令就会将写入的指令写入<code>rip</code>寄存器，接着执行你设计的执行流。</p>
 <p>根据下图加深印象：</p>
-<p><img src="/.xyz//Users\Rabbit\Desktop\栈小结\5.png" alt="5"></p>
+<p><img src="https://s2.loli.net/2022/03/04/FftxCI8Ey3KrHpb.png" alt="5"></p>
 <p>需要注意的是，当我们将栈帧迁移之后，我们写入的执行指令可能是执行另一个函数，那么就会在当前这个位置开栈。如果我们开栈的位置距离一些写有重要数据的段不远，那么函数执行时将会覆盖掉一些，可能会令程序执行不下去导致dump。</p>
 <h3 id="stack-smash"><a href="#stack-smash" class="headerlink" title="stack smash"></a>stack smash</h3><p>我们知道如果程序开启了canary保护后，我们进行栈溢出操作就会报错。stack smash就是利用改写报错内容来打印出敏感内容。</p>
 <p>原理：开启了canary保护后，若发现canary被修改，程序就会执行<code>__stack_chk_fail</code>函数来打印argv[0]指针所指向的字符串，正常情况下，这个指针指向的是程序名。所以当我们利用栈溢出漏洞将argv[0]地址的内容改写为敏感信息的地址，那么就能泄露。</p>
