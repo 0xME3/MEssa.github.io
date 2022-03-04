@@ -155,7 +155,7 @@
     </script>
     
     <script defer type="text/javascript" src="/js/custom.js"></script>
-    <title>Rabbit's blog - We don't choose who we are, but we do choose who we become.</title>
+    <title>格式化字符串漏洞小结 | Rabbit's blog - We don't choose who we are, but we do choose who we become.</title>
   <meta name="generator" content="Hexo 5.4.0"></head>
   <body itemscope itemtype="http://schema.org/WebPage" lang="default"  data-spy="scroll" data-target=".list-group">
     
@@ -183,83 +183,51 @@
         <div class="main-container">
           <div class="content">
             
+<div id="post" class="page">
+  
+  <article class="article post card" itemscope itemtype="http://schema.org/Article">
+    <div class="post-block">
+      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/04/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/">
+      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+       <meta itemprop="name" content="Rabbit">
+       <meta itemprop="description" content="">
+       <meta itemprop="image" content="/images/myavatar.png">
+      </span>
+      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+       <meta itemprop="name" content="Rabbit's blog">
+      </span>
+    </div>
+    <header class="post-header">
+      <h1 class="post-title" itemprop="name headline">格式化字符串漏洞小结</h1>
+      <div class="post-meta">
+        
+        <span class="post-date">
+          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2022-03-04T21:03:16+08:00">2022-03-04 21:03:16</time></span>
+        </span>
+        
+        
+        
+      </div>
+    </header>
+    <main class="post-main" itemprop="articleBody">
+      <p>记录自己对格式化字符串漏洞的理解。</p>
+<span id="more"></span>
 
-<div id="index" class="index page">
-  
-  <article class="article post card" itemscope itemtype="http://schema.org/Article">
-    <div class="post-block">
-      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2021/12/25/Ubuntu%E4%BD%BF%E7%94%A8Nginx-Hexo%E5%8D%9A%E5%AE%A2/">
-      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-        <meta itemprop="name" content="Rabbit">
-        <meta itemprop="description" content="">
-        <meta itemprop="image" content="/images/myavatar.png">
-      </span>
-      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-        <meta itemprop="name" content="Rabbit's blog">
-      </span>
-    </div>
-    <header class="post-header">
-      <h1 class="post-title" itemprop="name headline">
-        <a class="post-title-link post-title-link-external" href="/2021/12/25/Ubuntu%E4%BD%BF%E7%94%A8Nginx-Hexo%E5%8D%9A%E5%AE%A2/" itemprop="url">Ubuntu使用Nginx+Hexo博客</a>
-      </h1>
-      <div class="post-meta">
-        
-        <span class="post-date">
-          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2021-12-25T05:34:39+08:00">2021-12-25 05:34:39</time></span>
-        </span>
-        
-        
-        
-      </div>
-    </header>
-    <main class="post-main" itemprop="articleBody">
-      
-      <p>基于hexo官方文档 <a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">https://hexo.io/zh-cn/docs/</a> 和网上其他博主的搭建过程，照葫芦画瓢好不容易搭好了博客，回忆了一下自己的大概操作。</p>
-      
-    </main>
-    <footer class="post-footer">
-      
-      <div class="post-tags">
-        
-        <a class="post-tag button" href="/tags/hexo/" rel="tag"><i class="fas fa-tags"></i>hexo</a>
-        
-        <a class="post-tag button" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag"><i class="fas fa-tags"></i>随笔</a>
-        
-      </div>
-      
-    </footer>
-  </article>
-  
-  <article class="article post card" itemscope itemtype="http://schema.org/Article">
-    <div class="post-block">
-      <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2021/12/24/ROP-Emporium-64%E4%BD%8D/">
-      <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-        <meta itemprop="name" content="Rabbit">
-        <meta itemprop="description" content="">
-        <meta itemprop="image" content="/images/myavatar.png">
-      </span>
-      <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-        <meta itemprop="name" content="Rabbit's blog">
-      </span>
-    </div>
-    <header class="post-header">
-      <h1 class="post-title" itemprop="name headline">
-        <a class="post-title-link post-title-link-external" href="/2021/12/24/ROP-Emporium-64%E4%BD%8D/" itemprop="url">ROP Emporium (64位)-writeup</a>
-      </h1>
-      <div class="post-meta">
-        
-        <span class="post-date">
-          <i class="far fa-calendar-plus"></i><span><time title="post-date" itemprop="dateCreated datePublished" datetime="2021-12-24T05:39:08+08:00">2021-12-24 05:39:08</time></span>
-        </span>
-        
-        
-        
-      </div>
-    </header>
-    <main class="post-main" itemprop="articleBody">
-      
-      <p>部分writeup</p>
-      
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>格式化字符串漏洞是利用程序员对格式化字符串函数的错误使用导致的对栈上的内容造成了泄露或内存中地址内容的改写。</p>
+<p>在利用格式化字符串漏洞前，我们需要对格式化字符串函数有个大概了解，<a target="_blank" rel="noopener" href="https://ctf-wiki.org/pwn/linux/user-mode/fmtstr/fmtstr-intro/#_2">CTF Wiki</a>上写的很详细。</p>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>格式化字符串漏洞的利用需要有程序执行格式化字符串函数的环节。</p>
+<h3 id="基本利用"><a href="#基本利用" class="headerlink" title="基本利用"></a>基本利用</h3><h4 id="泄露栈上内容"><a href="#泄露栈上内容" class="headerlink" title="泄露栈上内容"></a>泄露栈上内容</h4><p>通过<code>%&#123;&#125;$p</code>来泄露栈上地址。</p>
+<h4 id="改写地址内容"><a href="#改写地址内容" class="headerlink" title="改写地址内容"></a>改写地址内容</h4><p>通过<code>%&#123;&#125;$n</code>和向栈上写入任意地址来实现改写任意地址内容。并且’n’为覆盖4字节内容，’hn’为覆盖2字节内容，’hhn’为覆盖1字节内容。</p>
+<p>需要注意的是，不同模式下的传参方式不同导致构造的payload中的格式化字符串的参数不同。32位模式下，参数都是在栈上保存的，没什么好说的；64位模式下，前6位参数保存在寄存器内，因此泄露或改写的地址一般从第7位开始计算。</p>
+<p>使用<code>pwndbg</code>的<code>fmtarg</code>指令获得泄露该地址的格式化字符串，或手动计算偏移得到格式化字符串。</p>
+<p>利用这两个基本操作外，我们根据栈溢出漏洞攻击的思路进行攻击，也有格式化字符串漏洞攻击的技巧。</p>
+<h3 id="利用漏洞技巧"><a href="#利用漏洞技巧" class="headerlink" title="利用漏洞技巧"></a>利用漏洞技巧</h3><h4 id="泄露地址"><a href="#泄露地址" class="headerlink" title="泄露地址"></a>泄露地址</h4><p>能利用格式化字符串漏洞泄露栈上内容，因此可以得到出现在栈上的libc函数的地址再计算offset泄露libc的基地址；当开启了随机化保护时，也可以找到栈上main函数的<code>push rbp</code>，即main函数的首地址来计算开栈的基地址以绕过。</p>
+<h4 id="栈上的partial-overwrite"><a href="#栈上的partial-overwrite" class="headerlink" title="栈上的partial overwrite"></a>栈上的partial overwrite</h4><p>栈上的partial overwrite除了利用栈溢出漏洞进行改写，也可以使用格式化字符串漏洞进行低位地址的修改，但是由于需要修改低12位地址，因此还需要泄露待改写函数的倒数第二字节的内容。</p>
+<h4 id="利用栈上的链式结构进行任意地址改写"><a href="#利用栈上的链式结构进行任意地址改写" class="headerlink" title="利用栈上的链式结构进行任意地址改写"></a>利用栈上的链式结构进行任意地址改写</h4><p>常用于非栈上的格式化字符串漏洞，即我们写入的格式化字符串并不是在栈上，所以我们不能通过写入任意地址进行改写。</p>
+<p>常利用<code>rbp</code>的链式结构(栈帧中的内容总是上一个栈帧或0)对任意地址进行改写。以当前栈帧(rbp中的地址)中存储的上一个栈帧的地址作为任意写的地址进行解析并对其中内容进行改写为我们需要修改的内容，再对上一个栈帧中的存储的地址作为任意写的地址进行解析并对其中内容进行改写。画一个更直观的图：</p>
+<p><img src="https://s2.loli.net/2022/03/04/kXphy9uBxaMcjPg.png" alt="6"></p>
+<p><em>暂时就这些，其他的等我想起了或者遇到新的技巧再补充。</em></p>
+
     </main>
     <footer class="post-footer">
       
@@ -267,9 +235,7 @@
         
         <a class="post-tag button" href="/tags/CTF/" rel="tag"><i class="fas fa-tags"></i>CTF</a>
         
-        <a class="post-tag button" href="/tags/pwn/" rel="tag"><i class="fas fa-tags"></i>pwn</a>
-        
-        <a class="post-tag button" href="/tags/writeup/" rel="tag"><i class="fas fa-tags"></i>writeup</a>
+        <a class="post-tag button" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fas fa-tags"></i>笔记</a>
         
       </div>
       
@@ -277,8 +243,15 @@
   </article>
   
   
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fas fa-angle-left" aria-label="Previous Page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  <nav class="page-nav">
+    <div class="page-nav-next page-nav-item">
+      
+      <a href="/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" rel="next" title="stack overflow漏洞小结"><i class="fas fa-angle-left"></i><span class="nav-title">stack overflow漏洞小结</span></a>
+      
+    </div>
+    <div class="page-nav-prev page-nav-item">
+      
+    </div>
   </nav>
   
   
@@ -312,6 +285,17 @@
 
 
   <div class="sidebar-sticky">
+    
+    
+    
+    
+    
+    <hr>
+    <div class="post-toc sidebar-item" id="toc-div">
+      <div><i class="fas fa-list-ol"></i>Table of Contents</div>
+      <div class="post-toc-content"><ol class="list-group toc"><li class="toc-item toc-level-2"><a class="list-group-item toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="list-group-item toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-text">漏洞利用</span></a><ol class="list-group toc-child"><li class="toc-item toc-level-3"><a class="list-group-item toc-link" href="#%E5%9F%BA%E6%9C%AC%E5%88%A9%E7%94%A8"><span class="toc-text">基本利用</span></a><ol class="list-group toc-child"><li class="toc-item toc-level-4"><a class="list-group-item toc-link" href="#%E6%B3%84%E9%9C%B2%E6%A0%88%E4%B8%8A%E5%86%85%E5%AE%B9"><span class="toc-text">泄露栈上内容</span></a></li><li class="toc-item toc-level-4"><a class="list-group-item toc-link" href="#%E6%94%B9%E5%86%99%E5%9C%B0%E5%9D%80%E5%86%85%E5%AE%B9"><span class="toc-text">改写地址内容</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="list-group-item toc-link" href="#%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E%E6%8A%80%E5%B7%A7"><span class="toc-text">利用漏洞技巧</span></a><ol class="list-group toc-child"><li class="toc-item toc-level-4"><a class="list-group-item toc-link" href="#%E6%B3%84%E9%9C%B2%E5%9C%B0%E5%9D%80"><span class="toc-text">泄露地址</span></a></li><li class="toc-item toc-level-4"><a class="list-group-item toc-link" href="#%E6%A0%88%E4%B8%8A%E7%9A%84partial-overwrite"><span class="toc-text">栈上的partial overwrite</span></a></li><li class="toc-item toc-level-4"><a class="list-group-item toc-link" href="#%E5%88%A9%E7%94%A8%E6%A0%88%E4%B8%8A%E7%9A%84%E9%93%BE%E5%BC%8F%E7%BB%93%E6%9E%84%E8%BF%9B%E8%A1%8C%E4%BB%BB%E6%84%8F%E5%9C%B0%E5%9D%80%E6%94%B9%E5%86%99"><span class="toc-text">利用栈上的链式结构进行任意地址改写</span></a></li></ol></li></ol></li></ol></div>
+    </div>
+    
     
     
     
