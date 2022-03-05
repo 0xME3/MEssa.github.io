@@ -201,41 +201,46 @@
       <p>对于此数据结构，我们不过多讲述，仅以执行程序时内存中的栈来简单讲讲。</p>
 <span id="more"></span>
 
+<p>对于此数据结构，我们不过多讲述，仅以执行程序时内存中的栈来简单讲讲。</p>
+<!-- more -->
+
 <h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>栈是一种只允许在一端插入或删除的线性表，且允许插入和删除的一端称为栈顶，另一端称为栈底。</p>
 <p>在执行程序时，系统会为这个程序分配一块虚拟地址空间，这块空间中的一部分为该程序对应的栈。用来保存函数调用的局部变量和其他信息，以此来<strong>控制程序流程</strong>。需要注意的是，<strong>程序的栈是从进程地址空间的高地址向低地址增长的</strong>。具体见下图</p>
-<p><img src="https://s2.loli.net/2022/03/04/ydqVh85KlZcWAbJ.png" alt="32位模式下内存经典布局"></p>
-<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>后进先出(LIFO)：由于栈只允许在一端插入或删除，因此具有此特性，并称为LIFO(Last In First Out)。</p>
+<p><img src="/.xyz//Users\Rabbit\Desktop\栈小结\1.png" alt="32位模式下内存经典布局"></p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
+<li>后进先出(LIFO)：由于栈只允许在一端插入或删除，因此具有此特性，并称为LIFO(Last In First Out)。</li>
+</ul>
 <h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><h3 id="Push"><a href="#Push" class="headerlink" title="Push"></a>Push</h3><p>即入栈，插入新的元素作为栈顶。</p>
 <h3 id="Pop"><a href="#Pop" class="headerlink" title="Pop"></a>Pop</h3><p>即出栈，取出栈顶元素。</p>
 <p>在程序运行中也是以这压栈与出栈为基本操作。</p>
 <h2 id="函数调用栈"><a href="#函数调用栈" class="headerlink" title="函数调用栈"></a>函数调用栈</h2><p>前面提到在程序运行中，栈会有属于自己的一块空间。并且有专门为栈服务的寄存器和其他储存数据的寄存器，这些寄存器会在其他文章中简单介绍。</p>
 <p>函数调用实际上是一个嵌套的过程。将一个函数调用时所使用到的栈空间片段称为<strong>栈帧</strong>(Stack Frame)。</p>
-<p>函数调用的大致流程为：</p>
+<p>执行函数调用时栈的变化，实际上可以看作是以下操作对栈的影响：</p>
 <ol>
-<li><p>将此函数所使用到的参数依次入栈，入栈顺序参考这篇<a target="_blank" rel="noopener" href="http://110.42.161.158/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/">文章</a>。</p>
+<li>先将此函数所使用到的参数依次入栈，入栈顺序参考这篇<a target="_blank" rel="noopener" href="http://110.42.161.158/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/">文章</a>。</li>
+<li>执行<code>call</code>指令，进行两步操作：<ol>
+<li>将当前<code>ip</code>或<code>cs和ip</code>压入栈中，即<code>push ip</code></li>
+<li>转移，与<code>jmp</code>原理相同</li>
+</ol>
 </li>
-<li><p>将下一条即将执行的操作汇编指令的地址压入栈。</p>
+<li>执行函数，并且由于一般函数的开头操作都差不多，我们也可以将其看作是函数调用的流程：<ol>
+<li>将<code>bp</code>压入栈，即<code>push bp</code></li>
+<li>抬搞栈顶，即<code>sub sp,idata</code>，分配了足够大的栈帧空间</li>
+</ol>
 </li>
-<li><p>然后执行该函数的第一条指令，即给rip赋值为函数的首地址。一般函数的前几步操作都为：</p>
-<ol>
-<li><p>将调用此函数的函数栈帧压入栈内，即push rbp</p>
+<li>函数终止，同于函数开始，结束的操作也都差不多，将其看作函数调用结束的流程：<ol>
+<li>执行<code>leave</code>指令，进行两步操作：<ol>
+<li>恢复栈顶，即<code>mov sp,bp</code></li>
+<li>恢复栈帧，即<code>pop bp</code></li>
+</ol>
 </li>
-<li><p>将调用此时的栈顶指针作为该调用函数的栈帧，即将rsp的值赋给rbp</p>
-</li>
-<li><p>开栈操作，为该函数分配足够大的空间以存储局部变量，即减小rsp</p>
+<li>执行<code>ret</code>指令：<ul>
+<li>修改<code>ip</code>内容为栈顶中的内容，即<code>pop ip</code></li>
+</ul>
 </li>
 </ol>
-<p>所以我们也可以将这几步看作是函数调用的初始流程。而一般函数的最后几步操作为：</p>
-<ol>
-<li>恢复栈顶，将栈顶恢复到执行该函数前的位置，即将rbp的值赋给rsp。</li>
-<li>恢复栈帧，将栈底恢复到执行该函数前的位置，即pop rbp。</li>
-<li>恢复rip，即pop rip。</li>
-</ol>
-<p>前两步操作为汇编指令<strong>leave</strong>，第三步为<strong>ret</strong>。这个操作看作是可以看作是函数调用完成后的退栈操作。</p>
 </li>
 </ol>
-<p>再根据下图来加深理解：</p>
-<p><img src="https://s2.loli.net/2022/03/04/bw2csPVhAvKkFxe.png" alt="调用过程"><br><em>尴尬，画了一个重复的，忽略就好。</em></p>
 
     </main>
     <footer class="post-footer">

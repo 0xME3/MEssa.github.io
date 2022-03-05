@@ -202,12 +202,15 @@
 <span id="more"></span>
 
 <h2 id="Linux下的系统调用"><a href="#Linux下的系统调用" class="headerlink" title="Linux下的系统调用"></a>Linux下的系统调用</h2><p>系统调用和普通库函数调用非常相似，只是系统调用由操作系统内核提供，运行于内核态，而普通的库函数调用由函数库或用户自己提供，运行于用户态。</p>
-<p>当我们进行一次攻击，使用到系统调用时，根据操作系统的不同模式需要考虑到以下几点。</p>
-<h3 id="Linux-x86"><a href="#Linux-x86" class="headerlink" title="Linux-x86"></a>Linux-x86</h3><p>传参方式：系统调用的参数存储在<code>ebx</code>,<code>ecx</code>,<code>edx</code>中，返回值存在eax寄存器</p>
+<p>系统不同模式下的系统调用的方式不同:</p>
+<p>32位模式下，系统调用通过<code>int 0x80</code>执行中断类型码为128(0x80)的中断处理程序。<code>int</code>指令是汇编中的中断操作，而128对应的中断处理程序为：中断将指定程序传送给正在处理该中断的人，通过检查寄存器<code>eax</code>中的值，通知内核程序想要进行的系统调用，这个值称之为系统调用号。</p>
+<p>64位模式下，系统调用通过<code>syscall</code>执行。<code>syscall</code>是由内核提供的用户空间与内核空间进行交互的一套标准API，这些API能够让用户受限的访问硬件设备。其运作原理与<code>int 0x80</code>类似，也是通过检测<code>rax</code>中的值来执行指定系统调用。</p>
+<p>由于本人水平有限，不宜在此处多讲，免得误人子弟。但如果仅是为了做CTF中的题目，那么我们只需要知道不同模式下系统调用的方式即可。</p>
+<h3 id="32"><a href="#32" class="headerlink" title="32"></a>32</h3><p>传参方式：系统调用的参数存储在<code>ebx</code>,<code>ecx</code>,<code>edx</code>中，返回值存在eax寄存器</p>
 <p>系统调用号：将系统调用号存入eax</p>
 <p>调用方式：使用<code>int 0x80</code>中断调用使系统进入内核态，执行系统调用</p>
-<p>具体包括系统调用好可以看这篇<a target="_blank" rel="noopener" href="https://blog.csdn.net/xiaominthere/article/details/17287965">文章</a>。</p>
-<h3 id="Linux-64"><a href="#Linux-64" class="headerlink" title="Linux-64"></a>Linux-64</h3><p>传参方式：参数依次存入<code>rdi</code>，<code>rsi</code>，<code>rdx</code>寄存器中，返回值存在rax寄存器</p>
+<p>具体包括系统调用号可以看这篇<a target="_blank" rel="noopener" href="https://blog.csdn.net/xiaominthere/article/details/17287965">文章</a>。</p>
+<h3 id="64"><a href="#64" class="headerlink" title="64"></a>64</h3><p>传参方式：参数依次存入<code>rdi</code>，<code>rsi</code>，<code>rdx</code>寄存器中，返回值存在rax寄存器</p>
 <p>系统调用号：系统调用号传入<code>rax</code></p>
 <p>调用方式：使用<code>syscall</code>进行系统调用</p>
 <p>若将系统调用号看作参数，实际上可以将64位的系统调用看作<code>syscall([rax],[rdi],[rsi],[rdx])</code></p>
@@ -273,7 +276,7 @@
     <hr>
     <div class="post-toc sidebar-item" id="toc-div">
       <div><i class="fas fa-list-ol"></i>Table of Contents</div>
-      <div class="post-toc-content"><ol class="list-group toc"><li class="toc-item toc-level-2"><a class="list-group-item toc-link" href="#Linux%E4%B8%8B%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-text">Linux下的系统调用</span></a><ol class="list-group toc-child"><li class="toc-item toc-level-3"><a class="list-group-item toc-link" href="#Linux-x86"><span class="toc-text">Linux-x86</span></a></li><li class="toc-item toc-level-3"><a class="list-group-item toc-link" href="#Linux-64"><span class="toc-text">Linux-64</span></a></li></ol></li></ol></div>
+      <div class="post-toc-content"><ol class="list-group toc"><li class="toc-item toc-level-2"><a class="list-group-item toc-link" href="#Linux%E4%B8%8B%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-text">Linux下的系统调用</span></a><ol class="list-group toc-child"><li class="toc-item toc-level-3"><a class="list-group-item toc-link" href="#32"><span class="toc-text">32</span></a></li><li class="toc-item toc-level-3"><a class="list-group-item toc-link" href="#64"><span class="toc-text">64</span></a></li></ol></li></ol></div>
     </div>
     
     
