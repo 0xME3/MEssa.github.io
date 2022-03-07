@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"www.rabb1t.xyz","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="对于此数据结构，我们不过多讲述，仅以执行程序时内存中的栈来简单讲讲。">
+  <meta name="description" content="对于此数据结构，我们不过多讲述，仅以执行程序时内存中的运行时栈来简单讲讲。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="栈介绍">
 <meta property="og:url" content="http://www.rabb1t.xyz/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/index.html">
 <meta property="og:site_name" content="Rabbit&#39;s blog">
-<meta property="og:description" content="对于此数据结构，我们不过多讲述，仅以执行程序时内存中的栈来简单讲讲。">
+<meta property="og:description" content="对于此数据结构，我们不过多讲述，仅以执行程序时内存中的运行时栈来简单讲讲。">
 <meta property="og:locale">
 <meta property="og:image" content="https://s2.loli.net/2022/03/05/HAdJVeYC9BiNcT2.png">
 <meta property="article:published_time" content="2022-03-04T01:05:42.000Z">
-<meta property="article:modified_time" content="2022-03-05T07:50:11.804Z">
+<meta property="article:modified_time" content="2022-03-07T18:48:41.353Z">
 <meta property="article:author" content="Rabbit">
 <meta property="article:tag" content="CTF">
 <meta property="article:tag" content="笔记">
@@ -186,7 +186,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-03-05 15:50:11" itemprop="dateModified" datetime="2022-03-05T15:50:11+08:00">2022-03-05</time>
+                <time title="Modified: 2022-03-08 02:48:41" itemprop="dateModified" datetime="2022-03-08T02:48:41+08:00">2022-03-08</time>
               </span>
 
           
@@ -200,49 +200,58 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>对于此数据结构，我们不过多讲述，仅以执行程序时内存中的栈来简单讲讲。</p>
+        <p>对于此数据结构，我们不过多讲述，仅以执行程序时内存中的运行时栈来简单讲讲。</p>
 <span id="more"></span>
 
-<p>对于此数据结构，我们不过多讲述，仅以执行程序时内存中的栈来简单讲讲。</p>
-<!-- more -->
-
 <h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>栈是一种只允许在一端插入或删除的线性表，且允许插入和删除的一端称为栈顶，另一端称为栈底。</p>
-<p>在执行程序时，系统会为这个程序分配一块虚拟地址空间，这块空间中的一部分为该程序对应的栈。用来保存函数调用的局部变量和其他信息，以此来<strong>控制程序流程</strong>。需要注意的是，<strong>程序的栈是从进程地址空间的高地址向低地址增长的</strong>。具体见下图</p>
+<h3 id="运行时栈"><a href="#运行时栈" class="headerlink" title="运行时栈"></a>运行时栈</h3><p>在执行程序时，系统会为这个程序分配一块虚拟地址空间，这块空间中的一部分为该程序对应的<strong>运行时栈</strong>。当一个<code>x86-64</code>过程需要的存储空间超过了寄存器能够存放的大小时，或需要保存局部变量时，就会在栈上分配空间。这个部分称为<strong>过程</strong>的<strong>栈帧</strong>(Stack Frame)。需要注意的是，<strong>程序的栈是从进程地址空间的高地址向低地址增长的</strong>。具体见下图</p>
 <p><img src="https://s2.loli.net/2022/03/05/HAdJVeYC9BiNcT2.png" alt="32位模式下内存经典布局"></p>
 <h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
 <li>后进先出(LIFO)：由于栈只允许在一端插入或删除，因此具有此特性，并称为LIFO(Last In First Out)。</li>
 </ul>
 <h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><h3 id="Push"><a href="#Push" class="headerlink" title="Push"></a>Push</h3><p>即入栈，插入新的元素作为栈顶。</p>
 <h3 id="Pop"><a href="#Pop" class="headerlink" title="Pop"></a>Pop</h3><p>即出栈，取出栈顶元素。</p>
-<p>在程序运行中也是以这压栈与出栈为基本操作。</p>
-<h2 id="函数调用栈"><a href="#函数调用栈" class="headerlink" title="函数调用栈"></a>函数调用栈</h2><p>前面提到在程序运行中，栈会有属于自己的一块空间。并且有专门为栈服务的寄存器和其他储存数据的寄存器，这些寄存器会在其他文章中简单介绍。</p>
-<p>函数调用实际上是一个嵌套的过程。将一个函数调用时所使用到的栈空间片段称为<strong>栈帧</strong>(Stack Frame)。</p>
-<p>执行函数调用时栈的变化，实际上可以看作是以下操作对栈的影响：</p>
+<p>在程序运行时栈中也是以入栈与出栈为基本操作。</p>
+<h2 id="栈上的局部储存"><a href="#栈上的局部储存" class="headerlink" title="栈上的局部储存"></a>栈上的局部储存</h2><p>到目前为止，大部分过程都不会出现超过寄存器大小的本地存储区域了，不过有时，局部数据还是要存放在内存中，包括：寄存器不足而存放、一个变量的地址要存放、某些局部变量是数组或结构体只能存放在内存中。</p>
+<p>而过程中产生的局部变量存储在栈帧中，过程的参数存储在该栈帧前。并且通过入栈顺序和数据大小能轻易计算出与栈帧的偏移，并通过<code>lea</code>指令与<code>rbp</code>寄存器中 保存的栈帧地址来得到变量的地址，从而使用。(入栈顺序参考这篇<a target="_blank" rel="noopener" href="http://110.42.161.158/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/">文章</a>)</p>
+<h2 id="函数调用栈"><a href="#函数调用栈" class="headerlink" title="函数调用栈"></a>函数调用栈</h2><p>在介绍函数调用栈之前，简单介绍一下过程。</p>
+<h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p>前面提到在程序运行中，栈会有属于自己的一块空间，并且会分配<strong>过程的栈帧</strong>。实际上，软件中将封装代码的方式称为过程，过程用一组指定参数和一个可选的返回值实现了某种功能。因此我们能想到：函数、方法、处理函数等都是<strong>过程的形式</strong>。</p>
+<p>而函数调用栈的过程，实际上对应了计算机提供给过程执行的支持：<strong>传递控制、传递数据、分配和释放内存</strong>。</p>
+<h3 id="函数调用栈的过程"><a href="#函数调用栈的过程" class="headerlink" title="函数调用栈的过程"></a>函数调用栈的过程</h3><ol>
+<li><p>先是<strong>传递数据</strong>，将此函数所使用到的参数依次入栈，然后得到数据与栈帧指针的偏移来利用数据。</p>
+</li>
+<li><p>再是<strong>转移控制</strong></p>
 <ol>
-<li>先将此函数所使用到的参数依次入栈，入栈顺序参考这篇<a target="_blank" rel="noopener" href="http://110.42.161.158/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/">文章</a>。</li>
-<li>执行<code>call</code>指令，进行两步操作：<ol>
+<li>执行了<code>call</code>指令，进行两步操作：<ol>
 <li>将当前<code>ip</code>或<code>cs和ip</code>压入栈中，即<code>push ip</code></li>
 <li>转移，与<code>jmp</code>原理相同</li>
 </ol>
 </li>
-<li>执行函数，并且由于一般函数的开头操作都差不多，我们也可以将其看作是函数调用的流程：<ol>
-<li>将<code>bp</code>压入栈，即<code>push bp</code></li>
-<li>抬搞栈顶，即<code>sub sp,idata</code>，分配了足够大的栈帧空间</li>
 </ol>
 </li>
-<li>函数终止，同于函数开始，结束的操作也都差不多，将其看作函数调用结束的流程：<ol>
-<li>执行<code>leave</code>指令，进行两步操作：<ol>
-<li>恢复栈顶，即<code>mov sp,bp</code></li>
+<li><p>接着执行函数<strong>分配内存</strong>：</p>
+<ol>
+<li>将<code>bp</code>压入栈，即<code>push bp</code></li>
+<li>减小栈指针，即<code>sub sp,idata</code>，分配了足够大的栈帧空间</li>
+</ol>
+</li>
+<li><p>函数终止，开始<strong>释放内存</strong>：</p>
+<ol>
+<li><p>执行<code>leave</code>指令，进行两步操作：</p>
+<ol>
+<li>释放栈空间，即<code>mov sp,bp</code></li>
 <li>恢复栈帧，即<code>pop bp</code></li>
 </ol>
 </li>
-<li>执行<code>ret</code>指令：<ul>
+<li><p>最后<strong>恢复控制</strong>，执行<code>ret</code>指令：</p>
+<ul>
 <li>修改<code>ip</code>内容为栈顶中的内容，即<code>pop ip</code></li>
 </ul>
 </li>
 </ol>
 </li>
 </ol>
+<p>至此算是一个函数调用的过程，并且由此可以看出<strong>过程能够递归的调用它们自身</strong>，并且每个过程都有属于自己的栈帧。</p>
 
     </div>
 
@@ -328,7 +337,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">基本操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Push"><span class="nav-number">3.1.</span> <span class="nav-text">Push</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pop"><span class="nav-number">3.2.</span> <span class="nav-text">Pop</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%A0%88"><span class="nav-number">4.</span> <span class="nav-text">函数调用栈</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E6%A0%88"><span class="nav-number">1.1.</span> <span class="nav-text">运行时栈</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">基本操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Push"><span class="nav-number">3.1.</span> <span class="nav-text">Push</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pop"><span class="nav-number">3.2.</span> <span class="nav-text">Pop</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%88%E4%B8%8A%E7%9A%84%E5%B1%80%E9%83%A8%E5%82%A8%E5%AD%98"><span class="nav-number">4.</span> <span class="nav-text">栈上的局部储存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%A0%88"><span class="nav-number">5.</span> <span class="nav-text">函数调用栈</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%87%E7%A8%8B"><span class="nav-number">5.1.</span> <span class="nav-text">过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%A0%88%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="nav-number">5.2.</span> <span class="nav-text">函数调用栈的过程</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
