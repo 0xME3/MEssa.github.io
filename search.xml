@@ -485,9 +485,7 @@
 <h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>栈是一种只允许在一端插入或删除的线性表，且允许插入和删除的一端称为栈顶，另一端称为栈底。</p>
 <h3 id="运行时栈"><a href="#运行时栈" class="headerlink" title="运行时栈"></a>运行时栈</h3><p>在执行程序时，系统会为这个程序分配一块虚拟地址空间，这块空间中的一部分为该程序对应的<strong>运行时栈</strong>。当一个<code>x86-64</code>过程需要的存储空间超过了寄存器能够存放的大小时，或需要保存局部变量时，就会在栈上分配空间。这个部分称为<strong>过程</strong>的<strong>栈帧</strong>(Stack Frame)。需要注意的是，<strong>程序的栈是从进程地址空间的高地址向低地址增长的</strong>。具体见下图</p>
 <p><img src="https://s2.loli.net/2022/03/05/HAdJVeYC9BiNcT2.png" alt="32位模式下内存经典布局"></p>
-<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
-<li>后进先出(LIFO)：由于栈只允许在一端插入或删除，因此具有此特性，并称为LIFO(Last In First Out)。</li>
-</ul>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>后进先出(LIFO)：由于栈只允许在一端插入或删除，因此具有此特性，并称为LIFO(Last In First Out)。</p>
 <h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><h3 id="Push"><a href="#Push" class="headerlink" title="Push"></a>Push</h3><p>即入栈，插入新的元素作为栈顶。</p>
 <h3 id="Pop"><a href="#Pop" class="headerlink" title="Pop"></a>Pop</h3><p>即出栈，取出栈顶元素。</p>
 <p>在程序运行时栈中也是以入栈与出栈为基本操作。</p>
