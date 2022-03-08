@@ -20,21 +20,21 @@
     var CONFIG = {"hostname":"www.rabb1t.xyz","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="刷buu时做到一题限制了字符范围的题(mrctf2020_shellcode_revenge)。">
+  <meta name="description" content="简单介绍Linux下的GCC保护机制。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="alphanumeric_shellcode">
-<meta property="og:url" content="http://www.rabb1t.xyz/2022/02/08/alphanumeric-shellcode/index.html">
+<meta property="og:title" content="GCC保护机制">
+<meta property="og:url" content="http://www.rabb1t.xyz/2022/03/08/GCC%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/index.html">
 <meta property="og:site_name" content="Rabbit&#39;s blog">
-<meta property="og:description" content="刷buu时做到一题限制了字符范围的题(mrctf2020_shellcode_revenge)。">
+<meta property="og:description" content="简单介绍Linux下的GCC保护机制。">
 <meta property="og:locale">
-<meta property="article:published_time" content="2022-02-08T09:52:00.000Z">
-<meta property="article:modified_time" content="2022-03-04T04:59:01.339Z">
+<meta property="article:published_time" content="2022-03-08T13:10:33.000Z">
+<meta property="article:modified_time" content="2022-03-08T13:11:34.105Z">
 <meta property="article:author" content="Rabbit">
+<meta property="article:tag" content="笔记">
 <meta property="article:tag" content="pwn">
-<meta property="article:tag" content="CTF">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://www.rabb1t.xyz/2022/02/08/alphanumeric-shellcode/">
+<link rel="canonical" href="http://www.rabb1t.xyz/2022/03/08/GCC%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/">
 
 
 <script id="page-configurations">
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>alphanumeric_shellcode | Rabbit's blog</title>
+  <title>GCC保护机制 | Rabbit's blog</title>
   
 
 
@@ -154,7 +154,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/02/08/alphanumeric-shellcode/">
+    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/03/08/GCC%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/myavatar.png">
@@ -167,7 +167,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          alphanumeric_shellcode
+          GCC保护机制
         </h1>
 
         <div class="post-meta">
@@ -176,16 +176,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2022-02-08 17:52:00" itemprop="dateCreated datePublished" datetime="2022-02-08T17:52:00+08:00">2022-02-08</time>
+              <time title="Created: 2022-03-08 21:10:33 / Modified: 21:11:34" itemprop="dateCreated datePublished" datetime="2022-03-08T21:10:33+08:00">2022-03-08</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-03-04 12:59:01" itemprop="dateModified" datetime="2022-03-04T12:59:01+08:00">2022-03-04</time>
-              </span>
 
           
 
@@ -198,77 +192,38 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>刷buu时做到一题限制了字符范围的题(mrctf2020_shellcode_revenge)。</p>
+        <p>简单介绍Linux下的GCC保护机制。</p>
 <span id="more"></span>
 
-<p>需要使用alphanumeric shellcode(纯字符shellcode)。</p>
-<p>就是使用纯字符对应的汇编指令完成shellcode的编写，比如：</p>
-<table>
-<thead>
-<tr>
-<th align="center">ASCII字符</th>
-<th align="center">Hex</th>
-<th align="center">汇编指令</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">P</td>
-<td align="center">0x50</td>
-<td align="center">push %rax</td>
-</tr>
-<tr>
-<td align="center">Q</td>
-<td align="center">0x51</td>
-<td align="center">push %rcx</td>
-</tr>
-<tr>
-<td align="center">R</td>
-<td align="center">0x52</td>
-<td align="center">push %rdx</td>
-</tr>
-<tr>
-<td align="center">S</td>
-<td align="center">0x53</td>
-<td align="center">push %rbx</td>
-</tr>
-<tr>
-<td align="center">T</td>
-<td align="center">0x54</td>
-<td align="center">push %rsp</td>
-</tr>
-<tr>
-<td align="center">U</td>
-<td align="center">0x55</td>
-<td align="center">push %rbp</td>
-</tr>
-<tr>
-<td align="center">V</td>
-<td align="center">0x56</td>
-<td align="center">push %rsi</td>
-</tr>
-<tr>
-<td align="center">W</td>
-<td align="center">0x57</td>
-<td align="center">push %rdi</td>
-</tr>
-<tr>
-<td align="center">X</td>
-<td align="center">0x58</td>
-<td align="center">pop %rax</td>
-</tr>
-<tr>
-<td align="center">Y</td>
-<td align="center">0x59</td>
-<td align="center">pop %rcx</td>
-</tr>
-<tr>
-<td align="center">Z</td>
-<td align="center">0x5a</td>
-<td align="center">pop %rdx</td>
-</tr>
-</tbody></table>
-<p>我们可以使用一些工具来进行编码。</p>
-<p>详情如下：<a target="_blank" rel="noopener" href="http://taqini.space/2020/03/31/alpha-shellcode-gen/#alphanumeric-shellcode">http://taqini.space/2020/03/31/alpha-shellcode-gen/#alphanumeric-shellcode</a></p>
+<h2 id="地址随机化"><a href="#地址随机化" class="headerlink" title="地址随机化"></a>地址随机化</h2><p>在我们之前介绍的ROP攻击中，我们的主要目的是插入一个指向攻击代码的<strong>指针</strong>，这个代码可以是我们输入的(ret2shellcode)，也可以是程序中有的(ret2text、ret2libc)。</p>
+<p>而当我们在同一个操作系统版本上运行同一个程序，即使是不同机器，栈的位置也是固定的，这使得栈地址非常容易被预测。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>栈随机化的思想就是使程序每次运行时，都使得栈的位置在变化。它的简单实现方式是：在程序开始时，在栈上分配一个指定的0~n个字节之间的随机大小空间，程序不使用这段空间，但它会导致程序执行时，后续的栈的位置发生了变化。而这个值n不能太大(太大浪费)，也不能太小(太小得到的随机化地址变化太少)，在32位linux中，地址大致分布在<code>0xff7fc59c</code>到<code>0xffffd09c</code>内,范围大约为2^23^；64位linux中，地址大致分布在<code>0x7fff000比98</code>到<code>0x7ffffffaa4a8</code>内，范围大约为2^32^。</p>
+<p> 在Linux中，栈随机化是属于<strong>地址空间布局随机化</strong>技术中的一种(简称ASLR，address-space layout randomization)，而整个ASLR技术比较复杂。采用ASLR技术，使得每次运行时，除了栈外的程序中的其他段也都会被加载到内存中的不同区域，保护性更强。</p>
+<h3 id="克服方法"><a href="#克服方法" class="headerlink" title="克服方法"></a>克服方法</h3><ul>
+<li>泄露地址<ul>
+<li>格式化字符串漏洞泄露栈上地址</li>
+<li>构造ROPchain调用输出函数，将got表中存储的地址泄露</li>
+</ul>
+</li>
+<li>若不能泄露地址，也能够通过暴力手段克服随机化保护<ul>
+<li>若能够执行到我们写入的攻击代码，那么我们可以在有效的攻击代码前插入很长一段<code>nop</code>指令，然后只需要猜中其中一段指令的地址写入，那么在执行时就一定会执行到有效的攻击代码。这样的整个攻击代码称作”空操作雪橇”(“nop sled”)。</li>
+</ul>
+</li>
+</ul>
+<h2 id="栈破坏检测"><a href="#栈破坏检测" class="headerlink" title="栈破坏检测"></a>栈破坏检测</h2><p>栈破坏检测能有效的防止利用栈溢出漏洞来破坏栈上的结构</p>
+<h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>在栈帧中放入一段canary值，开启了栈破坏检测保护的程序，执行时会随机产生canary。在程序恢复寄存器状态和从函数返回前，程序都会检测canary是否被改变，如果是，那么程序异常结束。</p>
+<p><em>canary：金丝雀。矿工下矿前会放一只鸟进去，能够提前预知意外。</em></p>
+<h3 id="克服方法-1"><a href="#克服方法-1" class="headerlink" title="克服方法"></a>克服方法</h3><p>canary通常存放在栈帧上第一个内存地址中，可以通过调试进行寻找，它的标志是最后一字节为<code>0x00</code>，是为了防止输出下一个内存地址时将其泄露，且该位不属于被检测的部分。</p>
+<ul>
+<li>泄露canary，之后将其加入payload中的指定位置<ul>
+<li>若程序能够输出我们写入的字符串，并且存在栈溢出漏洞，那么能够利用该漏洞将canary的最后一位给覆盖掉，再执行输出时能够泄露。</li>
+<li>利用格式化字符串漏洞直接泄露</li>
+</ul>
+</li>
+<li>若不能泄露canary，其实我们能够利用其机制来泄露其他信息，原理是：程序检测canary，实际上是通过调用<code>__stack_chk_fail</code>函数来实现的。在检测到canary异常时，会打印出<code>__libc_argv[0]</code>指针指向的内容，一般为程序名。那么我们利用漏洞，将argv[0]的内容改为其他信息的地址，在执行报错时就会泄露信息。</li>
+</ul>
+<h2 id="限制可执行代码区域"><a href="#限制可执行代码区域" class="headerlink" title="限制可执行代码区域"></a>限制可执行代码区域</h2><p>虚拟内存中，存在’页’的概念，一个页的大小一般是2048或4096个字节。典型的程序保护中，每个页都有一个标志，该标志的每位由硬件检测并指明该页的’可读’、’可写’、’可执行’权限。曾经<code>x86</code>体系将’可读’和’可执行’合并成一个标志位，而栈上数据一定是可读写的，所以会有向栈中写入攻击代码而被执行的危险。虽然有过很多机制，能够限制一些页的可读但是不可执行，却会带来严重的性能损失。</p>
+<h3 id="原理-2"><a href="#原理-2" class="headerlink" title="原理"></a>原理</h3><p>向内存中引入了’NX’(No-Execute)位，将’可读’和’可执行’权限分开来了，而页依旧由硬盘来检测，效率没有损失。</p>
 
     </div>
 
@@ -279,8 +234,8 @@
       <footer class="post-footer">
           
           <div class="post-tags">
+              <a href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fa fa-tag"></i> 笔记</a>
               <a href="/tags/pwn/" rel="tag"><i class="fa fa-tag"></i> pwn</a>
-              <a href="/tags/CTF/" rel="tag"><i class="fa fa-tag"></i> CTF</a>
           </div>
 
         
@@ -289,13 +244,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/01/13/%E8%AF%BB%E5%AE%8C%E3%80%8A%E6%8C%AA%E5%A8%81%E7%9A%84%E6%A3%AE%E6%9E%97%E3%80%8B%E7%9A%84%E4%B8%80%E7%82%B9%E6%84%9F%E5%8F%97/" rel="prev" title="读完《挪威的森林》的一点感受">
-      <i class="fa fa-chevron-left"></i> 读完《挪威的森林》的一点感受
+    <a href="/2022/03/04/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%B0%8F%E7%BB%93/" rel="prev" title="格式化字符串漏洞小结">
+      <i class="fa fa-chevron-left"></i> 格式化字符串漏洞小结
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/03/02/babyheap-0ctf-2017-writeup/" rel="next" title="babyheap-0ctf-2017-writeup">
-      babyheap-0ctf-2017-writeup <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -354,6 +306,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%B0%E5%9D%80%E9%9A%8F%E6%9C%BA%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">地址随机化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%8B%E6%9C%8D%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">克服方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%88%E7%A0%B4%E5%9D%8F%E6%A3%80%E6%B5%8B"><span class="nav-number">2.</span> <span class="nav-text">栈破坏检测</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-number">2.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%8B%E6%9C%8D%E6%96%B9%E6%B3%95-1"><span class="nav-number">2.2.</span> <span class="nav-text">克服方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%90%E5%88%B6%E5%8F%AF%E6%89%A7%E8%A1%8C%E4%BB%A3%E7%A0%81%E5%8C%BA%E5%9F%9F"><span class="nav-number">3.</span> <span class="nav-text">限制可执行代码区域</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-2"><span class="nav-number">3.1.</span> <span class="nav-text">原理</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
