@@ -460,7 +460,7 @@
 <h4 id="特殊的利用方法"><a href="#特殊的利用方法" class="headerlink" title="特殊的利用方法"></a>特殊的利用方法</h4><p>这是通过一道栈迁移题目新学到的。题中有一行代码是这样写的：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">……</span><br><span class="line">.text:00000000004011CB                 lea     rax, [rbp+buf]</span><br><span class="line">.text:00000000004011CF                 mov     edx, 40h ; &#x27;@&#x27;  ; nbytes</span><br><span class="line">.text:00000000004011D4                 mov     rsi, rax        ; buf</span><br><span class="line">.text:00000000004011D7                 mov     edi, 0          ; fd</span><br><span class="line">.text:00000000004011DC                 mov     eax, 0</span><br><span class="line">.text:00000000004011E1                 call    _read</span><br><span class="line">……</span><br></pre></td></tr></table></figure>
 
-<p>我们知道变量的地址是通过变量到栈帧的偏移计算得到的。于是我们可以通过改变<code>rbp</code>的值来对接下来要执行程序的参数给更改了。这道题中，就是将<code>rbp</code>更改为任意地址+0x30，然后就能通过read函数对这个地址实现改写。</p>
+<p>我们知道变量的地址是通过变量到栈帧的偏移计算得到的。于是我们可以通过改变<code>rbp</code>的值来利用read函数对任意地址进行改写，甚至在bss段写入一段ropchain，最后执行，如果ropchain过长，可以在bss段上反复横跳来写入。</p>
 <h3 id="stack-smash"><a href="#stack-smash" class="headerlink" title="stack smash"></a>stack smash</h3><p>我们知道如果程序开启了canary保护后，我们进行栈溢出操作就会报错。stack smash就是利用改写报错内容来打印出敏感内容。</p>
 <p>原理：开启了canary保护后，若发现canary被修改，程序就会执行<code>__stack_chk_fail</code>函数来打印argv[0]指针所指向的字符串，正常情况下，这个指针指向的是程序名。所以当我们利用栈溢出漏洞将argv[0]地址的内容改写为敏感信息的地址，那么就能泄露。</p>
 <h3 id="栈上的-partial-overwrite"><a href="#栈上的-partial-overwrite" class="headerlink" title="栈上的 partial overwrite"></a>栈上的 partial overwrite</h3><p>内容主要是：仅改变这个地址的部分内容，一般为低位。</p>
