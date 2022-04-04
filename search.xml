@@ -503,30 +503,32 @@
       </tags>
   </entry>
   <entry>
-    <title>入栈顺序</title>
+    <title>参数入栈顺序</title>
     <url>/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/</url>
-    <content><![CDATA[<p>对于参数和局部变量入栈顺序我选择做一个小实验来说明。</p>
+    <content><![CDATA[<p>调用函数时，会生成一个栈帧，而这个过程中会涉及到如何向该调用函数传参的问题。</p>
 <span id="more"></span>
 
 <p>使用c编写一个程序</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">int</span> a = <span class="number">0</span>, b = <span class="number">1</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d %d %d&quot;</span>, i, ++i, i++);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	test();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d %d %d&quot;</span>, i, ++i, i++);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	test();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>画出调用printf之前的局部栈：</p>
-<p><img src="https://s2.loli.net/2022/03/04/kUDVNFTisnBCOLu.png" alt="局部变量在栈中到位置"></p>
-<p>从上可以看出从上往下依次是<code>b</code>,<code>a</code>,<code>i</code>，因此栈帧中的局部变量是倒着压入栈的。</p>
 <p>然后运行程序，输出结果为’2 2 0’。</p>
-<p>这说明函数的参数的入栈顺序是倒着的：</p>
+<p>结果说明函数的参数的入栈顺序是从右往左的：</p>
 <ol>
 <li>先执行<code>i++</code>，将返回的<code>0</code>压入栈，此时<code>i=1</code></li>
 <li>再执行<code>++i</code>，将返回的<code>2</code>压入栈，此时<code>i=2</code></li>
 <li>最后压入<code>i</code></li>
 </ol>
-<p>根据调试结果，画出<code>call printf</code>前的局部栈：</p>
-<p><img src="https://s2.loli.net/2022/03/04/ai4sQmRKu23yjlw.png" alt="参数在栈中的位置"></p>
+<p>以上是我们试出的结果，实际上这是因为函数调用中会遵循<strong>函数调用约定</strong>。该规则规定了一下几方面：</p>
+<ul>
+<li>函数参数的传递顺序和方法</li>
+<li>栈的维护方式</li>
+<li>名字修饰(name-mangling)策略</li>
+</ul>
+<p>其中最常见的参数传递方式是通过<strong>堆栈传参</strong>：调用函数将参数压入栈中，被调用函数以相对栈基指针的偏移来访问栈中参数，类似于访问<code>rbp[offset]</code>。而对于有多个参数的函数，调用约定规定将参数从右到左(或从左到右)依次入栈。某些约定还允许通过寄存器来传参。</p>
+<p>常见调用约定具体可见该<a href="https://www.cnblogs.com/clover-toeic/p/3756668.html">文章</a>。</p>
 ]]></content>
       <tags>
         <tag>笔记</tag>
-        <tag>CTF</tag>
       </tags>
   </entry>
   <entry>
@@ -543,7 +545,7 @@
 <h3 id="Pop"><a href="#Pop" class="headerlink" title="Pop"></a>Pop</h3><p>即出栈，取出栈顶元素。</p>
 <p>在程序运行时栈中也是以入栈与出栈为基本操作。</p>
 <h2 id="栈上的局部储存"><a href="#栈上的局部储存" class="headerlink" title="栈上的局部储存"></a>栈上的局部储存</h2><p>到目前为止，大部分过程都不会出现超过寄存器大小的本地存储区域了，不过有时，局部数据还是要存放在内存中，包括：寄存器不足而存放、一个变量的地址要存放、某些局部变量是数组或结构体只能存放在内存中。</p>
-<p>而过程中产生的局部变量存储在栈帧中，过程的参数存储在该栈帧前。并且通过入栈顺序和数据大小能轻易计算出与栈帧的偏移，并通过<code>lea</code>指令与<code>rbp</code>寄存器中 保存的栈帧地址来得到变量的地址，从而使用。(入栈顺序参考这篇<a href="http://110.42.161.158/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/">文章</a>)</p>
+<p>而过程中产生的局部变量存储在栈帧中，过程的参数存储在该栈帧前。并且通过入栈顺序和数据大小能轻易计算出与栈帧的偏移，并通过<code>lea</code>指令与<code>rbp</code>寄存器中保存的栈帧地址来得到变量的地址，从而使用。(入栈顺序参考这篇<a href="http://www.rabb1t.xyz/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/">文章</a>)</p>
 <h2 id="函数调用栈"><a href="#函数调用栈" class="headerlink" title="函数调用栈"></a>函数调用栈</h2><p>在介绍函数调用栈之前，简单介绍一下过程。</p>
 <h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p>前面提到在程序运行中，栈会有属于自己的一块空间，并且会分配<strong>过程的栈帧</strong>。实际上，软件中将封装代码的方式称为过程，过程用一组指定参数和一个可选的返回值实现了某种功能。因此我们能想到：函数、方法、处理函数等都是<strong>过程的形式</strong>。</p>
 <p>而函数调用栈的过程，实际上对应了计算机提供给过程执行的支持：<strong>传递控制、传递数据、分配和释放内存</strong>。</p>
