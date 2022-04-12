@@ -647,23 +647,45 @@
       </tags>
   </entry>
   <entry>
-    <title>读完《挪威的森林》的一点感受</title>
-    <url>/2022/01/13/%E8%AF%BB%E5%AE%8C%E3%80%8A%E6%8C%AA%E5%A8%81%E7%9A%84%E6%A3%AE%E6%9E%97%E3%80%8B%E7%9A%84%E4%B8%80%E7%82%B9%E6%84%9F%E5%8F%97/</url>
-    <content><![CDATA[<p>前几日把《挪威的森林》读完了，大概花了三天傍晚的时间。</p>
+    <title>how2heap_glibc_2.23</title>
+    <url>/2022/04/11/how2heap-glibc-2-23/</url>
+    <content><![CDATA[<p>待更新</p>
 <span id="more"></span>
+<h2 id="fastbin-dup"><a href="#fastbin-dup" class="headerlink" title="fastbin_dup"></a>fastbin_dup</h2><p>该例子通过分别释放不同的两个大小相等的堆，向我们展示了fastbin attack中的double-free。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>fastchunk被free之后会加入fastbin中，且在加入时会检查main_arena直接指向的地址(即链表头部)是否为当前释放的块。</p>
+<p>因此当我们当前释放的堆不是最后释放时，无论是否被释放过都被释放。因此能够进行double-free，将该地址多次放入一条链中。</p>
+<h2 id="fastbin-dup-consolidate"><a href="#fastbin-dup-consolidate" class="headerlink" title="fastbin_dup_consolidate"></a>fastbin_dup_consolidate</h2><h3 id="malloc-consolidate"><a href="#malloc-consolidate" class="headerlink" title="malloc_consolidate"></a>malloc_consolidate</h3><p><a href="http://cn-sec.com/archives/285359.html">深度剖析malloc_consolidate</a></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">malloc_consolidate</span><span class="params">(mstate av)</span></span>;</span><br></pre></td></tr></table></figure>
 
-<p>整本书都给我一种忧郁的感觉，作者的笔下的每个人都具有一种忧郁却不阴郁的气质，尤其以主角和直子为最，并且无论是主人公一行人还是后面遇到的渔夫等配角，作者对于每个人都描述的有血有肉，给我留下了极深刻的映像。</p>
-<p>对于主角与其身边人的爱情故事我不大感兴趣，我对三位主要的男性角色更感兴趣。毕竟相比于把这本书看作是青春爱情小说，我更愿意把这本书看作是青春期的少年少女的迷失和救赎。木月、渡边彻、永泽，这三个人分别对应着三种人，木月像一个理想主义者，永泽像一个实用主义者，而渡边彻则是一个还在两者之间迷茫的人，最后却将两者结合的不错，看开了。或者说，这三个人仿佛就像成长中的三个阶段。</p>
-<p>木月只沉浸在自己的世界，除了主角和直子外，没有其他的交往对象了，最后在无法忍受最后一定会与外界这个必然结局中自杀了，十分极端。</p>
-<p>永泽作为实用主义者，是一个勇敢面对生活并享受人生、游戏人生的角色。我认为他的过去也一定像其他两人一样，是一个幻想破灭的理想主义者，尽管书中没有提及。很傲气也很自负，他也许很世俗，但却极端看不起那些对社会和自己人生不加思考、不焦虑的真正世俗的人。</p>
-<p>而这样两个结局大不同的角色都将主角看作朋友：木月与渡边彻共同度过那种迷茫的时期，最后仍然选择逃避生活，也是渡边彻真正认为是挚友的人；而永泽也有过焦虑，并且可能没有人可以分担这种压抑，从一次关于书的交流中，永泽看出了主角身上的那种自身经历过的焦虑，所以产生了接近的想法。可是因为渡边的一些有意的疏远，永泽就并没有过多的接近，这也是两人没有成为挚友的原因。</p>
-<p>其实我的看法是受到了别人对《斯通纳》这本书的解读的一些影响，但是当时看过后除了一点感受外就忘了，而《挪威的森林》却是让我勾起那时的一点回忆。</p>
-<p>另外我认为披头士的一首”In My Life”就像是这个故事的翻版一样。</p>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="430" height="86" src="//music.163.com/outchain/player?type=2&id=4337309&auto=0&height=66"></iframe>
+<p>该例子利用了其针对fastbin的机制：</p>
+<ol>
+<li>清空fastbin(inuse位归0)</li>
+<li>合并fastbin</li>
+<li>若后一块地址不为top chunk，则将合并的堆加入unsortedbin。</li>
+</ol>
+<p>触发该函数的操作是，申请一个足够大的堆。例子中申请了一个0x400大小的堆，之后可以查看到p1被加入到了unsorted bin中。由于fastbin被清空，因此可以使用dup进行攻击。</p>
+<h2 id="fastbin-dup-into-stack"><a href="#fastbin-dup-into-stack" class="headerlink" title="fastbin_dup_into_stack"></a>fastbin_dup_into_stack</h2><p>该例子展示了通过dup操作后，将一个内存块多次放入fastbin后的一次攻击示例。即将该块的用户空间的第一个地址(fd)改写为指定地址，通过申请相同大小就能申请到该空间。</p>
+<p>但是因为从fastbin中取出chunk时会对chunk_size进行检测，该例子将栈地址伪造的chunk的大小也改了，因此能申请成功。</p>
+<h2 id="house-of-force"><a href="#house-of-force" class="headerlink" title="house of force"></a>house of force</h2><p>利用top chunk的分配机制，实现任意地址分配。</p>
+<p>例子展示了通过该技巧更改bss段上的一块地址的内容。</p>
+<h3 id="条件"><a href="#条件" class="headerlink" title="条件"></a>条件</h3><ol>
+<li>能够控制top chunk的size域内容</li>
+<li>能够自由控制分配大小</li>
+</ol>
+<h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>从top chunk中申请内存时，过程中会调用</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">remainder      = chunk_at_offset(victim, nb);</span><br><span class="line">av-&gt;top        = remainder;</span><br></pre></td></tr></table></figure>
 
+<p>(nb为用户的内存申请大小，victim为以前的top chunk首地址)，最后实现效果为调整top chunk减去指定偏移长度。</p>
+<p>那么再更新av-&gt;top时就会讲top chunk迁移到任意地址，然后再次从top chunk中申请时，就会申请到该地址空间。</p>
+<p>但由于再申请前会进行一次检测，确定top chunk的大小足够分配这个大小。所以我们需要修改top chunk size为最大值(其本身为无符号数，因此为-1)即可。</p>
+<h2 id="house-of-spirit"><a href="#house-of-spirit" class="headerlink" title="house of spirit"></a>house of spirit</h2><p>例子在栈上构造了一块chunk，并展示了将其成功释放后能够重新申请到。</p>
+<p>程序中展示了构造一个fastchunk的过程，主要是伪造chunk的<code>ISMMAP</code>为不能为1；空间对齐；伪造next_size不能小于2*<code>SIZE_SZ</code>，同时也不能大于<code>av-&gt;system_mem</code>。</p>
+<p>可以看出，例子想说明的是：可以通过在指定位置构造fake_chunk来实现修改该地址的值。关键在于能够绕过对应的检测。</p>
 ]]></content>
       <tags>
-        <tag>随笔</tag>
+        <tag>CTF</tag>
+        <tag>堆</tag>
+        <tag>how2heap</tag>
       </tags>
   </entry>
   <entry>
