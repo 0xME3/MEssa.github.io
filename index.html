@@ -178,7 +178,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-04-12 12:10:37" itemprop="dateModified" datetime="2022-04-12T12:10:37+08:00">2022-04-12</time>
+                <time title="Modified: 2022-04-14 13:07:23" itemprop="dateModified" datetime="2022-04-14T13:07:23+08:00">2022-04-14</time>
               </span>
 
           
@@ -192,15 +192,41 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>待更新</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/04/11/how2heap-glibc-2-23/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
+          <h2 id="fastbin-dup"><a href="#fastbin-dup" class="headerlink" title="fastbin_dup"></a>fastbin_dup</h2><p>该例子通过分别释放不同的两个大小相等的堆，向我们展示了fastbin attack中的double-free。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>fastchunk被free之后会加入fastbin中，且在加入时会检查main_arena直接指向的地址(即链表头部)是否为当前释放的块。</p>
+<p>因此当我们当前释放的堆不是最后释放时，无论是否被释放过都被释放。因此能够进行double-free，将该地址多次放入一条链中。</p>
+<h2 id="fastbin-dup-consolidate"><a href="#fastbin-dup-consolidate" class="headerlink" title="fastbin_dup_consolidate"></a>fastbin_dup_consolidate</h2><h3 id="malloc-consolidate"><a href="#malloc-consolidate" class="headerlink" title="malloc_consolidate"></a>malloc_consolidate</h3><p><a target="_blank" rel="noopener" href="http://cn-sec.com/archives/285359.html">深度剖析malloc_consolidate</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">malloc_consolidate</span><span class="params">(mstate av)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>该例子利用了其针对fastbin的机制：</p>
+<ol>
+<li>清空fastbin(inuse位归0)</li>
+<li>合并fastbin</li>
+<li>若后一块地址不为top chunk，则将合并的堆加入unsortedbin。</li>
+</ol>
+<p>触发该函数的操作是，申请一个足够大的堆。例子中申请了一个0x400大小的堆，之后可以查看到p1被加入到了unsorted bin中。由于fastbin被清空，因此可以使用dup进行攻击。</p>
+<h2 id="fastbin-dup-into-stack"><a href="#fastbin-dup-into-stack" class="headerlink" title="fastbin_dup_into_stack"></a>fastbin_dup_into_stack</h2><p>该例子展示了通过dup操作后，将一个内存块多次放入fastbin后的一次攻击示例。即将该块的用户空间的第一个地址(fd)改写为指定地址，通过申请相同大小就能申请到该空间。</p>
+<p>但是因为从fastbin中取出chunk时会对chunk_size进行检测，该例子将栈地址伪造的chunk的大小也改了，因此能申请成功。</p>
+<h2 id="house-of-spirit"><a href="#house-of-spirit" class="headerlink" title="house of spirit"></a>house of spirit</h2><p>例子在栈上构造了一块chunk，并展示了将其成功释放后能够重新申请到。</p>
+<p>程序中展示了构造一个fastchunk的过程，主要是伪造chunk的<code>ISMMAP</code>为不能为1；空间对齐；伪造next_size不能小于2*<code>SIZE_SZ</code>，同时也不能大于<code>av-&gt;system_mem</code>。</p>
+<p>可以看出，例子想说明的是：可以通过在指定位置构造fake_chunk来实现修改该地址的值。关键在于能够绕过对应的检测。</p>
+<h2 id="house-of-force"><a href="#house-of-force" class="headerlink" title="house of force"></a>house of force</h2><p>利用top chunk的分配机制，实现任意地址分配。</p>
+<p>例子展示了通过该技巧更改bss段上的一块地址的内容。</p>
+<h3 id="条件"><a href="#条件" class="headerlink" title="条件"></a>条件</h3><ol>
+<li>能够控制top chunk的size域内容</li>
+<li>能够自由控制分配大小</li>
+</ol>
+<h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>从top chunk中申请内存时，过程中会调用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">remainder      = chunk_at_offset(victim, nb);</span><br><span class="line">av-&gt;top        = remainder;</span><br></pre></td></tr></table></figure>
+
+<p>(nb为用户的内存申请大小，victim为以前的top chunk首地址)，最后实现效果为调整top chunk减去指定偏移长度。</p>
+<p>那么再更新av-&gt;top时就会讲top chunk迁移到任意地址，然后再次从top chunk中申请时，就会申请到该地址空间。</p>
+<p>但由于再申请前会进行一次检测，确定top chunk的大小足够分配这个大小。所以我们需要修改top chunk size为最大值(其本身为无符号数，因此为-1)即可。</p>
+<h2 id="house-of-lore"><a href="#house-of-lore" class="headerlink" title="house of lore"></a>house of lore</h2><p>例子展示了ptmalloc的机制：非fastchunk释放后会被放入unsortedbin中，而下次再次申请并在fastbin和unsortedbin中并没找到合适的chunk时，会将unsortedbin中的chunk按大小放入对应的bins中。</p>
+<p>从smallbins中取chunk时，程序只会检查其bk-&gt;fd是否对应victim，而不检查chunk_size。</p>
+<p>并且在samllbin中，取出chunk的顺序是FILO，因此我们伪造bk为指定地址，则能够被申请到。</p>
+<h2 id="house-of-einherjar"><a href="#house-of-einherjar" class="headerlink" title="house of einherjar"></a>house of einherjar</h2><p>例子展示了ptmalloc的合并机制：释放chunk后会检测prev_inuse和prev_size(绕过unlink检测)，而这些与伪造的chunk(例子是在栈上伪造的)都成功的话就会先合并低地址再合并高地址chunk。若高地址chunk为top chunk则会与top chunk合并，并且top chunk 地址会变成我们伪造chunk处。</p>
+
       
     </div>
 
