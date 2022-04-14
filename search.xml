@@ -649,7 +649,10 @@
   <entry>
     <title>how2heap_glibc_2.23</title>
     <url>/2022/04/11/how2heap-glibc-2-23/</url>
-    <content><![CDATA[<h2 id="fastbin-dup"><a href="#fastbin-dup" class="headerlink" title="fastbin_dup"></a>fastbin_dup</h2><p>该例子通过分别释放不同的两个大小相等的堆，向我们展示了fastbin attack中的double-free。</p>
+    <content><![CDATA[<p>待续</p>
+<span id="more"></span>
+
+<h2 id="fastbin-dup"><a href="#fastbin-dup" class="headerlink" title="fastbin_dup"></a>fastbin_dup</h2><p>该例子通过分别释放不同的两个大小相等的堆，向我们展示了fastbin attack中的double-free。</p>
 <h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>fastchunk被free之后会加入fastbin中，且在加入时会检查main_arena直接指向的地址(即链表头部)是否为当前释放的块。</p>
 <p>因此当我们当前释放的堆不是最后释放时，无论是否被释放过都被释放。因此能够进行double-free，将该地址多次放入一条链中。</p>
 <h2 id="fastbin-dup-consolidate"><a href="#fastbin-dup-consolidate" class="headerlink" title="fastbin_dup_consolidate"></a>fastbin_dup_consolidate</h2><h3 id="malloc-consolidate"><a href="#malloc-consolidate" class="headerlink" title="malloc_consolidate"></a>malloc_consolidate</h3><p><a href="http://cn-sec.com/archives/285359.html">深度剖析malloc_consolidate</a></p>
