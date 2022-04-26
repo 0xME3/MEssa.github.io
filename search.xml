@@ -84,7 +84,7 @@
 <li>ID [array]：指定形成文件标识符的两个字节未加密字符串的数组。</li>
 <li>XrefStm [integer]：指定从解码流中的文件开头到交叉引用流的偏移量。这仅存在于混合引用文件中，如果我们还想要打开文档，即使应用程序不支持压缩引用流，也会指定它。</li>
 </ul>
-<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://blog.csdn.net/kkle1994/article/details/81941029">【翻译】PDF格式详解</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/kkle1994/article/details/81941029">【翻译】PDF格式详解</a></p>
 <p><a href="https://blog.joe1sn.top/2020/10/06/%E5%88%9D%E5%AD%A6CVE-2010-2883%E6%BC%8F%E6%B4%9E%E8%B0%83%E8%AF%95%E5%8F%8A%E5%A4%8D%E7%8E%B0/#PDF%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F">初学CVE-2010-2883漏洞调试及复现_PDF文件格式</a></p>
 ]]></content>
       <tags>
