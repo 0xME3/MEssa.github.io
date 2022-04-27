@@ -44,14 +44,15 @@
   <entry>
     <title>PDF文件结构</title>
     <url>/2022/04/26/PDF%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/</url>
-    <content><![CDATA[<p>PDF文档由PDF文件正文部分中包含的对象组成。PDF文档中的大多数对象都是字典。文档的每个页面由页面对象表示，页面对象是包含对页面内容的引用的字典。页面对象连接在一起并形成一个页面树，在文档目录中使用间接引用声明。</p>
+    <content><![CDATA[<p>PDF具有比文本更多的功能; 它可以包含图像和其他多媒体元素，可以受密码保护，可以执行JavaScript等。<br>PDF文档由PDF文件正文部分中包含的对象组成。PDF文档中的大多数对象都是字典。文档的每个页面由页面对象表示，页面对象是包含对页面内容的引用的字典。页面对象连接在一起并形成一个页面树，在文档目录中使用间接引用声明。</p>
 <span id="more"></span>
 
-<h2 id="标题"><a href="#标题" class="headerlink" title="标题"></a>标题</h2><p>PDF文件的第一行，指定了该文档当前使用的PDF规范的版本号。</p>
+<p><img src="https://p2.ssl.qhimg.com/t0136824951bf7f4ba6.png" alt="PDF文件基本格式"></p>
+<h2 id="标题-Header"><a href="#标题-Header" class="headerlink" title="标题/Header"></a>标题/Header</h2><p>PDF文件的第一行，指定了该文档当前使用的PDF规范的版本号。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">00000000: 2550 4446 2d31 2e35 0a25 efc5 96c5 0a31  %PDF-1.5.%.....1</span><br></pre></td></tr></table></figure>
 
 <p>在PDF文件中 % 是注释</p>
-<h2 id="文件体"><a href="#文件体" class="headerlink" title="文件体"></a>文件体</h2><p>文件头中包含若干个对象</p>
+<h2 id="文件体-Body"><a href="#文件体-Body" class="headerlink" title="文件体/Body"></a>文件体/Body</h2><p>文件头中包含若干个对象</p>
 <p><img src="https://s2.loli.net/2022/04/26/DLjptEfukQXyrlO.png" alt="文件体"></p>
 <ul>
 <li>第一个数字称为对象号，来唯一标识一个对象的</li>
@@ -64,14 +65,14 @@
 <p>第一个对象中的内容为</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;&lt;</span><br><span class="line">	/Pages 2 0 R</span><br><span class="line">	/Type /Catalog</span><br><span class="line">	/OpenAction 11 0 R</span><br><span class="line">	/AcroForm 13 0 R</span><br><span class="line">&gt;&gt;</span><br></pre></td></tr></table></figure>
 
-<p>与16进制显示中内容的相对应</p>
-<h2 id="xref"><a href="#xref" class="headerlink" title="xref"></a>xref</h2><p>交叉引用表，其中包含对文档中所有对象的引用。目的是允许随机访问文件的对象。</p>
+<p>与16进制文件中的对应</p>
+<h2 id="xref-Cross-referance-table"><a href="#xref-Cross-referance-table" class="headerlink" title="xref/Cross-referance table"></a>xref/Cross-referance table</h2><p>交叉引用表，其中包含对文档中所有对象的引用。目的是允许随机访问文件的对象。</p>
 <p><img src="https://s2.loli.net/2022/04/26/qWvuikQKlaePpcY.png" alt="xref"></p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">xref</span><br><span class="line">0 15</span><br><span class="line">0000000000 65535 f</span><br><span class="line">0000000015 00000 n</span><br><span class="line">0000000137 00000 n</span><br><span class="line">0000000264 00000 n</span><br><span class="line">0000000294 00000 n</span><br><span class="line">0000000332 00000 n</span><br><span class="line">0000000481 00000 n</span><br><span class="line">0000000513 00000 n</span><br><span class="line">0000000733 00000 n</span><br><span class="line">0000000857 00000 n</span><br><span class="line">0000001026 00000 n</span><br><span class="line">0000041386 00000 n</span><br><span class="line">0000041467 00000 n</span><br><span class="line">0000045235 00000 n</span><br><span class="line">0000045274 00000 n</span><br></pre></td></tr></table></figure>
 
 <p>以关键字 xref 开始，第一行数字内容代表该<strong>子部分</strong>中的对象是从0编号开始，共15个对象，之后所开启内容是子部分中对象的条目。因为提到了<strong>子部分</strong>，所以表明 xref 中可以有多个<strong>子部分</strong>，都是由数字开启的。</p>
 <p>每个条目包含的内容有：起始位置、产生号(被修改过几次)、状态( f 表示空闲，n 表示正在使用)。特别的是，第一个对象的产生号为65535，表示不能修改，最后一个对象的产生号为0。</p>
-<h2 id="尾部"><a href="#尾部" class="headerlink" title="尾部"></a>尾部</h2><p><img src="https://s2.loli.net/2022/04/26/xDBSQdIMN2rf6hZ.png" alt="尾部"></p>
+<h2 id="尾部-Trailer"><a href="#尾部-Trailer" class="headerlink" title="尾部/Trailer"></a>尾部/Trailer</h2><p><img src="https://s2.loli.net/2022/04/26/xDBSQdIMN2rf6hZ.png" alt="尾部"></p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">trailer</span><br><span class="line">&lt;&lt;/Size 15/Root 1 0 R&gt;&gt;</span><br><span class="line">startxref</span><br><span class="line">45699</span><br><span class="line">%%EOF</span><br></pre></td></tr></table></figure>
 
 <p>该示例中只包含 size 和 root，其实不止。</p>
@@ -84,7 +85,7 @@
 <li>ID [array]：指定形成文件标识符的两个字节未加密字符串的数组。</li>
 <li>XrefStm [integer]：指定从解码流中的文件开头到交叉引用流的偏移量。这仅存在于混合引用文件中，如果我们还想要打开文档，即使应用程序不支持压缩引用流，也会指定它。</li>
 </ul>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://blog.csdn.net/kkle1994/article/details/81941029">【翻译】PDF格式详解</a></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://blog.csdn.net/kkle1994/article/details/81941029">【翻译】PDF格式详解</a></p>
 <p><a href="https://blog.joe1sn.top/2020/10/06/%E5%88%9D%E5%AD%A6CVE-2010-2883%E6%BC%8F%E6%B4%9E%E8%B0%83%E8%AF%95%E5%8F%8A%E5%A4%8D%E7%8E%B0/#PDF%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F">初学CVE-2010-2883漏洞调试及复现_PDF文件格式</a></p>
 ]]></content>
       <tags>
