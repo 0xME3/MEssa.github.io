@@ -20,15 +20,24 @@
     var CONFIG = {"hostname":"www.rabb1t.xyz","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Rabbit&#39;s blog">
-<meta property="og:url" content="http://www.rabb1t.xyz/archives/2022/02/index.html">
+  <meta name="description" content="通过劫持 _IO_list_all 来伪造链表和其中的 _IO_FILE 项。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FSOP">
+<meta property="og:url" content="http://www.rabb1t.xyz/2022/05/27/FSOP/index.html">
 <meta property="og:site_name" content="Rabbit&#39;s blog">
+<meta property="og:description" content="通过劫持 _IO_list_all 来伪造链表和其中的 _IO_FILE 项。">
 <meta property="og:locale">
+<meta property="og:image" content="https://ctf-wiki.org/pwn/linux/user-mode/io-file/figure/abort_routine.001.jpeg">
+<meta property="article:published_time" content="2022-05-27T06:21:37.000Z">
+<meta property="article:modified_time" content="2022-05-27T06:36:20.772Z">
 <meta property="article:author" content="MEss@_Rabbit">
+<meta property="article:tag" content="pwn">
+<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="FSOP">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ctf-wiki.org/pwn/linux/user-mode/io-file/figure/abort_routine.001.jpeg">
 
-<link rel="canonical" href="http://www.rabb1t.xyz/archives/2022/02/">
+<link rel="canonical" href="http://www.rabb1t.xyz/2022/05/27/FSOP/">
 
 
 <script id="page-configurations">
@@ -36,12 +45,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'default'
   };
 </script>
 
-  <title>Archive | Rabbit's blog</title>
+  <title>FSOP | Rabbit's blog</title>
   
 
 
@@ -146,50 +155,103 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">Um..! 18 posts in total. Keep on posting.</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
+    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/05/27/FSOP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/myavatar.png">
+      <meta itemprop="name" content="MEss@_Rabbit">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Rabbit's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          FSOP
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-05-27 14:21:37 / Modified: 14:36:20" itemprop="dateCreated datePublished" datetime="2022-05-27T14:21:37+08:00">2022-05-27</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2022</span>
+        <p>通过劫持 _IO_list_all 来伪造链表和其中的 _IO_FILE 项。</p>
+<span id="more"></span>
+
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>通过调用 _IO_flush_all_lockp，来刷新 _IO_list_all 链表中所有项的文件流，意味着会调用 vtable 中的 _IO_overflow。</p>
+<p>调用 _IO_flush_all_lockp 的情况有：</p>
+<ol>
+<li>当 libc 执行 abort 流程时</li>
+<li>当执行 exit 函数时</li>
+<li>当执行流从 main 函数返回时</li>
+</ol>
+<p>而当 glibc 检测 memory corruption 时，流程为:</p>
+<ol>
+<li>调用 abort()</li>
+<li>调用 _IO_flush_all_lockp()</li>
+<li>调用 JUMP_FIELD(_IO_overflow_t,__overflow)</li>
+</ol>
+<p><img src="https://ctf-wiki.org/pwn/linux/user-mode/io-file/figure/abort_routine.001.jpeg" alt="abort_routine"></p>
+<p>如果我们将 system 作为伪造的 __overflow 指针，FILE 开头为 /bin/sh 就能获得 shell 了，或者直接使用 one_gadget。</p>
+<p>因此我们需要伪造一个 fake_FILE，需要通过的检测为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (((fp-&gt;_mode &lt;= <span class="number">0</span> &amp;&amp; fp-&gt;_IO_write_ptr &gt; fp-&gt;_IO_write_base))</span><br><span class="line">               &amp;&amp; _IO_OVERFLOW (fp, EOF) == EOF)</span><br><span class="line">           &#123;</span><br><span class="line">               result = EOF;</span><br><span class="line">          &#125;</span><br></pre></td></tr></table></figure>
+<p>因此需要伪造的内容有 _mode&lt;=0, _IO_write_ptr&gt;_IO_write_base, IO_overflow=system, </p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2022-02-08T17:52:00+08:00"
-              content="2022-02-08">
-          02-08
-        </time>
-      </div>
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/pwn/" rel="tag"><i class="fa fa-tag"></i> pwn</a>
+              <a href="/tags/CTF/" rel="tag"><i class="fa fa-tag"></i> CTF</a>
+              <a href="/tags/FSOP/" rel="tag"><i class="fa fa-tag"></i> FSOP</a>
+          </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/02/08/alphanumeric-shellcode/" itemprop="url">
-            <span itemprop="name">alphanumeric_shellcode</span>
-          </a>
-      </div>
+        
 
-    </header>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/27/ISCC2022-pwn%E6%96%B9%E5%90%91writeup/" rel="prev" title="ISCC2022_pwn方向部分writeup">
+      <i class="fa fa-chevron-left"></i> ISCC2022_pwn方向部分writeup
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
   </article>
-
-
-    </div>
-  </div>
   
   
-  
-
   
 
 
@@ -242,6 +304,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">原理</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
