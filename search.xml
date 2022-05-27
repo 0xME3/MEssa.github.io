@@ -489,7 +489,7 @@
 <li>size 的 prev inuse 位必须为 1</li>
 </ul>
 <p>然后申请 0x1000 大小的chunk，0x1000&gt;0xc01，因此top chunk 被放入了unsorted bin中。此时就类似于我们没有使用free函数就得到了一个位于unsorted bin中的chunk。</p>
-<p>例子中get shell的操作还使用到了_IO_FILE的知识。以后细说</p>
+<p>最后使用 FSOP getshell。</p>
 ]]></content>
       <tags>
         <tag>笔记</tag>
