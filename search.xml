@@ -489,7 +489,7 @@
 <li>size 的 prev inuse 位必须为 1</li>
 </ul>
 <p>然后申请 0x1000 大小的chunk，0x1000&gt;0xc01，因此top chunk 被放入了unsorted bin中。此时就类似于我们没有使用free函数就得到了一个位于unsorted bin中的chunk。</p>
-<p>最后使用 <a href>FSOP</a> 来 getshell：</p>
+<p>最后使用 <a href="http://116.205.191.26/2022/05/27/FSOP/">FSOP</a> 来 getshell：</p>
 <p>通过 unsortedbin_attack 将 IO_list_all的值覆盖为 main_arena+X，同时将 chunk_size 已经设置为 0x60 的 unsorted_chunk 放入 smallbin，这个 chunk 我们伪造成了</p>
 ]]></content>
       <tags>
