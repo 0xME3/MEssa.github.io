@@ -1003,7 +1003,7 @@
 <li>当执行 exit 函数时</li>
 <li>当执行流从 main 函数返回时</li>
 </ol>
-<p>而当 glibc 检测 memory corruption 时，流程为:</p>
+<p>而当 glibc 检测 memory corruption 时，会调用 abort() ，因此执行流程为:</p>
 <ol>
 <li>调用 abort()</li>
 <li>调用 _IO_flush_all_lockp()</li>
