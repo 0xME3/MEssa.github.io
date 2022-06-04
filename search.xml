@@ -1011,7 +1011,7 @@
 </ol>
 <p><img src="https://ctf-wiki.org/pwn/linux/user-mode/io-file/figure/abort_routine.001.jpeg" alt="abort_routine"></p>
 <p>如果我们将 system 作为伪造的 __overflow 指针，FILE 开头为 /bin/sh 就能获得 shell 了，或者直接使用 one_gadget。</p>
-<p>因此我们需要伪造一个 fake_FILE，需要通过的检测为：</p>
+<p>然后当我们需要伪造一个 fake_FILE时，需要通过的检测为：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (((fp-&gt;_mode &lt;= <span class="number">0</span> &amp;&amp; fp-&gt;_IO_write_ptr &gt; fp-&gt;_IO_write_base))</span><br><span class="line">               &amp;&amp; _IO_OVERFLOW (fp, EOF) == EOF)</span><br><span class="line">           &#123;</span><br><span class="line">               result = EOF;</span><br><span class="line">          &#125;</span><br></pre></td></tr></table></figure>
 <p>因此需要伪造的内容有 _mode&lt;=0, _IO_write_ptr&gt;_IO_write_base, IO_overflow=something。</p>
 ]]></content>
