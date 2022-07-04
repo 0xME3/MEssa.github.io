@@ -555,18 +555,9 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/2022/07/04/how2heap-glibc-2-23/</url>
-    <content><![CDATA[<p>-–</p>
-<p>title: how2heap_glibc_2.23</p>
-<p>date: 2022-04-11 19:55:53</p>
-<p>tags:</p>
-<p>  - CTF</p>
-<p>  - 笔记</p>
-<p>  - heap</p>
-<p>  - how2heap</p>
-<p>-–</p>
-<p>待续</p>
+    <title>how2heap_glibc_2.23</title>
+    <url>/2022/04/11/how2heap-glibc-2-23/</url>
+    <content><![CDATA[<p>待续</p>
 <span id="more"></span>
 
 
@@ -648,6 +639,12 @@
 <p>因为也将 p2-&gt;bk 修改为了 &amp;stack_var1-2，因此等同于执行了 p3-&gt;bk=bck=p2-&gt;bk=&amp;stack_var1-2，p3-&gt;bk-&gt;fd=p2-&gt;bk-&gt;fd=*(&amp;stack_var1-2+2)=p3。</p>
 <p>最后的结果为两个栈上地址的值都修改为了 p3 的地址。</p>
 ]]></content>
+      <tags>
+        <tag>CTF</tag>
+        <tag>笔记</tag>
+        <tag>heap</tag>
+        <tag>how2heap</tag>
+      </tags>
   </entry>
   <entry>
     <title>stack overflow漏洞小结</title>
