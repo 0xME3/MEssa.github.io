@@ -1125,7 +1125,7 @@
 <p>开门见山，存在栈溢出漏洞，等待输入后关闭 stdin stdout stderr 文件流</p>
 <h3 id="解题思路-3"><a href="#解题思路-3" class="headerlink" title="解题思路"></a>解题思路</h3><ol>
 <li>利用栈溢出漏洞，向栈上写入覆盖为 ropchain</li>
-<li>根据 hint，本题是通过 socket+connect 来进行远程连接，然后使用 orw 将 flag 弹回来，在本地监听一个端口等待即可</li>
+<li>根据 hint，本题是通过 socket+connect 来进行远程连接，然后使用 orw 将 flag 返回回来，在本地监听一个端口等待即可</li>
 </ol>
 <p>socket 是 sys_socket 的封装函数，因此我们进行 sys_socket 的系统调用即可，其调用号为 41，同样的 sys_connect 的调用号为 42。</p>
 <p>sys_socket 的参数我们需要设置为 AF_INET、SOCK_STREAM。这两个常量的值分别为 2 和 1。</p>
