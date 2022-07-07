@@ -1084,7 +1084,7 @@
 <span id="more"></span>
 
 <h2 id="EDGvsDKgame1"><a href="#EDGvsDKgame1" class="headerlink" title="EDGvsDKgame1"></a>EDGvsDKgame1</h2><h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><p>保护全开</p>
-<p>note 模式的堆题，每个功能都有。</p>
+<p>note 类型的堆题，每个功能都有。</p>
 <p>审出的漏洞有：</p>
 <ul>
 <li>create 时是以 num 为下标，而 delete 堆会使 num– ，当我们一次释放掉多个 chunk，再 create 会覆盖掉未释放的 chunk。虽然没用上</li>
