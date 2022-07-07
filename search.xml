@@ -1135,7 +1135,7 @@
 
 <p>其中为 127.0.0.1:23946 的server_addr，其实需要的也就前八字节，最后得到 p64(0x100007f8a5d0002)+p64(0)*11。</p>
 <p>c文件中的内容大致为：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">……</span><br><span class="line">    server_addr.sin_family = AF_INET;</span><br><span class="line">	server_addr.sin_port = htons(<span class="number">23946</span>);<span class="comment">//转换成网络字节序，也就是大端序存储，端口随意</span></span><br><span class="line">	server_addr.sin_addr.s_addr =  inet_addr(<span class="string">&quot;127.0.0.1&quot;</span>);<span class="comment">//转换成网络字节序，也就是转换为16进制数再大端序存储，远程修改为云服务ip</span></span><br><span class="line">……</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">……</span><br><span class="line">    server_addr.sin_family = AF_INET;</span><br><span class="line">	server_addr.sin_port = htons(<span class="number">23946</span>);<span class="comment">//转换成网络字节序，也就是大端序存储，端口随意</span></span><br><span class="line">	server_addr.sin_addr.s_addr =  inet_addr(<span class="string">&quot;127.0.0.1&quot;</span>);<span class="comment">//转换成网络字节序，也就是转换为16进制数再大端序存储，远程修改为云服务器ip</span></span><br><span class="line">……</span><br></pre></td></tr></table></figure>
 
 <p>调试查看 server_addr 的内容即可</p>
 <p>构造完后，再用 orw 向 sockfd 输出即可。其实一开始我用的是 sys_sendto，本地能打通远程不行，然后才用的 write，具体原因未知。</p>
