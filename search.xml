@@ -653,7 +653,7 @@
 <span id="more"></span>
 
 <p>对于CTF的pwn方向而言，我们实际上要做的就是通过一些漏洞来达到干扰程序的运行流程，以达到get shell或泄露敏感文件的内容的效果。</p>
-<p>在介绍stack overflow漏洞之前，我们需要对栈有一个<a href="http://110.42.161.158/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/">基本的了解</a>。</p>
+<p>在介绍stack overflow漏洞之前，我们需要对栈有一个<a href="http://blog.rabb1t.xyz/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/">基本的了解</a>。</p>
 <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>栈溢出指的是用户向栈中变量写入的长度超过了其本身的长度，导致其相邻栈数据被改写的情况。发生栈溢出的前提是：</p>
 <ul>
 <li>写入的位置在栈上</li>
