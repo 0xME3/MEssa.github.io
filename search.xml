@@ -1339,8 +1339,7 @@
   <entry>
     <title>蓝帽杯2022初赛_pwn_wp</title>
     <url>/2022/07/13/%E8%93%9D%E5%B8%BD%E6%9D%AF2022-pwn-wp/</url>
-    <content><![CDATA[<p>又认识到了自己的缺陷</p>
-<span id="more"></span>
+    <content><![CDATA[<span id="more"></span>
 
 <h2 id="EscapeShellcode"><a href="#EscapeShellcode" class="headerlink" title="EscapeShellcode"></a>EscapeShellcode</h2><p>对于汇编代码的运用还是没有融会贯通，以至于编写 shellcode 时并没有第一时间想出。</p>
 <h3 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h3><p>只有 canary 没开启</p>
