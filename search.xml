@@ -1460,6 +1460,25 @@
 </li>
 </ol>
 <p>若分配不成功，则会再次寻找可用 arena，调用 _int_malloc，最后释放 arena。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><p>申请 chunk 的大小不属于 small_chunk 的范围则会合并空闲 fast_chunks</p>
+</li>
+<li><p>top_chunk 不满足分配会合并空闲 fast_chunks</p>
+</li>
+<li><p>unsorted_bin 的循环再被执行时，会将其中的 chunks 分配到 small_bins 和 large_bins 中</p>
+</li>
+<li><p>unsorted_bin 中分配 chunk，先从 last_remainder 中分配，接着是 small_bins，然后是 unsorted_bin，最后是 large_bins</p>
+</li>
+<li><p>bins 中以 bin-&gt;fd 为第一个 chunk，bin-&gt;bk 为最后一个 chunk</p>
+</li>
+<li><p>从 fast_bin 中分配时，会遍历 fd，即从尾开始(FILO)；</p>
+<p>从 small_bin 中分配时，会遍历 bk，即从头开始(FIFO)；</p>
+<p>从 unsorted_bin 中分配时，会遍历 bk，即从头开始(FIFO)；</p>
+<p>从 large_bin 中分配时，会遍历 fd，即从尾开始(FILO)；</p>
+</li>
+<li><p>从 large_bin 中申请 chunk 时，是从后向前遍历查询，即 next_size 从后向前依次增大</p>
+</li>
+</ul>
 ]]></content>
       <tags>
         <tag>pwn</tag>
