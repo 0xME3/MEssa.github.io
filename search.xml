@@ -1335,7 +1335,8 @@
     <content><![CDATA[<p>以 glibc 2.23 的源码为例</p>
 <span id="more"></span>
 
-<h2 id="分配过程概述"><a href="#分配过程概述" class="headerlink" title="分配过程概述"></a>分配过程概述</h2><ol>
+<h2 id="分配过程"><a href="#分配过程" class="headerlink" title="分配过程"></a>分配过程</h2><p>以 _int_malloc 中的内容为主</p>
+<ol>
 <li><p>进行分配之前主要进行的操作有：检查 hook 并执行；获取 arena；检查 size  并规范化；检查 arena 是否可用</p>
 </li>
 <li><p>然后进行 fast_bin 相关检查与分配</p>
