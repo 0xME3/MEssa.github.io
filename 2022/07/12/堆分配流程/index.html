@@ -28,7 +28,7 @@
 <meta property="og:description" content="以 glibc 2.23 的源码为例">
 <meta property="og:locale">
 <meta property="article:published_time" content="2022-07-12T09:38:48.000Z">
-<meta property="article:modified_time" content="2022-07-14T08:19:02.727Z">
+<meta property="article:modified_time" content="2022-07-18T06:06:27.963Z">
 <meta property="article:author" content="MEss@_Rabbit">
 <meta property="article:tag" content="pwn">
 <meta property="article:tag" content="笔记">
@@ -190,7 +190,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-07-14 16:19:02" itemprop="dateModified" datetime="2022-07-14T16:19:02+08:00">2022-07-14</time>
+                <time title="Modified: 2022-07-18 14:06:27" itemprop="dateModified" datetime="2022-07-18T14:06:27+08:00">2022-07-18</time>
               </span>
 
           
@@ -207,8 +207,7 @@
         <p>以 glibc 2.23 的源码为例</p>
 <span id="more"></span>
 
-<h2 id="分配过程"><a href="#分配过程" class="headerlink" title="分配过程"></a>分配过程</h2><p>以 _int_malloc 中的内容为主</p>
-<ol>
+<h2 id="分配过程概述"><a href="#分配过程概述" class="headerlink" title="分配过程概述"></a>分配过程概述</h2><ol>
 <li><p>进行分配之前主要进行的操作有：检查 hook 并执行；获取 arena；检查 size  并规范化；检查 arena 是否可用</p>
 </li>
 <li><p>然后进行 fast_bin 相关检查与分配</p>
@@ -233,11 +232,11 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ((victim = last (bin)) != bin)</span><br></pre></td></tr></table></figure></li>
 <li><p>判断该 small_bin 是否存在，不存在则进行初始化(不存在即未初始化，arena 中是空的)</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (victim == <span class="number">0</span>) <span class="comment">/* initialization check */</span></span><br><span class="line">	malloc_consolidate (av);</span><br></pre></td></tr></table></figure></li>
-<li><p>接着会进行一次检测，检测<code>bck-&gt;fd=victim-&gt;bk-&gt;fd==victim</code></p>
+<li><p>存在则接着会进行一次检测，检测<code>bck-&gt;fd=victim-&gt;bk-&gt;fd==victim</code></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">bck = victim-&gt;bk;</span><br><span class="line"><span class="keyword">if</span> (__glibc_unlikely (bck-&gt;fd != victim))</span><br><span class="line">&#123;</span><br><span class="line">	errstr = <span class="string">&quot;malloc(): smallbin double linked list corrupted&quot;</span>;</span><br><span class="line">	<span class="keyword">goto</span> errout;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 <li><p>设置该 small_chunk 对应的 inuse 位，并将该 small_chunk 从对应 small_bin 中取出</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set_inuse_bit_at_offset (victim, nb);</span><br><span class="line">bin-&gt;bk = bck;</span><br><span class="line">bck-&gt;fd = bin;</span><br></pre></td></tr></table></figure></li>
-<li><p>接着判断该 arena 是否属于 main_arena，最后通过一次检查，才会返回 mem_chunk 的地址</p>
+<li><p>接着判断该 arena 是否属于 main_arena，最后再通过一次大小的检查，才会返回 mem_chunk 的地址</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (av != &amp;main_arena)</span><br><span class="line">	victim-&gt;size |= NON_MAIN_ARENA;</span><br><span class="line">check_malloced_chunk (av, victim, nb);</span><br><span class="line"><span class="keyword">void</span> *p = chunk2mem (victim);</span><br><span class="line">alloc_perturb (p, bytes);</span><br><span class="line"><span class="keyword">return</span> p;</span><br></pre></td></tr></table></figure></li>
 <li><p>若不属于 small_chunk，则一定属于 large_chunk，因此获取对应 index，然后查看 arena 中是否有 fast_chunk，有则调用一次 consolidate(合并空闲 fast_chunks)</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">	idx = largebin_index (nb);</span><br><span class="line">	<span class="keyword">if</span> (have_fastchunks (av))</span><br><span class="line">		malloc_consolidate (av);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
@@ -249,9 +248,9 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> ((victim = unsorted_chunks (av)-&gt;bk) != unsorted_chunks (av))</span><br></pre></td></tr></table></figure></li>
 <li><p>不为空，则进入循环，首先获取 victim 的 bk 指针，接着对 victim 的大小进行检查，通过则获取该大小</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bck = victim-&gt;bk;</span><br><span class="line"><span class="keyword">if</span> (__builtin_expect (victim-&gt;size &lt;= <span class="number">2</span> * SIZE_SZ, <span class="number">0</span>) || __builtin_expect (victim-&gt;size &gt; av-&gt;system_mem, <span class="number">0</span>))</span><br><span class="line">	malloc_printerr (check_action, <span class="string">&quot;malloc(): memory corruption&quot;</span>, hunk2mem (victim), av);</span><br><span class="line">size = chunksize (victim);</span><br></pre></td></tr></table></figure></li>
-<li><p>依次判断申请 chunk_size 是否属于 small_chunk 范围、bck 是否属于 unsorted_bin、victim 是否属于 last_remainder、victim_size 是否大于所申请 chunk_size+MINSIZE</p>
+<li><p>依次判断所申请 chunk_size 是否属于 small_chunk 范围、bck 是否属于 unsorted_bin、victim 是否属于 last_remainder、victim_size 是否大于所申请 chunk_size+MINSIZE</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (in_smallbin_range (nb) &amp;&amp; bck == unsorted_chunks (av) &amp;&amp; victim == av-&gt;last_remainder &amp;&amp; (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (size) &gt; (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (nb + MINSIZE))</span><br></pre></td></tr></table></figure></li>
-<li><p>从 last_remainder 中切割，并将 remainder 重新分配给 small_bin or large_bin</p>
+<li><p>满足，则从 last_remainder 中切割，并将 remainder 重新分配给 small_bin or large_bin</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">remainder_size = size - nb;</span><br><span class="line">remainder = chunk_at_offset (victim, nb);</span><br><span class="line">unsorted_chunks (av)-&gt;bk = unsorted_chunks (av)-&gt;fd = remainder;</span><br><span class="line">av-&gt;last_remainder = remainder;</span><br><span class="line">remainder-&gt;bk = remainder-&gt;fd = unsorted_chunks (av);</span><br><span class="line"><span class="keyword">if</span> (!in_smallbin_range (remainder_size))</span><br><span class="line">&#123;</span><br><span class="line">	remainder-&gt;fd_nextsize = <span class="literal">NULL</span>;</span><br><span class="line">	remainder-&gt;bk_nextsize = <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">set_head (victim, nb | PREV_INUSE | (av != &amp;main_arena ? NON_MAIN_ARENA : <span class="number">0</span>));</span><br><span class="line">set_head (remainder, remainder_size | PREV_INUSE);</span><br><span class="line">set_foot (remainder, remainder_size);</span><br><span class="line"></span><br><span class="line">check_malloced_chunk (av, victim, nb);</span><br><span class="line"><span class="keyword">void</span> *p = chunk2mem (victim);</span><br><span class="line">alloc_perturb (p, bytes);</span><br><span class="line"><span class="keyword">return</span> p;</span><br></pre></td></tr></table></figure></li>
 <li><p>若不属于 last_remainder，则从 unsorted_bin 中取出 victim</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">unsorted_chunks (av)-&gt;bk = bck;</span><br><span class="line">bck-&gt;fd = unsorted_chunks (av);</span><br></pre></td></tr></table></figure></li>
@@ -259,7 +258,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (size == nb)</span><br></pre></td></tr></table></figure></li>
 <li><p>合适则直接分配给用户</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">set_inuse_bit_at_offset (victim, size);</span><br><span class="line"><span class="keyword">if</span> (av != &amp;main_arena)</span><br><span class="line">	victim-&gt;size |= NON_MAIN_ARENA;</span><br><span class="line">check_malloced_chunk (av, victim, nb);</span><br><span class="line"><span class="keyword">void</span> *p = chunk2mem (victim);</span><br><span class="line">alloc_perturb (p, bytes);</span><br><span class="line"><span class="keyword">return</span> p;</span><br></pre></td></tr></table></figure></li>
-<li><p>若以上仍未返回 chunk，则会将 unsorted_bin 中的 chunk 分配到 small_bin 和 large_bin 中，先是 small_bin 的</p>
+<li><p>若以上仍未返回 chunk，则会将 unsorted_bin 中剩余的 chunk 分配到 small_bin 和 large_bin 中，先是 small_bin 的</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (in_smallbin_range (size))</span><br><span class="line">&#123;</span><br><span class="line">	victim_index = smallbin_index (size);</span><br><span class="line">	bck = bin_at (av, victim_index);</span><br><span class="line">	fwd = bck-&gt;fd;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 <li><p>否则，再是 larege_bin</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">	victim_index = largebin_index (size);</span><br><span class="line">	bck = bin_at (av, victim_index);</span><br><span class="line">	fwd = bck-&gt;fd;</span><br></pre></td></tr></table></figure></li>
@@ -273,7 +272,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAX_ITERS       10000</span></span><br><span class="line">	<span class="keyword">if</span> (++iters &gt;= MAX_ITERS)</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
 </li>
-<li><p>将 unsorted_bin 中的 chunk 分配到其他 bins 中后，才会依次从 large_bin 和 small_bin 中取出 chunk。</p>
+<li><p>将 unsorted_bin 中的 chunk 分配到其他 bins 中后，才会从 large_bin 中取出 chunk。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!in_smallbin_range (nb))</span><br></pre></td></tr></table></figure>
 
 <ul>
@@ -438,7 +437,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E9%85%8D%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">分配过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E9%85%8D%E8%BF%87%E7%A8%8B%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">分配过程概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
