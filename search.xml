@@ -1523,7 +1523,8 @@
   <entry>
     <title>DASCTF2022</title>
     <url>/2022/07/27/DASCTF2022/</url>
-    <content><![CDATA[<span id="more"></span>
+    <content><![CDATA[<p>慢慢来</p>
+<span id="more"></span>
 
 <h2 id="July"><a href="#July" class="headerlink" title="July"></a>July</h2><p>感觉最近积极性不强，没什么干劲。</p>
 <h3 id="eyfor"><a href="#eyfor" class="headerlink" title="eyfor"></a>eyfor</h3><h4 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h4><p>保护只开了 Partial RELRO、NX。</p>
@@ -1566,6 +1567,7 @@
         <tag>writeup</tag>
         <tag>pwn</tag>
         <tag>CTF</tag>
+        <tag>DASCTF</tag>
       </tags>
   </entry>
   <entry>
