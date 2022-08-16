@@ -1388,8 +1388,9 @@
 <ul>
 <li>unsorted_bin-&gt;bk=target-0x10</li>
 <li>large_bin-&gt;bk=target-0x8</li>
-<li>large_bin-&gt;bk_nextsize=target-0x28-shift_amount<br>效果：<br>target-0x10 被链入 unsorted_bin 中。</li>
+<li>large_bin-&gt;bk_nextsize=target-0x28-shift_amount</li>
 </ul>
+<p>效果：<br>  target-0x10 被链入 unsorted_bin 中。</p>
 <h1 id="glibc-2-29"><a href="#glibc-2-29" class="headerlink" title="glibc_2.29"></a>glibc_2.29</h1><h2 id="tcache-stashing-unlink-attack"><a href="#tcache-stashing-unlink-attack" class="headerlink" title="tcache_stashing_unlink_attack"></a>tcache_stashing_unlink_attack</h2><p>适用于 glibc-2.27, glibc-2.29 glibc-2.31</p>
 <p>demo 首先创建了一个 fake_chunk($stack_var)，申请了9个 chunk，地址存储在 $chunk_lis 中，然后将其全部释放，前两个位于 unsorted_bin 中，后7个位于 tcache 中。在申请一个较大 chunk 后被放入 small_bin 中。继续申请，使得 tcache 未满。</p>
 <p>修改 unsorted_bin 的最后一个 chunk 的 bk 指针为 target_addr-0x20。然后使用 calloc 申请一个 chunk(calloc 不会从 tcache 中取，realloc 也是)，就会将 small_bin 中的 chunk 放入 tcache，同时也完成了对 target_addr 的修改。</p>
