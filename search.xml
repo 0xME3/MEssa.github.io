@@ -1325,7 +1325,26 @@
 <li><p>*(target+0x8) = unsorted_bin;</p>
 </li>
 </ul>
-<p>修改了的数据有：<br>||||<br>|:-|:-|:-|<br>|unsorted_bin+0x10|未修改|target-0x8|<br>|unsorted_bin+0x20|large_bin|target-0x28-shift_amount|</p>
+<p>修改了的数据有：</p>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left"></th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">unsorted_bin+0x10</td>
+<td align="left">未修改</td>
+<td align="left">target-0x8</td>
+</tr>
+<tr>
+<td align="left">unsorted_bin+0x20</td>
+<td align="left">large_bin</td>
+<td align="left">target-0x28-shift_amount</td>
+</tr>
+</tbody></table>
 <table>
 <thead>
 <tr>
