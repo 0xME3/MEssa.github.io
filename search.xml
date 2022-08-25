@@ -2187,6 +2187,61 @@
       </tags>
   </entry>
   <entry>
+    <title>musl初识</title>
+    <url>/2022/08/25/musl%E5%88%9D%E8%AF%86/</url>
+    <content><![CDATA[<p>musl 库的一些基本知识</p>
+<span id="more"></span>
+
+<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">chunk</span> &#123;</span></span><br><span class="line">	<span class="keyword">size_t</span> psize, csize;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">chunk</span> *<span class="title">next</span>, *<span class="title">prev</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bin</span> &#123;</span></span><br><span class="line">	<span class="keyword">volatile</span> <span class="keyword">int</span> lock[<span class="number">2</span>];</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">chunk</span> *<span class="title">head</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">chunk</span> *<span class="title">tail</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>chunk：</p>
+<ul>
+<li>psize：prev_size</li>
+<li>csize：chunk_size</li>
+<li>*next：fd</li>
+<li>*prev：bk</li>
+</ul>
+<p>已分配的 chunk 之间是相互连续的，可以通过 psize 与 csize 访问;当 chunk 空闲时，是通过 next 与 prev 相连的。<br>当 flag==1 时，表示该chunk为小chunk，释放时放入bin; falg==0 时，表示该chunk为大chunk，释放时调用munmap。</p>
+<p>bin：</p>
+<ul>
+<li>lock[2]：用于锁</li>
+<li>*head：指向第一个 chunk 的 mem</li>
+<li>*tail：指向最后一个 chunk 的 mem</li>
+</ul>
+<p>bin 是一个管理空闲 chunk 的链式结构，当 bin 中空闲时，head 和 tail 都指向 bin 本身。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">	<span class="keyword">volatile</span> <span class="keyword">uint64_t</span> binmap;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">bin</span> <span class="title">bins</span>[64];</span></span><br><span class="line">	<span class="keyword">volatile</span> <span class="keyword">int</span> split_merge_lock[<span class="number">2</span>];</span><br><span class="line">&#125; mal;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>binmap：位图，每位对应一个bin</li>
+<li>bins[64]：bin数组，固定64个bin，表示可以有64个空闲chunk链表</li>
+<li>free_lock[2]：用于锁</li>
+</ul>
+<p>musl 中的分配区，与 ptmalloc 中的 arena 不同的是，并没有对 bins 有除了大小外的区分。</p>
+<h2 id="malloc"><a href="#malloc" class="headerlink" title="malloc"></a>malloc</h2><p>大致流程：</p>
+<ol>
+<li>检查申请大小<ul>
+<li>n&lt;0:返回0</li>
+<li>n&gt;MMAP_THRESHOLD:调用 mmap 直接分配</li>
+</ul>
+</li>
+<li>获取 n 对应的 bin_idx，若该 idx 对应的 bin 不为空，则取出 chunk。</li>
+<li>若 bin 为空，则调用 expand_heap 来获取 chunk， expand_heap 的主要流程为：<ul>
+<li>无 brk，则先生成一个新 brk。有则判断是否满足所申请大小，满足则使用 brk</li>
+<li>brk 不满足，则会调用 mmap 直接申请一个 chunk。</li>
+</ul>
+</li>
+</ol>
+<h2 id="free"><a href="#free" class="headerlink" title="free"></a>free</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free</span><span class="params">(<span class="keyword">void</span> *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> __libc_free(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>直接调用了 __libc_free 进行释放。</p>
+]]></content>
+      <tags>
+        <tag>pwn</tag>
+        <tag>笔记</tag>
+        <tag>heap</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>categories</title>
     <url>/categories/index.html</url>
     <content><![CDATA[]]></content>

