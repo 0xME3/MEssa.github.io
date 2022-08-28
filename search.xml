@@ -74,106 +74,6 @@
       </tags>
   </entry>
   <entry>
-    <title>FILE结构及利用</title>
-    <url>/2022/07/27/FILE%E7%BB%93%E6%9E%84%E5%8F%8A%E5%88%A9%E7%94%A8/</url>
-    <content><![CDATA[<p>把上半年学的东西总结一下。</p>
-<span id="more"></span>
-
-<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>IO_FILE 结构体在程序执行 fopen 等函数时会进行创建，并分配在堆中。</p>
-<p>IO_FILE 结构体会通过 _chain 连接形成一个链表，链表头部用全局变量 _IO_list_all 表示，通常第一个指向 stderr ，通过这个变量我们可以遍历所有的 IO_FILE 结构体。</p>
-<p>在标准 I/O 库中，每个程序启动时有三个文件流是自动打开的：stdin、stdout、stderr。可以在 libc.so 中找到这些符号，它们指向各自 IO_FILE 结构体的指针，而 IO_FILE 结构体真正的符号是 _IO_2_1_stderr_、_IO_2_1_stdout_、_IO_2_1_stdin_(即 stdout -&gt; _IO_2_1_stdout_)。</p>
-<p>_IO_FILE 结构体一般处于 _IO_FILE_plus 中，_IO_FILE_plus 中还包含着 一个 IO_jump_t 类型指针 vtable。该结构类型中的成员是一些函数指针。</p>
-<h3 id="结构体源码"><a href="#结构体源码" class="headerlink" title="结构体源码"></a>结构体源码</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE_plus</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    _IO_FILE    file;</span><br><span class="line">    IO_jump_t   *vtable;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> _flags;		<span class="comment">/* High-order word is _IO_MAGIC; rest is flags. */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_file_flags _flags</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* The following pointers correspond to the C++ streambuf protocol. */</span></span><br><span class="line">  <span class="comment">/* Note:  Tk uses the _IO_read_ptr and _IO_read_end fields directly. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_ptr;	<span class="comment">/* Current read pointer */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_end;	<span class="comment">/* End of get area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_base;	<span class="comment">/* Start of putback+get area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_base;	<span class="comment">/* Start of put area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_ptr;	<span class="comment">/* Current put pointer. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_end;	<span class="comment">/* End of put area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_buf_base;	<span class="comment">/* Start of reserve area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_buf_end;	<span class="comment">/* End of reserve area. */</span></span><br><span class="line">  <span class="comment">/* The following fields are used to support backing up and undo. */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_save_base; <span class="comment">/* Pointer to start of non-current get area. */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_backup_base;  <span class="comment">/* Pointer to first valid character of backup area */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_save_end; <span class="comment">/* Pointer to end of non-current get area. */</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">IO_marker</span> *_<span class="title">markers</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE</span> *_<span class="title">chain</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> _fileno;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">  <span class="keyword">int</span> _blksize;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">  <span class="keyword">int</span> _flags2;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">  _IO_off_t _old_offset; <span class="comment">/* This used to be _offset but it&#x27;s too small.  */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __HAVE_COLUMN <span class="comment">/* temporary */</span></span></span><br><span class="line">  <span class="comment">/* 1+column number of pbase(); 0 is unknown. */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">short</span> _cur_column;</span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">char</span> _vtable_offset;</span><br><span class="line">  <span class="keyword">char</span> _shortbuf[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">  <span class="comment">/*  char* _save_gptr;  char* _save_egptr; */</span></span><br><span class="line"></span><br><span class="line">  _IO_lock_t *_lock;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _IO_USE_OLD_IO_FILE</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<h4 id="flags"><a href="#flags" class="headerlink" title="_flags"></a>_flags</h4><p>该标志的高两字节是由libc固定的，标志这个文件的类型，一般为<code>0xfbad</code>；低两字节决定程序的执行状态。</p>
-<p>识别该标志是通过与运算，不同状态对应的二进制码如下(十六进制表示)：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_MAGIC 0xFBAD0000 <span class="comment">/* Magic number */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _OLD_STDIO_MAGIC 0xFABC0000 <span class="comment">/* Emulate old stdio. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_MAGIC_MASK 0xFFFF0000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_USER_BUF 1 <span class="comment">/* User owns buffer; don&#x27;t delete it on close. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_UNBUFFERED 2</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_NO_READS 4 <span class="comment">/* Reading not allowed */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_NO_WRITES 8 <span class="comment">/* Writing not allowd */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_EOF_SEEN 0x10</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_ERR_SEEN 0x20</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_DELETE_DONT_CLOSE 0x40 <span class="comment">/* Don&#x27;t call close(_fileno) on cleanup. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_LINKED 0x80 <span class="comment">/* Set if linked (using _chain) to streambuf::_list_all.*/</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_IN_BACKUP 0x100</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_LINE_BUF 0x200</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_TIED_PUT_GET 0x400 <span class="comment">/* Set if put and get pointer logicly tied. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_CURRENTLY_PUTTING 0x800</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_IS_APPENDING 0x1000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_IS_FILEBUF 0x2000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_BAD_SEEN 0x4000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_USER_LOCK 0x8000</span></span><br></pre></td></tr></table></figure>
-
-<p>其中各缓冲区指针的作用是在缓冲区中划分的一个范围：</p>
-<ul>
-<li>_IO_buf_base 指向文件流缓冲区的起始位置<br>_IO_buf_end 指向文件流缓冲区的结束位置</li>
-<li>_IO_read_base 指向缓冲区中的待读出数据的起始位置<br>_IO_read_end 指向缓冲区中的待读出数据的结束位置<br>_IO_read_ptr 指向缓冲区中待读出数据的当前位置<ul>
-<li>我们将 _IO_read_base 与 _IO_read_end 之间的缓冲区称为输入缓冲区</li>
-</ul>
-</li>
-<li>_IO_write_base 指向缓冲区中待写入的起始位置<br>_IO_write_end 指向缓冲区中待写入的结束位置<br>_IO_write_ptr 指向缓冲区中待写入数据的当前位置<ul>
-<li>我们将 _IO_write_base 与 _IO_write_end 之间的缓冲区称为输出缓冲区</li>
-</ul>
-</li>
-</ul>
-<p>vtable 相对于 _IO_FILE 的偏移是固定的，32 位的 vtable 偏移为 0x94，64 位偏移为 0xd8。(即相应 IO_FILE 结构体的长度)</p>
-<p>_IO_FILE 结构体之间通过 chain 来链接，链表的头部是 IO_list_all，每个 chain 指向下一个文件流的 _flags(每个文件流的首地址)，IO_list_all 指向 stderr 的 _flags。</p>
-<h4 id="vtable"><a href="#vtable" class="headerlink" title="vtable"></a>vtable</h4><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">IO_jump_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    JUMP_FIELD(<span class="keyword">size_t</span>, __dummy);</span><br><span class="line">    JUMP_FIELD(<span class="keyword">size_t</span>, __dummy2);</span><br><span class="line">    JUMP_FIELD(_IO_finish_t, __finish);</span><br><span class="line">    JUMP_FIELD(_IO_overflow_t, __overflow);</span><br><span class="line">    JUMP_FIELD(_IO_underflow_t, __underflow);</span><br><span class="line">    JUMP_FIELD(_IO_underflow_t, __uflow);</span><br><span class="line">    JUMP_FIELD(_IO_pbackfail_t, __pbackfail);</span><br><span class="line">    <span class="comment">/* showmany */</span></span><br><span class="line">    JUMP_FIELD(_IO_xsputn_t, __xsputn);</span><br><span class="line">    JUMP_FIELD(_IO_xsgetn_t, __xsgetn);</span><br><span class="line">    JUMP_FIELD(_IO_seekoff_t, __seekoff);</span><br><span class="line">    JUMP_FIELD(_IO_seekpos_t, __seekpos);</span><br><span class="line">    JUMP_FIELD(_IO_setbuf_t, __setbuf);</span><br><span class="line">    JUMP_FIELD(_IO_sync_t, __sync);</span><br><span class="line">    JUMP_FIELD(_IO_doallocate_t, __doallocate);</span><br><span class="line">    JUMP_FIELD(_IO_read_t, __read);</span><br><span class="line">    JUMP_FIELD(_IO_write_t, __write);</span><br><span class="line">    JUMP_FIELD(_IO_seek_t, __seek);</span><br><span class="line">    JUMP_FIELD(_IO_close_t, __close);</span><br><span class="line">    JUMP_FIELD(_IO_stat_t, __stat);</span><br><span class="line">    JUMP_FIELD(_IO_showmanyc_t, __showmanyc);</span><br><span class="line">    JUMP_FIELD(_IO_imbue_t, __imbue);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>其中指向了各种函数，我们对文件流的 orw 都是调用的这个指针，这个指针再调用指针指向的函数。简单说下调用这些函数时的流程：</p>
-<h5 id="fread"><a href="#fread" class="headerlink" title="fread"></a>fread</h5><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">size_t</span> <span class="title">fread</span><span class="params">( <span class="keyword">void</span> *buffer, <span class="keyword">size_t</span> size, <span class="keyword">size_t</span> count, FILE *stream)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p><strong>参数</strong></p>
-<ul>
-<li>buffer 存放读取数据的缓冲区。</li>
-<li>size：指定每个记录的长度。</li>
-<li>count： 指定记录的个数。</li>
-<li>stream：目标文件流。</li>
-</ul>
-<p>返回值：返回读取到数据缓冲区中的记录个数</p>
-<p>__read 指向的是 _IO_fread 函数，该函数位于 /glibc/libio/iofread.c。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">_IO_size_t _IO_fread (<span class="keyword">void</span> *buf, _IO_size_t size, _IO_size_t count, _IO_FILE *fp)</span><br><span class="line">&#123;</span><br><span class="line">  _IO_size_t bytes_requested = size * count;</span><br><span class="line">  _IO_size_t bytes_read;</span><br><span class="line">  CHECK_FILE (fp, <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">if</span> (bytes_requested == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  _IO_acquire_lock (fp);</span><br><span class="line">  bytes_read = _IO_sgetn (fp, (<span class="keyword">char</span> *) buf, bytes_requested);</span><br><span class="line">  _IO_release_lock (fp);</span><br><span class="line">  <span class="keyword">return</span> bytes_requested == bytes_read ? count : bytes_read / size;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>_IO_fread 函数很短，实际上功能是由 _IO_sgetn 函数实现的， _IO_sgetn 位于 glibc/libio/genops.c。</p>
-<p>_IO_sgetn 则直接调用 _IO_XSGETN，而 _IO_XSGETN 是一个宏定义，内容是调用 _IO_file_xsgetn，也就是 _IO_FILE_plus.vtable 中保存的 __xsgetn 指针。</p>
-<p>_IO_file_xsgetn 函数位于 /glibc/libio/fileops.c。这个函数流程过长，我放到<a href="http://blog.rabb1t.xyz/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/#_IO_file_xsgetn">详情</a>中。</p>
-<h5 id="fwrite"><a href="#fwrite" class="headerlink" title="fwrite"></a>fwrite</h5><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">size_t</span> <span class="title">fwrite</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span>* buffer, <span class="keyword">size_t</span> size, <span class="keyword">size_t</span> count, FILE* stream)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p><strong>参数</strong></p>
-<ul>
-<li>buffer: 是一个指针，对 fwrite 来说，是要写入数据的地址;</li>
-<li>size: 要写入内容的单字节数;</li>
-<li>count: 要进行写入 size 字节的数据项的个数;</li>
-<li>stream: 目标文件指针;</li>
-</ul>
-<p>返回值：实际写入的数据项个数 count。</p>
-<p>__write 指向 _IO_fwrite 的代码位于 /libio/iofwrite.c 中。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">_IO_size_t _IO_fwrite (<span class="keyword">const</span> <span class="keyword">void</span> *buf, _IO_size_t size, _IO_size_t count, _IO_FILE *fp)</span><br><span class="line">&#123;</span><br><span class="line">  _IO_size_t request = size * count;</span><br><span class="line">  _IO_size_t written = <span class="number">0</span>;</span><br><span class="line">  CHECK_FILE (fp, <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">if</span> (request == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  _IO_acquire_lock (fp);</span><br><span class="line">  <span class="keyword">if</span> (_IO_vtable_offset (fp) != <span class="number">0</span> || _IO_fwide (fp, <span class="number">-1</span>) == <span class="number">-1</span>)</span><br><span class="line">    written = _IO_sputn (fp, (<span class="keyword">const</span> <span class="keyword">char</span> *) buf, request);</span><br><span class="line">  _IO_release_lock (fp);</span><br><span class="line">  <span class="comment">/* We have written all of the input in case the return value indicates</span></span><br><span class="line"><span class="comment">     this or EOF is returned.  The latter is a special case where we</span></span><br><span class="line"><span class="comment">     simply did not manage to flush the buffer.  But the data is in the</span></span><br><span class="line"><span class="comment">     buffer and therefore written as far as fwrite is concerned.  */</span></span><br><span class="line">  <span class="keyword">if</span> (written == request || written == EOF)</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> written / size;</span><br><span class="line">&#125;</span><br><span class="line">libc_hidden_def (_IO_fwrite)</span><br></pre></td></tr></table></figure>
-
-<p>在 _IO_fwrite 中主要是调用_IO_XSPUTN 来实现写入的功能。_IO_sputn 也就是 __xsputn，其对应的默认函数是 _IO_new_file_xsputn 会调用同样位于 vtable 中的 _IO_OVERFLOW。而 _IO_OVERFLOW 默认对应的函数是_IO_new_file_overflow。_IO_new_file_xsputn 与 _IO_new_file_overflow 都位于 /libio/fileops.c 中。<a href="http://blog.rabb1t.xyz/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/#_IO_file_xsputn">详情</a></p>
-<h5 id="fopen"><a href="#fopen" class="headerlink" title="fopen"></a>fopen</h5><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function">FILE *<span class="title">fopen</span><span class="params">(<span class="keyword">char</span> *filename, *type)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>位于 /libio/iofopen.c 中，很短，只是调用了 __fopen_internal。</p>
-<h6 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h6><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">_IO_FILE * _IO_new_fopen (<span class="keyword">const</span> <span class="keyword">char</span> *filename, <span class="keyword">const</span> <span class="keyword">char</span> *mode)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">return</span> __fopen_internal (filename, mode, <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>__fopen_internal 主要是四个部分：<a href="http://blog.rabb1t.xyz/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/">详情</a></p>
-<ul>
-<li>malloc分配内存空间。</li>
-<li>_IO_no_init 对file结构体进行null初始化。</li>
-<li>_IO_file_init 将结构体链接进_IO_list_all链表。</li>
-<li>_IO_file_fopen 执行系统调用打开文件。</li>
-</ul>
-<h6 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h6><ul>
-<li>filename: 目标文件的路径</li>
-<li>type: 打开方式的类型</li>
-</ul>
-<p>返回值: 返回一个文件指针</p>
-<h5 id="fclose"><a href="#fclose" class="headerlink" title="fclose"></a>fclose</h5><p>位于 /libio/iofclose.c</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fclose</span><span class="params">(FILE *stream)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<h6 id="参数-1"><a href="#参数-1" class="headerlink" title="参数"></a>参数</h6><ul>
-<li>stream: 文件流指针</li>
-</ul>
-<h6 id="流程-1"><a href="#流程-1" class="headerlink" title="流程"></a>流程</h6><ul>
-<li>调用_IO_un_link将文件结构体从_IO_list_all链表中取下。</li>
-<li>调用_IO_file_close_it关闭文件并释放缓冲区。</li>
-<li>释放FILE内存以及确认文件关闭。</li>
-</ul>
-<p><a href="http://blog.rabb1t.xyz/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/">详情</a></p>
-<p><strong>参考</strong></p>
-<p><a href="https://ctf-wiki.org/pwn/linux/user-mode/io-file/introduction/">CTF Wiki</a><br><a href="https://blog.csdn.net/qq_46441427/article/details/119769510">IO_FILE fread</a><br><a href="https://ray-cp.github.io/">raycp 大佬的 IO_FILE 系列</a></p>
-]]></content>
-      <tags>
-        <tag>IO_FILE</tag>
-        <tag>笔记</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>FSOP</title>
     <url>/2022/05/27/FSOP/</url>
     <content><![CDATA[<p>通过劫持 _IO_list_all 来伪造链表</p>
@@ -2239,6 +2139,106 @@
         <tag>pwn</tag>
         <tag>笔记</tag>
         <tag>heap</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>FILE结构及利用</title>
+    <url>/2022/07/27/FILE%E7%BB%93%E6%9E%84/</url>
+    <content><![CDATA[<p>把上半年学的东西总结一下。</p>
+<span id="more"></span>
+
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>IO_FILE 结构体在程序执行 fopen 等函数时会进行创建，并分配在堆中。</p>
+<p>IO_FILE 结构体会通过 _chain 连接形成一个链表，链表头部用全局变量 _IO_list_all 表示，通常第一个指向 stderr ，通过这个变量我们可以遍历所有的 IO_FILE 结构体。</p>
+<p>在标准 I/O 库中，每个程序启动时有三个文件流是自动打开的：stdin、stdout、stderr。可以在 libc.so 中找到这些符号，它们指向各自 IO_FILE 结构体的指针，而 IO_FILE 结构体真正的符号是 _IO_2_1_stderr_、_IO_2_1_stdout_、_IO_2_1_stdin_(即 stdout -&gt; _IO_2_1_stdout_)。</p>
+<p>_IO_FILE 结构体一般处于 _IO_FILE_plus 中，_IO_FILE_plus 中还包含着 一个 IO_jump_t 类型指针 vtable。该结构类型中的成员是一些函数指针。</p>
+<h3 id="结构体源码"><a href="#结构体源码" class="headerlink" title="结构体源码"></a>结构体源码</h3><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE_plus</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    _IO_FILE    file;</span><br><span class="line">    IO_jump_t   *vtable;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> _flags;		<span class="comment">/* High-order word is _IO_MAGIC; rest is flags. */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_file_flags _flags</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* The following pointers correspond to the C++ streambuf protocol. */</span></span><br><span class="line">  <span class="comment">/* Note:  Tk uses the _IO_read_ptr and _IO_read_end fields directly. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_ptr;	<span class="comment">/* Current read pointer */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_end;	<span class="comment">/* End of get area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_base;	<span class="comment">/* Start of putback+get area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_base;	<span class="comment">/* Start of put area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_ptr;	<span class="comment">/* Current put pointer. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_end;	<span class="comment">/* End of put area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_buf_base;	<span class="comment">/* Start of reserve area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_buf_end;	<span class="comment">/* End of reserve area. */</span></span><br><span class="line">  <span class="comment">/* The following fields are used to support backing up and undo. */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_save_base; <span class="comment">/* Pointer to start of non-current get area. */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_backup_base;  <span class="comment">/* Pointer to first valid character of backup area */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_save_end; <span class="comment">/* Pointer to end of non-current get area. */</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">IO_marker</span> *_<span class="title">markers</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE</span> *_<span class="title">chain</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> _fileno;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">  <span class="keyword">int</span> _blksize;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">  <span class="keyword">int</span> _flags2;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">  _IO_off_t _old_offset; <span class="comment">/* This used to be _offset but it&#x27;s too small.  */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __HAVE_COLUMN <span class="comment">/* temporary */</span></span></span><br><span class="line">  <span class="comment">/* 1+column number of pbase(); 0 is unknown. */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">short</span> _cur_column;</span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">char</span> _vtable_offset;</span><br><span class="line">  <span class="keyword">char</span> _shortbuf[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">  <span class="comment">/*  char* _save_gptr;  char* _save_egptr; */</span></span><br><span class="line"></span><br><span class="line">  _IO_lock_t *_lock;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _IO_USE_OLD_IO_FILE</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="flags"><a href="#flags" class="headerlink" title="_flags"></a>_flags</h4><p>该标志的高两字节是由libc固定的，标志这个文件的类型，一般为<code>0xfbad</code>；低两字节决定程序的执行状态。</p>
+<p>识别该标志是通过与运算，不同状态对应的二进制码如下(十六进制表示)：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_MAGIC 0xFBAD0000 <span class="comment">/* Magic number */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _OLD_STDIO_MAGIC 0xFABC0000 <span class="comment">/* Emulate old stdio. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_MAGIC_MASK 0xFFFF0000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_USER_BUF 1 <span class="comment">/* User owns buffer; don&#x27;t delete it on close. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_UNBUFFERED 2</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_NO_READS 4 <span class="comment">/* Reading not allowed */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_NO_WRITES 8 <span class="comment">/* Writing not allowd */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_EOF_SEEN 0x10</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_ERR_SEEN 0x20</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_DELETE_DONT_CLOSE 0x40 <span class="comment">/* Don&#x27;t call close(_fileno) on cleanup. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_LINKED 0x80 <span class="comment">/* Set if linked (using _chain) to streambuf::_list_all.*/</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_IN_BACKUP 0x100</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_LINE_BUF 0x200</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_TIED_PUT_GET 0x400 <span class="comment">/* Set if put and get pointer logicly tied. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_CURRENTLY_PUTTING 0x800</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_IS_APPENDING 0x1000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_IS_FILEBUF 0x2000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_BAD_SEEN 0x4000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_USER_LOCK 0x8000</span></span><br></pre></td></tr></table></figure>
+
+<p>其中各缓冲区指针的作用是在缓冲区中划分的一个范围：</p>
+<ul>
+<li>_IO_buf_base 指向文件流缓冲区的起始位置<br>_IO_buf_end 指向文件流缓冲区的结束位置</li>
+<li>_IO_read_base 指向缓冲区中的待读出数据的起始位置<br>_IO_read_end 指向缓冲区中的待读出数据的结束位置<br>_IO_read_ptr 指向缓冲区中待读出数据的当前位置<ul>
+<li>我们将 _IO_read_base 与 _IO_read_end 之间的缓冲区称为输入缓冲区</li>
+</ul>
+</li>
+<li>_IO_write_base 指向缓冲区中待写入的起始位置<br>_IO_write_end 指向缓冲区中待写入的结束位置<br>_IO_write_ptr 指向缓冲区中待写入数据的当前位置<ul>
+<li>我们将 _IO_write_base 与 _IO_write_end 之间的缓冲区称为输出缓冲区</li>
+</ul>
+</li>
+</ul>
+<p>vtable 相对于 _IO_FILE 的偏移是固定的，32 位的 vtable 偏移为 0x94，64 位偏移为 0xd8。(即相应 IO_FILE 结构体的长度)</p>
+<p>_IO_FILE 结构体之间通过 chain 来链接，链表的头部是 IO_list_all，每个 chain 指向下一个文件流的 _flags(每个文件流的首地址)，IO_list_all 指向 stderr 的 _flags。</p>
+<h4 id="vtable"><a href="#vtable" class="headerlink" title="vtable"></a>vtable</h4><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">IO_jump_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    JUMP_FIELD(<span class="keyword">size_t</span>, __dummy);</span><br><span class="line">    JUMP_FIELD(<span class="keyword">size_t</span>, __dummy2);</span><br><span class="line">    JUMP_FIELD(_IO_finish_t, __finish);</span><br><span class="line">    JUMP_FIELD(_IO_overflow_t, __overflow);</span><br><span class="line">    JUMP_FIELD(_IO_underflow_t, __underflow);</span><br><span class="line">    JUMP_FIELD(_IO_underflow_t, __uflow);</span><br><span class="line">    JUMP_FIELD(_IO_pbackfail_t, __pbackfail);</span><br><span class="line">    <span class="comment">/* showmany */</span></span><br><span class="line">    JUMP_FIELD(_IO_xsputn_t, __xsputn);</span><br><span class="line">    JUMP_FIELD(_IO_xsgetn_t, __xsgetn);</span><br><span class="line">    JUMP_FIELD(_IO_seekoff_t, __seekoff);</span><br><span class="line">    JUMP_FIELD(_IO_seekpos_t, __seekpos);</span><br><span class="line">    JUMP_FIELD(_IO_setbuf_t, __setbuf);</span><br><span class="line">    JUMP_FIELD(_IO_sync_t, __sync);</span><br><span class="line">    JUMP_FIELD(_IO_doallocate_t, __doallocate);</span><br><span class="line">    JUMP_FIELD(_IO_read_t, __read);</span><br><span class="line">    JUMP_FIELD(_IO_write_t, __write);</span><br><span class="line">    JUMP_FIELD(_IO_seek_t, __seek);</span><br><span class="line">    JUMP_FIELD(_IO_close_t, __close);</span><br><span class="line">    JUMP_FIELD(_IO_stat_t, __stat);</span><br><span class="line">    JUMP_FIELD(_IO_showmanyc_t, __showmanyc);</span><br><span class="line">    JUMP_FIELD(_IO_imbue_t, __imbue);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>其中指向了各种函数，我们对文件流的 orw 都是调用的这个指针，这个指针再调用指针指向的函数。简单说下调用这些函数时的流程：</p>
+<h5 id="fread"><a href="#fread" class="headerlink" title="fread"></a>fread</h5><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">size_t</span> <span class="title">fread</span><span class="params">( <span class="keyword">void</span> *buffer, <span class="keyword">size_t</span> size, <span class="keyword">size_t</span> count, FILE *stream)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数</strong></p>
+<ul>
+<li>buffer 存放读取数据的缓冲区。</li>
+<li>size：指定每个记录的长度。</li>
+<li>count： 指定记录的个数。</li>
+<li>stream：目标文件流。</li>
+</ul>
+<p>返回值：返回读取到数据缓冲区中的记录个数</p>
+<p>__read 指向的是 _IO_fread 函数，该函数位于 /glibc/libio/iofread.c。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">_IO_size_t _IO_fread (<span class="keyword">void</span> *buf, _IO_size_t size, _IO_size_t count, _IO_FILE *fp)</span><br><span class="line">&#123;</span><br><span class="line">  _IO_size_t bytes_requested = size * count;</span><br><span class="line">  _IO_size_t bytes_read;</span><br><span class="line">  CHECK_FILE (fp, <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">if</span> (bytes_requested == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  _IO_acquire_lock (fp);</span><br><span class="line">  bytes_read = _IO_sgetn (fp, (<span class="keyword">char</span> *) buf, bytes_requested);</span><br><span class="line">  _IO_release_lock (fp);</span><br><span class="line">  <span class="keyword">return</span> bytes_requested == bytes_read ? count : bytes_read / size;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>_IO_fread 函数很短，实际上功能是由 _IO_sgetn 函数实现的， _IO_sgetn 位于 glibc/libio/genops.c。</p>
+<p>_IO_sgetn 则直接调用 _IO_XSGETN，而 _IO_XSGETN 是一个宏定义，内容是调用 _IO_file_xsgetn，也就是 _IO_FILE_plus.vtable 中保存的 __xsgetn 指针。</p>
+<p>_IO_file_xsgetn 函数位于 /glibc/libio/fileops.c。这个函数流程过长，我放到<a href="http://blog.rabb1t.xyz/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/#_IO_file_xsgetn">详情</a>中。</p>
+<h5 id="fwrite"><a href="#fwrite" class="headerlink" title="fwrite"></a>fwrite</h5><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">size_t</span> <span class="title">fwrite</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span>* buffer, <span class="keyword">size_t</span> size, <span class="keyword">size_t</span> count, FILE* stream)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数</strong></p>
+<ul>
+<li>buffer: 是一个指针，对 fwrite 来说，是要写入数据的地址;</li>
+<li>size: 要写入内容的单字节数;</li>
+<li>count: 要进行写入 size 字节的数据项的个数;</li>
+<li>stream: 目标文件指针;</li>
+</ul>
+<p>返回值：实际写入的数据项个数 count。</p>
+<p>__write 指向 _IO_fwrite 的代码位于 /libio/iofwrite.c 中。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">_IO_size_t _IO_fwrite (<span class="keyword">const</span> <span class="keyword">void</span> *buf, _IO_size_t size, _IO_size_t count, _IO_FILE *fp)</span><br><span class="line">&#123;</span><br><span class="line">  _IO_size_t request = size * count;</span><br><span class="line">  _IO_size_t written = <span class="number">0</span>;</span><br><span class="line">  CHECK_FILE (fp, <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">if</span> (request == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  _IO_acquire_lock (fp);</span><br><span class="line">  <span class="keyword">if</span> (_IO_vtable_offset (fp) != <span class="number">0</span> || _IO_fwide (fp, <span class="number">-1</span>) == <span class="number">-1</span>)</span><br><span class="line">    written = _IO_sputn (fp, (<span class="keyword">const</span> <span class="keyword">char</span> *) buf, request);</span><br><span class="line">  _IO_release_lock (fp);</span><br><span class="line">  <span class="comment">/* We have written all of the input in case the return value indicates</span></span><br><span class="line"><span class="comment">     this or EOF is returned.  The latter is a special case where we</span></span><br><span class="line"><span class="comment">     simply did not manage to flush the buffer.  But the data is in the</span></span><br><span class="line"><span class="comment">     buffer and therefore written as far as fwrite is concerned.  */</span></span><br><span class="line">  <span class="keyword">if</span> (written == request || written == EOF)</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> written / size;</span><br><span class="line">&#125;</span><br><span class="line">libc_hidden_def (_IO_fwrite)</span><br></pre></td></tr></table></figure>
+
+<p>在 _IO_fwrite 中主要是调用_IO_XSPUTN 来实现写入的功能。_IO_sputn 也就是 __xsputn，其对应的默认函数是 _IO_new_file_xsputn 会调用同样位于 vtable 中的 _IO_OVERFLOW。而 _IO_OVERFLOW 默认对应的函数是_IO_new_file_overflow。_IO_new_file_xsputn 与 _IO_new_file_overflow 都位于 /libio/fileops.c 中。<a href="http://blog.rabb1t.xyz/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/#_IO_file_xsputn">详情</a></p>
+<h5 id="fopen"><a href="#fopen" class="headerlink" title="fopen"></a>fopen</h5><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function">FILE *<span class="title">fopen</span><span class="params">(<span class="keyword">char</span> *filename, *type)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>位于 /libio/iofopen.c 中，很短，只是调用了 __fopen_internal。</p>
+<h6 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h6><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">_IO_FILE * _IO_new_fopen (<span class="keyword">const</span> <span class="keyword">char</span> *filename, <span class="keyword">const</span> <span class="keyword">char</span> *mode)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">return</span> __fopen_internal (filename, mode, <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>__fopen_internal 主要是四个部分：<a href="http://blog.rabb1t.xyz/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/">详情</a></p>
+<ul>
+<li>malloc分配内存空间。</li>
+<li>_IO_no_init 对file结构体进行null初始化。</li>
+<li>_IO_file_init 将结构体链接进_IO_list_all链表。</li>
+<li>_IO_file_fopen 执行系统调用打开文件。</li>
+</ul>
+<h6 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h6><ul>
+<li>filename: 目标文件的路径</li>
+<li>type: 打开方式的类型</li>
+</ul>
+<p>返回值: 返回一个文件指针</p>
+<h5 id="fclose"><a href="#fclose" class="headerlink" title="fclose"></a>fclose</h5><p>位于 /libio/iofclose.c</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fclose</span><span class="params">(FILE *stream)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h6 id="参数-1"><a href="#参数-1" class="headerlink" title="参数"></a>参数</h6><ul>
+<li>stream: 文件流指针</li>
+</ul>
+<h6 id="流程-1"><a href="#流程-1" class="headerlink" title="流程"></a>流程</h6><ul>
+<li>调用_IO_un_link将文件结构体从_IO_list_all链表中取下。</li>
+<li>调用_IO_file_close_it关闭文件并释放缓冲区。</li>
+<li>释放FILE内存以及确认文件关闭。</li>
+</ul>
+<p><a href="http://blog.rabb1t.xyz/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/">详情</a></p>
+<p><strong>参考</strong></p>
+<p><a href="https://ctf-wiki.org/pwn/linux/user-mode/io-file/introduction/">CTF Wiki</a><br><a href="https://blog.csdn.net/qq_46441427/article/details/119769510">IO_FILE fread</a><br><a href="https://ray-cp.github.io/">raycp 大佬的 IO_FILE 系列</a></p>
+]]></content>
+      <tags>
+        <tag>IO_FILE</tag>
+        <tag>笔记</tag>
       </tags>
   </entry>
   <entry>
