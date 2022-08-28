@@ -2126,9 +2126,9 @@
 </ul>
 </li>
 </ol>
-<h2 id="free"><a href="#free" class="headerlink" title="free"></a>free</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free</span><span class="params">(<span class="keyword">void</span> *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> __libc_free(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="free"><a href="#free" class="headerlink" title="free"></a>free</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free</span><span class="params">(<span class="keyword">void</span> *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (!p) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">chunk</span> *<span class="title">self</span> =</span> MEM_TO_CHUNK(p);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (IS_MMAPPED(self))</span><br><span class="line">		unmap_chunk(self);</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		__bin_chunk(self);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>直接调用了 __libc_free 进行释放。</p>
+
 ]]></content>
       <tags>
         <tag>pwn</tag>
