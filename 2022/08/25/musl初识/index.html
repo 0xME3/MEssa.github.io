@@ -28,7 +28,7 @@
 <meta property="og:description" content="musl 库中关于堆的一些基本知识">
 <meta property="og:locale">
 <meta property="article:published_time" content="2022-08-25T13:26:14.000Z">
-<meta property="article:modified_time" content="2022-08-28T13:30:43.840Z">
+<meta property="article:modified_time" content="2022-08-29T08:55:55.270Z">
 <meta property="article:author" content="MEss@_Rabbit">
 <meta property="article:tag" content="pwn">
 <meta property="article:tag" content="笔记">
@@ -185,7 +185,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-28 21:30:43" itemprop="dateModified" datetime="2022-08-28T21:30:43+08:00">2022-08-28</time>
+                <time title="Modified: 2022-08-29 16:55:55" itemprop="dateModified" datetime="2022-08-29T16:55:55+08:00">2022-08-29</time>
               </span>
 
           
@@ -243,7 +243,15 @@
 </ol>
 <h2 id="free"><a href="#free" class="headerlink" title="free"></a>free</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free</span><span class="params">(<span class="keyword">void</span> *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (!p) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">chunk</span> *<span class="title">self</span> =</span> MEM_TO_CHUNK(p);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (IS_MMAPPED(self))</span><br><span class="line">		unmap_chunk(self);</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		__bin_chunk(self);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-
+<p>大致流程：</p>
+<ol>
+<li>检查 chunk 是否存在</li>
+<li>检查 chunk 是否是通过 mmap 申请的，即是否是大 chunk</li>
+<li>否则调用 __bin_chunk 对 chunk 进行处理<ul>
+<li>__bin_chunk 会将 chunk 链入合适的 bin 中。并且，在这链入之前，若该 chunk 的前后有被释放的 chunk，则递归的合并，然后才链入合适的 bin</li>
+</ul>
+</li>
+</ol>
 
     </div>
 

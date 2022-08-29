@@ -2128,7 +2128,15 @@
 </ol>
 <h2 id="free"><a href="#free" class="headerlink" title="free"></a>free</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free</span><span class="params">(<span class="keyword">void</span> *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (!p) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">chunk</span> *<span class="title">self</span> =</span> MEM_TO_CHUNK(p);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (IS_MMAPPED(self))</span><br><span class="line">		unmap_chunk(self);</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		__bin_chunk(self);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-
+<p>大致流程：</p>
+<ol>
+<li>检查 chunk 是否存在</li>
+<li>检查 chunk 是否是通过 mmap 申请的，即是否是大 chunk</li>
+<li>否则调用 __bin_chunk 对 chunk 进行处理<ul>
+<li>__bin_chunk 会将 chunk 链入合适的 bin 中。并且，在这链入之前，若该 chunk 的前后有被释放的 chunk，则递归的合并，然后才链入合适的 bin</li>
+</ul>
+</li>
+</ol>
 ]]></content>
       <tags>
         <tag>pwn</tag>
