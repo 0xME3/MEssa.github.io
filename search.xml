@@ -79,7 +79,8 @@
     <content><![CDATA[<p>通过劫持 _IO_list_all 来伪造链表</p>
 <span id="more"></span>
 
-<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>_IO_list_all 中保存着 IO_FILE 结构体的链表，因此我们可以通过将伪造的 fake_FILE 插入其中来实施攻击。</p>
+
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>_IO_list_all 中保存着 IO_FILE 结构体的链表，因此我们将伪造的 fake_FILE 插入其中。</p>
 <p>由于链表通过 _chain 来链接，而 _chain 相对 IO_FILE 的偏移为 0x68，所以最常见的插入链表操作为：伪造一个 fake_FILE 并放入 0x60 大小的 smallbin 中，这个位置正好相对于 main_arena+88(&amp;bin[0]) 的偏移为 0x68，所以我们使用 unsortedbin_attack 将 IO_list_all 覆盖为 main_arena+88 即可。</p>
 <h2 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h2><p>通过调用 _IO_flush_all_lockp，来刷新 _IO_list_all 链表中所有项的文件流，意味着会调用 vtable 中的 _IO_overflow。</p>
 <p>调用 _IO_flush_all_lockp 的情况有：</p>
@@ -88,7 +89,7 @@
 <li>当执行 exit 函数时</li>
 <li>当执行流从 main 函数返回时</li>
 </ol>
-<p>而当 glibc 检测 memory corruption 时，会调用 abort() ，因此执行流程为:</p>
+<p>而当 glibc 检测 memory corruption 时，流程为:</p>
 <ol>
 <li>调用 abort()</li>
 <li>调用 _IO_flush_all_lockp()</li>
@@ -96,10 +97,10 @@
 </ol>
 <p><img src="https://ctf-wiki.org/pwn/linux/user-mode/io-file/figure/abort_routine.001.jpeg" alt="abort_routine"></p>
 <p>如果我们将 system 作为伪造的 __overflow 指针，FILE 开头为 /bin/sh 就能获得 shell 了，或者直接使用 one_gadget。</p>
-<p>然后当我们需要伪造一个 fake_FILE时，需要通过的检测为：</p>
+<p>因此我们需要伪造一个 fake_FILE，需要通过的检测为：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (((fp-&gt;_mode &lt;= <span class="number">0</span> &amp;&amp; fp-&gt;_IO_write_ptr &gt; fp-&gt;_IO_write_base))</span><br><span class="line">               &amp;&amp; _IO_OVERFLOW (fp, EOF) == EOF)</span><br><span class="line">           &#123;</span><br><span class="line">               result = EOF;</span><br><span class="line">          &#125;</span><br></pre></td></tr></table></figure>
-<p>因此需要伪造的内容有 _mode&lt;=0, _IO_write_ptr&gt;_IO_write_base, IO_overflow=attack。</p>
-<p>以上成员相对于 IO_FILE 首地址到偏移分别为 0xc0, 0x28, 0x20, 0xd8+24。</p>
+<p>因此需要伪造的内容有 _mode&lt;=0, _IO_write_ptr&gt;_IO_write_base, IO_overflow=something。</p>
+<p>以上成员相对于 IO_FILE 首地址到偏移分别为 0xc0, 0x28, 0x20, *0xd8+24。</p>
 ]]></content>
       <tags>
         <tag>pwn</tag>
