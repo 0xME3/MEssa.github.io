@@ -162,10 +162,10 @@
     <content><![CDATA[<p>简单介绍Linux下的GCC保护机制。</p>
 <span id="more"></span>
 
-<h2 id="地址随机化-PIE"><a href="#地址随机化-PIE" class="headerlink" title="地址随机化(PIE)"></a>地址随机化(PIE)</h2><p>在我们之前介绍的ROP攻击中，我们的主要目的是插入一个指向攻击代码的<strong>指针</strong>，这个代码可以是我们输入的(ret2shellcode)，也可以是程序中有的(ret2text、ret2libc)。</p>
+<h2 id="地址随机化-ASLR-PIE"><a href="#地址随机化-ASLR-PIE" class="headerlink" title="地址随机化(ASLR/PIE)"></a>地址随机化(ASLR/PIE)</h2><p>在我们之前介绍的ROP攻击中，我们的主要目的是插入一个指向攻击代码的<strong>指针</strong>，这个代码可以是我们输入的(ret2shellcode)，也可以是程序中有的(ret2text、ret2libc)。</p>
 <p>而当我们在同一个操作系统版本上运行同一个程序，即使是不同机器，栈的位置也是固定的，这使得栈地址非常容易被预测。</p>
 <h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>栈随机化的思想就是使程序每次运行时，都使得栈的位置在变化。它的简单实现方式是：在程序开始时，在栈上分配一个指定的0~n个字节之间的随机大小空间，程序不使用这段空间，但它会导致程序执行时，后续的栈的位置发生了变化。而这个值n不能太大(太大浪费)，也不能太小(太小得到的随机化地址变化太少)，在32位linux中，地址大致分布在<code>0xff7fc59c</code>到<code>0xffffd09c</code>内,范围大约为2^23^；64位linux中，地址大致分布在<code>0x7fff000比98</code>到<code>0x7ffffffaa4a8</code>内，范围大约为2^32^。</p>
-<p> 在Linux中，栈随机化是属于<strong>地址空间布局随机化</strong>技术中的一种(简称ASLR，address-space layout randomization)，而整个ASLR技术比较复杂。采用ASLR技术，使得每次运行时，除了栈外的程序中的其他段也都会被加载到内存中的不同区域，保护性更强。</p>
+<p> 在Linux中，堆栈地址和动态链接库基地址随机化是属于<strong>地址空间布局随机化</strong>技术中的一种(简称ASLR，address-space layout randomization)，而整个ASLR技术比较复杂。采用ASLR技术，使得每次运行时，除了栈外的程序中的其他段也都会被加载到内存中的不同区域，保护性更强。PIE则是再对整个ELF文件的基地址(代码段数据段受影响)进行随机化。</p>
 <h3 id="克服方法"><a href="#克服方法" class="headerlink" title="克服方法"></a>克服方法</h3><ul>
 <li>泄露地址<ul>
 <li>格式化字符串漏洞泄露栈上地址</li>
@@ -177,7 +177,7 @@
 </ul>
 </li>
 </ul>
-<h2 id="栈破坏检测-Stack"><a href="#栈破坏检测-Stack" class="headerlink" title="栈破坏检测(Stack)"></a>栈破坏检测(Stack)</h2><p>栈破坏检测能有效的防止利用栈溢出漏洞来破坏栈上的结构</p>
+<h2 id="栈破坏检测-Stack-Canary"><a href="#栈破坏检测-Stack-Canary" class="headerlink" title="栈破坏检测(Stack Canary)"></a>栈破坏检测(Stack Canary)</h2><p>栈破坏检测能有效的防止利用栈溢出漏洞来破坏栈上的结构</p>
 <h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>在栈帧中放入一段canary值，开启了栈破坏检测保护的程序，执行时会随机产生canary。在程序恢复寄存器状态和从函数返回前，程序都会检测canary是否被改变，如果是，那么程序异常结束。</p>
 <p><em>canary：金丝雀。矿工下矿前会放一只鸟进去，能够提前预知意外。</em></p>
 <h3 id="克服方法-1"><a href="#克服方法-1" class="headerlink" title="克服方法"></a>克服方法</h3><p>canary通常存放在栈帧上第一个内存地址中，可以通过调试进行寻找，它的标志是最后一字节为<code>0x00</code>，是为了防止输出下一个内存地址时将其泄露，且该位不属于被检测的部分。</p>

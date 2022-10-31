@@ -28,7 +28,7 @@
 <meta property="og:description" content="简单介绍Linux下的GCC保护机制。">
 <meta property="og:locale">
 <meta property="article:published_time" content="2022-03-08T13:10:33.000Z">
-<meta property="article:modified_time" content="2022-04-21T03:49:40.000Z">
+<meta property="article:modified_time" content="2022-10-31T17:57:50.370Z">
 <meta property="article:author" content="MEssa_Rabbit">
 <meta property="article:tag" content="pwn">
 <meta property="article:tag" content="笔记">
@@ -189,7 +189,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-04-21 11:49:40" itemprop="dateModified" datetime="2022-04-21T11:49:40+08:00">2022-04-21</time>
+                <time title="Modified: 2022-11-01 01:57:50" itemprop="dateModified" datetime="2022-11-01T01:57:50+08:00">2022-11-01</time>
               </span>
 
           
@@ -206,10 +206,10 @@
         <p>简单介绍Linux下的GCC保护机制。</p>
 <span id="more"></span>
 
-<h2 id="地址随机化-PIE"><a href="#地址随机化-PIE" class="headerlink" title="地址随机化(PIE)"></a>地址随机化(PIE)</h2><p>在我们之前介绍的ROP攻击中，我们的主要目的是插入一个指向攻击代码的<strong>指针</strong>，这个代码可以是我们输入的(ret2shellcode)，也可以是程序中有的(ret2text、ret2libc)。</p>
+<h2 id="地址随机化-ASLR-PIE"><a href="#地址随机化-ASLR-PIE" class="headerlink" title="地址随机化(ASLR/PIE)"></a>地址随机化(ASLR/PIE)</h2><p>在我们之前介绍的ROP攻击中，我们的主要目的是插入一个指向攻击代码的<strong>指针</strong>，这个代码可以是我们输入的(ret2shellcode)，也可以是程序中有的(ret2text、ret2libc)。</p>
 <p>而当我们在同一个操作系统版本上运行同一个程序，即使是不同机器，栈的位置也是固定的，这使得栈地址非常容易被预测。</p>
 <h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>栈随机化的思想就是使程序每次运行时，都使得栈的位置在变化。它的简单实现方式是：在程序开始时，在栈上分配一个指定的0~n个字节之间的随机大小空间，程序不使用这段空间，但它会导致程序执行时，后续的栈的位置发生了变化。而这个值n不能太大(太大浪费)，也不能太小(太小得到的随机化地址变化太少)，在32位linux中，地址大致分布在<code>0xff7fc59c</code>到<code>0xffffd09c</code>内,范围大约为2^23^；64位linux中，地址大致分布在<code>0x7fff000比98</code>到<code>0x7ffffffaa4a8</code>内，范围大约为2^32^。</p>
-<p> 在Linux中，栈随机化是属于<strong>地址空间布局随机化</strong>技术中的一种(简称ASLR，address-space layout randomization)，而整个ASLR技术比较复杂。采用ASLR技术，使得每次运行时，除了栈外的程序中的其他段也都会被加载到内存中的不同区域，保护性更强。</p>
+<p> 在Linux中，堆栈地址和动态链接库基地址随机化是属于<strong>地址空间布局随机化</strong>技术中的一种(简称ASLR，address-space layout randomization)，而整个ASLR技术比较复杂。采用ASLR技术，使得每次运行时，除了栈外的程序中的其他段也都会被加载到内存中的不同区域，保护性更强。PIE则是再对整个ELF文件的基地址(代码段数据段受影响)进行随机化。</p>
 <h3 id="克服方法"><a href="#克服方法" class="headerlink" title="克服方法"></a>克服方法</h3><ul>
 <li>泄露地址<ul>
 <li>格式化字符串漏洞泄露栈上地址</li>
@@ -221,7 +221,7 @@
 </ul>
 </li>
 </ul>
-<h2 id="栈破坏检测-Stack"><a href="#栈破坏检测-Stack" class="headerlink" title="栈破坏检测(Stack)"></a>栈破坏检测(Stack)</h2><p>栈破坏检测能有效的防止利用栈溢出漏洞来破坏栈上的结构</p>
+<h2 id="栈破坏检测-Stack-Canary"><a href="#栈破坏检测-Stack-Canary" class="headerlink" title="栈破坏检测(Stack Canary)"></a>栈破坏检测(Stack Canary)</h2><p>栈破坏检测能有效的防止利用栈溢出漏洞来破坏栈上的结构</p>
 <h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>在栈帧中放入一段canary值，开启了栈破坏检测保护的程序，执行时会随机产生canary。在程序恢复寄存器状态和从函数返回前，程序都会检测canary是否被改变，如果是，那么程序异常结束。</p>
 <p><em>canary：金丝雀。矿工下矿前会放一只鸟进去，能够提前预知意外。</em></p>
 <h3 id="克服方法-1"><a href="#克服方法-1" class="headerlink" title="克服方法"></a>克服方法</h3><p>canary通常存放在栈帧上第一个内存地址中，可以通过调试进行寻找，它的标志是最后一字节为<code>0x00</code>，是为了防止输出下一个内存地址时将其泄露，且该位不属于被检测的部分。</p>
@@ -320,7 +320,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%B0%E5%9D%80%E9%9A%8F%E6%9C%BA%E5%8C%96-PIE"><span class="nav-number">1.</span> <span class="nav-text">地址随机化(PIE)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%8B%E6%9C%8D%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">克服方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%88%E7%A0%B4%E5%9D%8F%E6%A3%80%E6%B5%8B-Stack"><span class="nav-number">2.</span> <span class="nav-text">栈破坏检测(Stack)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-number">2.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%8B%E6%9C%8D%E6%96%B9%E6%B3%95-1"><span class="nav-number">2.2.</span> <span class="nav-text">克服方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%90%E5%88%B6%E5%8F%AF%E6%89%A7%E8%A1%8C%E4%BB%A3%E7%A0%81%E5%8C%BA%E5%9F%9F-NX"><span class="nav-number">3.</span> <span class="nav-text">限制可执行代码区域(NX)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-2"><span class="nav-number">3.1.</span> <span class="nav-text">原理</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%B0%E5%9D%80%E9%9A%8F%E6%9C%BA%E5%8C%96-ASLR-PIE"><span class="nav-number">1.</span> <span class="nav-text">地址随机化(ASLR&#x2F;PIE)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%8B%E6%9C%8D%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">克服方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%88%E7%A0%B4%E5%9D%8F%E6%A3%80%E6%B5%8B-Stack-Canary"><span class="nav-number">2.</span> <span class="nav-text">栈破坏检测(Stack Canary)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-number">2.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%8B%E6%9C%8D%E6%96%B9%E6%B3%95-1"><span class="nav-number">2.2.</span> <span class="nav-text">克服方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%90%E5%88%B6%E5%8F%AF%E6%89%A7%E8%A1%8C%E4%BB%A3%E7%A0%81%E5%8C%BA%E5%9F%9F-NX"><span class="nav-number">3.</span> <span class="nav-text">限制可执行代码区域(NX)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-2"><span class="nav-number">3.1.</span> <span class="nav-text">原理</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
