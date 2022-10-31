@@ -28,7 +28,7 @@
 <meta property="og:description" content="简单介绍Linux下的GCC保护机制。">
 <meta property="og:locale">
 <meta property="article:published_time" content="2022-03-08T13:10:33.000Z">
-<meta property="article:modified_time" content="2022-10-31T17:57:50.370Z">
+<meta property="article:modified_time" content="2022-10-31T18:12:26.240Z">
 <meta property="article:author" content="MEssa_Rabbit">
 <meta property="article:tag" content="pwn">
 <meta property="article:tag" content="笔记">
@@ -189,7 +189,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-11-01 01:57:50" itemprop="dateModified" datetime="2022-11-01T01:57:50+08:00">2022-11-01</time>
+                <time title="Modified: 2022-11-01 02:12:26" itemprop="dateModified" datetime="2022-11-01T02:12:26+08:00">2022-11-01</time>
               </span>
 
           
@@ -222,8 +222,8 @@
 </li>
 </ul>
 <h2 id="栈破坏检测-Stack-Canary"><a href="#栈破坏检测-Stack-Canary" class="headerlink" title="栈破坏检测(Stack Canary)"></a>栈破坏检测(Stack Canary)</h2><p>栈破坏检测能有效的防止利用栈溢出漏洞来破坏栈上的结构</p>
-<h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>在栈帧中放入一段canary值，开启了栈破坏检测保护的程序，执行时会随机产生canary。在程序恢复寄存器状态和从函数返回前，程序都会检测canary是否被改变，如果是，那么程序异常结束。</p>
 <p><em>canary：金丝雀。矿工下矿前会放一只鸟进去，能够提前预知意外。</em></p>
+<h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>在栈帧中放入一段canary值，开启了栈破坏检测保护的程序，执行时会随机产生canary。在程序恢复寄存器状态和从函数返回前，程序都会检测canary是否被改变，如果是，那么程序异常结束。</p>
 <h3 id="克服方法-1"><a href="#克服方法-1" class="headerlink" title="克服方法"></a>克服方法</h3><p>canary通常存放在栈帧上第一个内存地址中，可以通过调试进行寻找，它的标志是最后一字节为<code>0x00</code>，是为了防止输出下一个内存地址时将其泄露，且该位不属于被检测的部分。</p>
 <ul>
 <li>泄露canary，之后将其加入payload中的指定位置<ul>
@@ -235,6 +235,12 @@
 </ul>
 <h2 id="限制可执行代码区域-NX"><a href="#限制可执行代码区域-NX" class="headerlink" title="限制可执行代码区域(NX)"></a>限制可执行代码区域(NX)</h2><p>虚拟内存中，存在’页’的概念，一个页的大小一般是2048或4096个字节。典型的程序保护中，每个页都有一个标志，该标志的每位由硬件检测并指明该页的’可读’、’可写’、’可执行’权限。曾经<code>x86</code>体系将’可读’和’可执行’合并成一个标志位，而栈上数据一定是可读写的，所以会有向栈中写入攻击代码而被执行的危险。虽然有过很多机制，能够限制一些页的可读但是不可执行，却会带来严重的性能损失。</p>
 <h3 id="原理-2"><a href="#原理-2" class="headerlink" title="原理"></a>原理</h3><p>向内存中引入了’NX’(No-Execute)位，将’可读’和’可执行’权限分开来了，而页依旧由硬盘来检测，效率没有损失。</p>
+<h2 id="RELRO"><a href="#RELRO" class="headerlink" title="RELRO"></a>RELRO</h2><p>read only relocation, 可以分为Full Relro和Partial Relro，其作用主要是禁止.GOT节与其他一些内存的可写权限。</p>
+<ul>
+<li>GCC的默认编译为partial Relro模式，该模式下，一些节和.GOT节是可写的。</li>
+<li>而Full Relro模式下，所有地址都在开始时绑定，然后将.GOT表对应的页设置为不可写的权限。</li>
+</ul>
+<h3 id="原理-3"><a href="#原理-3" class="headerlink" title="原理"></a>原理</h3><p>在计算机的大部分需要绑定地址的操作中，都存在一个lazy机制，即需要访问时才会被第一次加载，这样做能极大的提高程序运行的效率。但就是这个lazy binding机制，导致程序需要将进行重定向的.GOT节设置为可写权限，因此黑客可以覆盖该节上的地址为指定目的地址来getshell。</p>
 
     </div>
 
@@ -320,7 +326,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%B0%E5%9D%80%E9%9A%8F%E6%9C%BA%E5%8C%96-ASLR-PIE"><span class="nav-number">1.</span> <span class="nav-text">地址随机化(ASLR&#x2F;PIE)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%8B%E6%9C%8D%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">克服方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%88%E7%A0%B4%E5%9D%8F%E6%A3%80%E6%B5%8B-Stack-Canary"><span class="nav-number">2.</span> <span class="nav-text">栈破坏检测(Stack Canary)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-number">2.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%8B%E6%9C%8D%E6%96%B9%E6%B3%95-1"><span class="nav-number">2.2.</span> <span class="nav-text">克服方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%90%E5%88%B6%E5%8F%AF%E6%89%A7%E8%A1%8C%E4%BB%A3%E7%A0%81%E5%8C%BA%E5%9F%9F-NX"><span class="nav-number">3.</span> <span class="nav-text">限制可执行代码区域(NX)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-2"><span class="nav-number">3.1.</span> <span class="nav-text">原理</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%B0%E5%9D%80%E9%9A%8F%E6%9C%BA%E5%8C%96-ASLR-PIE"><span class="nav-number">1.</span> <span class="nav-text">地址随机化(ASLR&#x2F;PIE)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%8B%E6%9C%8D%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">克服方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%88%E7%A0%B4%E5%9D%8F%E6%A3%80%E6%B5%8B-Stack-Canary"><span class="nav-number">2.</span> <span class="nav-text">栈破坏检测(Stack Canary)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-number">2.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%8B%E6%9C%8D%E6%96%B9%E6%B3%95-1"><span class="nav-number">2.2.</span> <span class="nav-text">克服方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%90%E5%88%B6%E5%8F%AF%E6%89%A7%E8%A1%8C%E4%BB%A3%E7%A0%81%E5%8C%BA%E5%9F%9F-NX"><span class="nav-number">3.</span> <span class="nav-text">限制可执行代码区域(NX)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-2"><span class="nav-number">3.1.</span> <span class="nav-text">原理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RELRO"><span class="nav-number">4.</span> <span class="nav-text">RELRO</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-3"><span class="nav-number">4.1.</span> <span class="nav-text">原理</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

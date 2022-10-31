@@ -178,8 +178,8 @@
 </li>
 </ul>
 <h2 id="栈破坏检测-Stack-Canary"><a href="#栈破坏检测-Stack-Canary" class="headerlink" title="栈破坏检测(Stack Canary)"></a>栈破坏检测(Stack Canary)</h2><p>栈破坏检测能有效的防止利用栈溢出漏洞来破坏栈上的结构</p>
-<h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>在栈帧中放入一段canary值，开启了栈破坏检测保护的程序，执行时会随机产生canary。在程序恢复寄存器状态和从函数返回前，程序都会检测canary是否被改变，如果是，那么程序异常结束。</p>
 <p><em>canary：金丝雀。矿工下矿前会放一只鸟进去，能够提前预知意外。</em></p>
+<h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>在栈帧中放入一段canary值，开启了栈破坏检测保护的程序，执行时会随机产生canary。在程序恢复寄存器状态和从函数返回前，程序都会检测canary是否被改变，如果是，那么程序异常结束。</p>
 <h3 id="克服方法-1"><a href="#克服方法-1" class="headerlink" title="克服方法"></a>克服方法</h3><p>canary通常存放在栈帧上第一个内存地址中，可以通过调试进行寻找，它的标志是最后一字节为<code>0x00</code>，是为了防止输出下一个内存地址时将其泄露，且该位不属于被检测的部分。</p>
 <ul>
 <li>泄露canary，之后将其加入payload中的指定位置<ul>
@@ -191,6 +191,12 @@
 </ul>
 <h2 id="限制可执行代码区域-NX"><a href="#限制可执行代码区域-NX" class="headerlink" title="限制可执行代码区域(NX)"></a>限制可执行代码区域(NX)</h2><p>虚拟内存中，存在’页’的概念，一个页的大小一般是2048或4096个字节。典型的程序保护中，每个页都有一个标志，该标志的每位由硬件检测并指明该页的’可读’、’可写’、’可执行’权限。曾经<code>x86</code>体系将’可读’和’可执行’合并成一个标志位，而栈上数据一定是可读写的，所以会有向栈中写入攻击代码而被执行的危险。虽然有过很多机制，能够限制一些页的可读但是不可执行，却会带来严重的性能损失。</p>
 <h3 id="原理-2"><a href="#原理-2" class="headerlink" title="原理"></a>原理</h3><p>向内存中引入了’NX’(No-Execute)位，将’可读’和’可执行’权限分开来了，而页依旧由硬盘来检测，效率没有损失。</p>
+<h2 id="RELRO"><a href="#RELRO" class="headerlink" title="RELRO"></a>RELRO</h2><p>read only relocation, 可以分为Full Relro和Partial Relro，其作用主要是禁止.GOT节与其他一些内存的可写权限。</p>
+<ul>
+<li>GCC的默认编译为partial Relro模式，该模式下，一些节和.GOT节是可写的。</li>
+<li>而Full Relro模式下，所有地址都在开始时绑定，然后将.GOT表对应的页设置为不可写的权限。</li>
+</ul>
+<h3 id="原理-3"><a href="#原理-3" class="headerlink" title="原理"></a>原理</h3><p>在计算机的大部分需要绑定地址的操作中，都存在一个lazy机制，即需要访问时才会被第一次加载，这样做能极大的提高程序运行的效率。但就是这个lazy binding机制，导致程序需要将进行重定向的.GOT节设置为可写权限，因此黑客可以覆盖该节上的地址为指定目的地址来getshell。</p>
 ]]></content>
       <tags>
         <tag>pwn</tag>
