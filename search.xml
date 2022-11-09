@@ -124,7 +124,7 @@
 
 <h2 id="R-P"><a href="#R-P" class="headerlink" title="R()P"></a>R()P</h2><h3 id="逆向-1"><a href="#逆向-1" class="headerlink" title="逆向"></a>逆向</h3><ol>
 <li>保护仅开启NX与partial RELRO</li>
-<li>就两个read，存在栈溢出  6</li>
+<li>就两个read，存在栈溢出</li>
 </ol>
 <h3 id="解题思路-6"><a href="#解题思路-6" class="headerlink" title="解题思路"></a>解题思路</h3><p>确立我们需要执行系统调用<code>execve(&quot;/bin/sh&quot;,0,0)</code>所需要的指定寄存器的数值：rax=59,*rdi=”/bin/sh”,rsi=0|*rdi=0,rdx=0|*rdx=0</p>
 <p>然后构造ROPchain，但是因为是高版本编译，所以没有csu。寻找好用的gadget也比较难，官方wp中提供的wp如下:</p>
@@ -137,7 +137,8 @@
 <p>然后是控制read进行任意写:</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">0x00401155     lea rax, [rsp + 8]</span><br><span class="line">0x0040115a     mov rsi, rax                ; void *buf</span><br><span class="line">0x0040115d     mov edx, dword [nbyte]      ; size_t nbyte</span><br><span class="line">0x00401161     xor edi, edi                ; int fildes</span><br><span class="line">0x00401163     mov eax, 0</span><br><span class="line">0x00401168     call sym.imp.read           ; ssize_t read(int fildes, void *buf, size_t nb    yte)</span><br><span class="line">0x0040115a     mov rsi, rax                ; void *buf</span><br><span class="line">0x0040115d     mov edx, dword [nbyte]      ; size_t nbyte</span><br><span class="line">0x00401161     xor edi, edi                ; int fildes</span><br><span class="line">0x00401163     mov eax, 0</span><br><span class="line">0x00401168     call sym.imp.read           ; ssize_t read(int fildes, void *buf, size_t nb    yte)</span><br></pre></td></tr></table></figure>
 
-<p>若能控制rax，则从0x40115a开始利用来任意写。 41<br>大概整个执行流程为：</p>
+<p>若能控制rax，则从0x40115a开始利用来任意写。</p>
+<p>大概整个执行流程为：</p>
 <ol>
 <li>将”/bin/sh”写入0x404018，控制rax后直接调用0x0040115a即可 45 2. 接着设置rax为read_got，接着爆破，将read_got置为syscall</li>
 <li>然后控制*rax=ret，置edi为0x404018</li>
