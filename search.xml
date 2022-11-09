@@ -129,7 +129,8 @@
 <h3 id="解题思路-6"><a href="#解题思路-6" class="headerlink" title="解题思路"></a>解题思路</h3><p>确立我们需要执行系统调用<code>execve(&quot;/bin/sh&quot;,0,0)</code>所需要的指定寄存器的数值：rax=59,*rdi=”/bin/sh”,rsi=0|*rdi=0,rdx=0|*rdx=0</p>
 <p>然后构造ROPchain，但是因为是高版本编译，所以没有csu。寻找好用的gadget也比较难，官方wp中提供的wp如下:</p>
 <ul>
-<li><code>0x00401099 : mov edi, 0x404018 ; jmp rax</code><br>  控制edi为固定地址 15 - <code>0x0040116d : mov eax, dword ptr [rsp + 0xc] ; add rsp, 0x18 ; ret</code><br>  栈上的内容可以直接控制rax</li>
+<li><code>0x00401099 : mov edi, 0x404018 ; jmp rax</code><br>  控制edi为固定地址</li>
+<li><code>0x0040116d : mov eax, dword ptr [rsp + 0xc] ; add rsp, 0x18 ; ret</code><br>  栈上的内容可以直接控制rax</li>
 <li><code>0x00401141 : lea rsi, [rsp + 0xc];……;ret</code><br>  栈上内容直接控制rsi，但是后面还有一个read的调用</li>
 <li><code>0x0040115d : mov edx, dword [rsp + 0xc];……;ret</code><br>  栈上内容直接控制edx，后面也跟着一个read的调用</li>
 </ul>
