@@ -1619,8 +1619,8 @@
 <p>效果：<br>  target-0x10 被链入 unsorted_bin 中。</p>
 <h2 id="house-of-corrosion"><a href="#house-of-corrosion" class="headerlink" title="house_of_corrosion"></a>house_of_corrosion</h2><p>主要是global_max_fast，该符号对应的地址保存的内容是fastbin能够保存的最大大小，默认是0x80。而mem size小于该数值的chunk被free后都会被视作是fastbin_chunk，然后被放入arena的fastbins链表数组(fastbinY)中。而fastbinY数组仅有10个元素(0x20-0x80)，若被释放的fastbin_chunk大于0x80时，就会在存储时造成越界访问。</p>
 <p>因此我们计算一个合适的size，就能够修改arena中其他位置的地址为该chunk地址，而这个size相关的大小为<code>size=2*x+0x20</code>，这个<code>x</code>为指定地址与fastbinY数组的首地址的差。</p>
-<h2 id="条件-6"><a href="#条件-6" class="headerlink" title="条件"></a>条件</h2><p>能够修改global_max_fast</p>
-<h2 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h2><h3 id="FSOP"><a href="#FSOP" class="headerlink" title="FSOP"></a>FSOP</h3><p>过计算size将伪造的io_FILE，放入_IO_list_all，这样构造出FSOP的IO_FILE_plus结构体。fastbinY为main_arena+0x10，因此计算出_IO_list_all对应的chunk_size为<code>(&amp;_IO_list_all-&amp;main_arena-0x10)*2+0x20</code>。</p>
+<h3 id="条件-6"><a href="#条件-6" class="headerlink" title="条件"></a>条件</h3><p>能够修改global_max_fast</p>
+<h3 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h3><h3 id="FSOP"><a href="#FSOP" class="headerlink" title="FSOP"></a>FSOP</h3><p>过计算size将伪造的io_FILE，放入_IO_list_all，这样构造出FSOP的IO_FILE_plus结构体。fastbinY为main_arena+0x10，因此计算出_IO_list_all对应的chunk_size为<code>(&amp;_IO_list_all-&amp;main_arena-0x10)*2+0x20</code>。</p>
 <h1 id="glibc-2-29"><a href="#glibc-2-29" class="headerlink" title="glibc_2.29"></a>glibc_2.29</h1><ul>
 <li>tcache增加key，导致不能直接dup。</li>
 </ul>
