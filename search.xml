@@ -3,8 +3,7 @@
   <entry>
     <title>6.S081_Fall2020_lab</title>
     <url>/2022/09/13/6-S081-Fall2020-lab/</url>
-    <content><![CDATA[<p>试试看自己能坚持写完吗。</p>
-<span id="more"></span>
+    <content><![CDATA[<span id="more"></span>
 
 <h1 id="Lab1-Xv6-and-Unix"><a href="#Lab1-Xv6-and-Unix" class="headerlink" title="Lab1: Xv6 and Unix"></a>Lab1: Xv6 and Unix</h1><h2 id="sleep"><a href="#sleep" class="headerlink" title="sleep"></a>sleep</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;kernel/stat.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;user/user.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">void</span>** argv)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(argc!=<span class="number">2</span>)</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;bad argments.\n&quot;</span>);</span><br><span class="line">	<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="keyword">int</span> tmp=atoi(argv[<span class="number">1</span>]);</span><br><span class="line">		sleep(tmp*<span class="number">10</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
