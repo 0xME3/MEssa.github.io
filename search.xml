@@ -2834,7 +2834,7 @@
 
 <p>MBR中程序的大致内容为，打印字符串’1 MBR’，然后从硬盘中的第3个扇区(idx=2)读取loader程序到内存地址为0x900的位置并执行</p>
 <p>在编写一个简易程序作为loader，来验证是否成功</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">%include &quot;boot.inc&quot;</span><br><span class="line">section loader vstart=LOADER_BASE_ADDR</span><br><span class="line"></span><br><span class="line">mov byte [gs:0x00],&#x27;2&#x27;</span><br><span class="line">mov byte [gs:0x01],0xa4</span><br><span class="line">mov byte [gs:0x04],&#x27;L&#x27;</span><br><span class="line">mov byte [gs:0x05],0xa4</span><br><span class="line">mov byte [gs:0x06],&#x27;o&#x27;</span><br><span class="line">mov byte [gs:0x07],0xa4</span><br><span class="line">mov byte [gs:0x08],&#x27;a&#x27;</span><br><span class="line">mov byte [gs:0x09],0xa4</span><br><span class="line">mov byte [gs:0x0a],&#x27;d&#x27;</span><br><span class="line">mov byte [gs:0x0b],0xa4</span><br><span class="line">mov byte [gs:0x0c],&#x27;e&#x27;</span><br><span class="line">mov byte [gs:0x0d],0xa4</span><br><span class="line">mov byte [gs:0x0e],&#x27;r&#x27;</span><br><span class="line">mov byte [gs:0x0f],0xa4</span><br><span class="line"></span><br><span class="line">jmp $</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">%include &quot;boot.inc&quot;</span><br><span class="line">section loader vstart=LOADER_BASE_ADDR</span><br><span class="line"></span><br><span class="line">mov byte [gs:0x00],&#x27;2&#x27;</span><br><span class="line">mov byte [gs:0x01],0x04</span><br><span class="line">mov byte [gs:0x04],&#x27;L&#x27;</span><br><span class="line">mov byte [gs:0x05],0x04</span><br><span class="line">mov byte [gs:0x06],&#x27;o&#x27;</span><br><span class="line">mov byte [gs:0x07],0x04</span><br><span class="line">mov byte [gs:0x08],&#x27;a&#x27;</span><br><span class="line">mov byte [gs:0x09],0x04</span><br><span class="line">mov byte [gs:0x0a],&#x27;d&#x27;</span><br><span class="line">mov byte [gs:0x0b],0x04</span><br><span class="line">mov byte [gs:0x0c],&#x27;e&#x27;</span><br><span class="line">mov byte [gs:0x0d],0x04</span><br><span class="line">mov byte [gs:0x0e],&#x27;r&#x27;</span><br><span class="line">mov byte [gs:0x0f],0x04</span><br><span class="line"></span><br><span class="line">jmp $</span><br></pre></td></tr></table></figure>
 
 <h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">nasm /path/mbr.bin -o mbr.bin -I /path/include</span><br><span class="line">nasm /path/loader.bin -o loader.bin -I /path/include</span><br></pre></td></tr></table></figure>
 
@@ -2842,8 +2842,8 @@
 
 <p>if是输入文件，of是输出文件，bs指定大小，count指定块数目，seek指定跳过多少块，conv=notrunc是以不打断文件的方式转换文件(conv convert)</p>
 <h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><p>最后运行vm，即可成功运行mbr和loader中的程序，最后的结果:</p>
-<p>没有loader<br><img src="https://cdn.jsdelivr.net/gh/0xME3/Images@main/img/2023-02-18_15-22.png" alt="MBR"></p>
-<p>有loader<br><img src="https://cdn.jsdelivr.net/gh/0xME3/Images@main/img/2023-02-18_15-24.png" alt="loader"></p>
+<p>没有loader<br><img src="https://cdn.jsdelivr.net/gh/0xME3/Images@main/img/2023-02-22_23-04.png" alt="MBR"></p>
+<p>有loader<br><img src="https://cdn.jsdelivr.net/gh/0xME3/Images@main/img/2023-02-22_23-05.png" alt="loader"></p>
 <h2 id="note"><a href="#note" class="headerlink" title="note"></a>note</h2><ul>
 <li>sreg(segment register)不能使用立即数赋值</li>
 <li><code>$</code>和<code>$$</code>是nasm编译器预留的关键字，用来表示当前代码和当前section的地址</li>
