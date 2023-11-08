@@ -29,7 +29,7 @@
 <meta property="og:locale">
 <meta property="og:image" content="https://s2.loli.net/2022/03/04/kXphy9uBxaMcjPg.png">
 <meta property="article:published_time" content="2022-03-04T13:03:16.000Z">
-<meta property="article:modified_time" content="2022-03-04T13:27:30.000Z">
+<meta property="article:modified_time" content="2023-11-05T03:10:18.000Z">
 <meta property="article:author" content="MEssa_Rabbit">
 <meta property="article:tag" content="笔记">
 <meta property="article:tag" content="CTF">
@@ -183,10 +183,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2022-03-04 21:03:16 / Modified: 21:27:30" itemprop="dateCreated datePublished" datetime="2022-03-04T21:03:16+08:00">2022-03-04</time>
+              <time title="Created: 2022-03-04 21:03:16" itemprop="dateCreated datePublished" datetime="2022-03-04T21:03:16+08:00">2022-03-04</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-11-05 11:10:18" itemprop="dateModified" datetime="2023-11-05T11:10:18+08:00">2023-11-05</time>
+              </span>
 
           
 
@@ -208,17 +214,18 @@
 <h3 id="基本利用"><a href="#基本利用" class="headerlink" title="基本利用"></a>基本利用</h3><h4 id="泄露栈上内容"><a href="#泄露栈上内容" class="headerlink" title="泄露栈上内容"></a>泄露栈上内容</h4><p>通过<code>%&#123;&#125;$p</code>来泄露栈上地址。</p>
 <h4 id="改写地址内容"><a href="#改写地址内容" class="headerlink" title="改写地址内容"></a>改写地址内容</h4><p>通过<code>%&#123;&#125;$n</code>和向栈上写入任意地址来实现改写任意地址内容。并且’n’为覆盖4字节内容，’hn’为覆盖2字节内容，’hhn’为覆盖1字节内容。</p>
 <p>需要注意的是，不同模式下的传参方式不同导致构造的payload中的格式化字符串的参数不同。32位模式下，参数都是在栈上保存的，没什么好说的；64位模式下，前6位参数保存在寄存器内，因此泄露或改写的地址一般从第7位开始计算。</p>
-<p>使用<code>pwndbg</code>的<code>fmtarg</code>指令获得泄露该地址的格式化字符串，或手动计算偏移得到格式化字符串。</p>
+<p>使用<code>Pwngdb</code>的<code>fmtarg</code>指令获得泄露该地址的格式化字符串，或手动计算偏移得到格式化字符串。</p>
 <p>利用这两个基本操作外，我们根据栈溢出漏洞攻击的思路进行攻击，也有格式化字符串漏洞攻击的技巧。</p>
-<h3 id="利用漏洞技巧"><a href="#利用漏洞技巧" class="headerlink" title="利用漏洞技巧"></a>利用漏洞技巧</h3><h4 id="泄露地址"><a href="#泄露地址" class="headerlink" title="泄露地址"></a>泄露地址</h4><p>能利用格式化字符串漏洞泄露栈上内容，因此可以得到出现在栈上的libc函数的地址再计算offset泄露libc的基地址；当开启了随机化保护时，也可以找到栈上main函数的<code>push rbp</code>，即main函数的首地址来计算开栈的基地址以绕过。</p>
+<h3 id="利用漏洞技巧"><a href="#利用漏洞技巧" class="headerlink" title="利用漏洞技巧"></a>利用漏洞技巧</h3><h4 id="泄露地址"><a href="#泄露地址" class="headerlink" title="泄露地址"></a>泄露地址</h4><p>能利用格式化字符串漏洞泄露栈上内容，因此可以得到出现在栈上的libc函数的地址再计算offset泄露libc的基地址；当开启了随机化保护时，也可以找到栈上main函数的<code>rbp</code>。</p>
 <h4 id="对地址块中间的内容进行修改"><a href="#对地址块中间的内容进行修改" class="headerlink" title="对地址块中间的内容进行修改"></a>对地址块中间的内容进行修改</h4><p>由于缓冲区大小的限制，导致我们不能覆盖内容为一个很大的数。因此，我们经常使用<code>hn</code>或<code>hhn</code>来进行改写内容，但由于64位模式下，一个地址块的大小为8字节，所以我们直接以该地址为任意写的地址，我们只能改到最多低2字节。但是我们如果给该地址加上一点偏移作为任意写的地址，就能对地址块中间的内容进行修改。举一个直观的例子：</p>
 <p>假设栈上地址<code>0x00</code>的内存块的内容为<code>0xAABBCCDDEEFFGGHH</code></p>
 <p>如果我们欲修改<code>0x00</code>地址的中间的<code>0xEE</code>内容的这一个字节。直接以<code>0x00</code>为地址，修改的就是最后的<code>0xHH</code>。所以我们要使用<code>0x03</code>为任意写地址，那么就能修改到中间的<code>0xEE</code>了。</p>
-<p>需要注意的是，由于Linux是小端序的系统，所以<code>0x00</code>地址块的内容实际为<code>0xHHGGFFEEDDCCBBAA</code>因此，我们要修改的中间的<code>0xEE</code>的偏移是3，而不是4。</p>
-<h4 id="栈上的partial-overwrite"><a href="#栈上的partial-overwrite" class="headerlink" title="栈上的partial overwrite"></a>栈上的partial overwrite</h4><p>栈上的partial overwrite除了利用栈溢出漏洞进行改写，也可以使用格式化字符串漏洞进行低位地址的修改，但是由于需要修改低12位地址，因此还需要泄露待改写函数的倒数第二字节的内容。</p>
+<h4 id="栈上的partial-overwrite"><a href="#栈上的partial-overwrite" class="headerlink" title="栈上的partial overwrite"></a>栈上的partial overwrite</h4><p>栈上的partial overwrite除了利用栈溢出漏洞进行改写，也可以使用格式化字符串漏洞进行低位地址的修改，但是由于需要修改低12位地址，因此还需要泄露待改写函数的倒数第二字节的内容或者爆破。</p>
 <h4 id="利用栈上的链式结构进行任意地址改写"><a href="#利用栈上的链式结构进行任意地址改写" class="headerlink" title="利用栈上的链式结构进行任意地址改写"></a>利用栈上的链式结构进行任意地址改写</h4><p>常用于非栈上的格式化字符串漏洞，即我们写入的格式化字符串并不是在栈上，所以我们不能通过写入任意地址进行改写。</p>
 <p>常利用<code>rbp</code>的链式结构(栈帧中的内容总是上一个栈帧或0)对任意地址进行改写。以当前栈帧(rbp中的地址)中存储的上一个栈帧的地址作为任意写的地址并对其中内容进行改写为我们需要修改的内容，再对上一个栈帧中的存储的地址作为任意写的地址并对其中内容进行改写。画一个更直观的图：</p>
 <p><img src="https://s2.loli.net/2022/03/04/kXphy9uBxaMcjPg.png" alt="6"></p>
+<p>当然如果能直接构造地址放在桟上也是可以的。</p>
+<h4 id="printf-loop"><a href="#printf-loop" class="headerlink" title="printf_loop"></a>printf_loop</h4><p>修改printf的返回地址或其中某处的返回地址，指向程序中的read处，反复进行地址修改。适用于格式化字符串漏洞后之间exit的情况。</p>
 <p><em>暂时就这些，其他的等我想起了或者遇到新的技巧再补充。</em></p>
 
     </div>
@@ -305,7 +312,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%88%A9%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">基本利用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%84%E9%9C%B2%E6%A0%88%E4%B8%8A%E5%86%85%E5%AE%B9"><span class="nav-number">2.1.1.</span> <span class="nav-text">泄露栈上内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%B9%E5%86%99%E5%9C%B0%E5%9D%80%E5%86%85%E5%AE%B9"><span class="nav-number">2.1.2.</span> <span class="nav-text">改写地址内容</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E%E6%8A%80%E5%B7%A7"><span class="nav-number">2.2.</span> <span class="nav-text">利用漏洞技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%84%E9%9C%B2%E5%9C%B0%E5%9D%80"><span class="nav-number">2.2.1.</span> <span class="nav-text">泄露地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E5%9C%B0%E5%9D%80%E5%9D%97%E4%B8%AD%E9%97%B4%E7%9A%84%E5%86%85%E5%AE%B9%E8%BF%9B%E8%A1%8C%E4%BF%AE%E6%94%B9"><span class="nav-number">2.2.2.</span> <span class="nav-text">对地址块中间的内容进行修改</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%88%E4%B8%8A%E7%9A%84partial-overwrite"><span class="nav-number">2.2.3.</span> <span class="nav-text">栈上的partial overwrite</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%A0%88%E4%B8%8A%E7%9A%84%E9%93%BE%E5%BC%8F%E7%BB%93%E6%9E%84%E8%BF%9B%E8%A1%8C%E4%BB%BB%E6%84%8F%E5%9C%B0%E5%9D%80%E6%94%B9%E5%86%99"><span class="nav-number">2.2.4.</span> <span class="nav-text">利用栈上的链式结构进行任意地址改写</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%88%A9%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">基本利用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%84%E9%9C%B2%E6%A0%88%E4%B8%8A%E5%86%85%E5%AE%B9"><span class="nav-number">2.1.1.</span> <span class="nav-text">泄露栈上内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%B9%E5%86%99%E5%9C%B0%E5%9D%80%E5%86%85%E5%AE%B9"><span class="nav-number">2.1.2.</span> <span class="nav-text">改写地址内容</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E%E6%8A%80%E5%B7%A7"><span class="nav-number">2.2.</span> <span class="nav-text">利用漏洞技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%84%E9%9C%B2%E5%9C%B0%E5%9D%80"><span class="nav-number">2.2.1.</span> <span class="nav-text">泄露地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E5%9C%B0%E5%9D%80%E5%9D%97%E4%B8%AD%E9%97%B4%E7%9A%84%E5%86%85%E5%AE%B9%E8%BF%9B%E8%A1%8C%E4%BF%AE%E6%94%B9"><span class="nav-number">2.2.2.</span> <span class="nav-text">对地址块中间的内容进行修改</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%88%E4%B8%8A%E7%9A%84partial-overwrite"><span class="nav-number">2.2.3.</span> <span class="nav-text">栈上的partial overwrite</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%A0%88%E4%B8%8A%E7%9A%84%E9%93%BE%E5%BC%8F%E7%BB%93%E6%9E%84%E8%BF%9B%E8%A1%8C%E4%BB%BB%E6%84%8F%E5%9C%B0%E5%9D%80%E6%94%B9%E5%86%99"><span class="nav-number">2.2.4.</span> <span class="nav-text">利用栈上的链式结构进行任意地址改写</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#printf-loop"><span class="nav-number">2.2.5.</span> <span class="nav-text">printf_loop</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -334,7 +341,10 @@
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="mailto:messap2001@gmail.com" title="E-Mail → mailto:messap2001@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+        <a href="https://github.com/0xME3" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;0xME3" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:messap2001@foxmail.com" title="E-Mail → mailto:messap2001@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
       </span>
   </div>
 
