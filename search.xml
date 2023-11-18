@@ -229,7 +229,8 @@
   <entry>
     <title>FILE结构及利用</title>
     <url>/2022/07/27/FILE%E7%BB%93%E6%9E%84/</url>
-    <content><![CDATA[<span id="more"></span>
+    <content><![CDATA[<p>FILE结构体概述</p>
+<span id="more"></span>
 
 <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>_IO_FILE 结构体在程序执行 fopen 等函数时会被创建，并分配在堆中。</p>
 <p>在标准 I/O 库中，每个程序启动时有三个文件流是自动打开的：stdin、stdout、stderr，这三个文件流不会分配到堆上。可以在 libc.so 中找到这些符号，它们指向各自 _IO_FILE 结构体的指针，而 IO_FILE 结构体真正的符号是 _IO_2_1_stderr_、_IO_2_1_stdout_、_IO_2_1_stdin_(即 stdout -&gt; _IO_2_1_stdout_)。</p>
