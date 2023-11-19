@@ -28,7 +28,7 @@
 <meta property="og:description" content="待续">
 <meta property="og:locale">
 <meta property="article:published_time" content="2022-04-11T11:55:53.000Z">
-<meta property="article:modified_time" content="2023-11-15T08:10:54.000Z">
+<meta property="article:modified_time" content="2023-11-19T03:51:16.000Z">
 <meta property="article:author" content="MEssa_Rabbit">
 <meta property="article:tag" content="笔记">
 <meta property="article:tag" content="CTF">
@@ -191,7 +191,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-15 16:10:54" itemprop="dateModified" datetime="2023-11-15T16:10:54+08:00">2023-11-15</time>
+                <time title="Modified: 2023-11-19 11:51:16" itemprop="dateModified" datetime="2023-11-19T11:51:16+08:00">2023-11-19</time>
               </span>
 
           
@@ -316,10 +316,10 @@
 <h2 id="house-of-storm"><a href="#house-of-storm" class="headerlink" title="house of storm"></a>house of storm</h2><p>适用于 2.30 之前，可以造成任意写地址。</p>
 <h3 id="条件-5"><a href="#条件-5" class="headerlink" title="条件"></a>条件</h3><ol>
 <li>unsorted_bin &amp; large_bin 分别存在一个 chunk，且 unsorted_bin 中的 chunk 要大于 large_bin 中的 chunk</li>
-<li>unsorted_bin 中的 bk 指针可控</li>
-<li>large_bin 中的 bk 指针和 bk_nextsize 指针可控</li>
+<li>unsorted_bin 中的 bk 指针可控(设置为target)</li>
+<li>large_bin 中的 bk 指针(设置为target+8)和 bk_nextsize 指针可控(设置为target-0x18-5)</li>
 </ol>
-<h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><p>demo 首先在 unsorted_bin 和 large_bin 中分别插入了一个 chunk。且 unsorted_bin 中 chunk 的地址必须满足，并且使 chunk_size 的最高位字节为 0x56，从其他师傅的博客中看到说是因为堆地址常是 0x55 或 0x56 开头，但我在调试中其实并不是这样。</p>
+<h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><p>demo 首先在 unsorted_bin 和 large_bin 中分别插入了一个 chunk。且 unsorted_bin 中 chunk 的地址必须满足，并且使 chunk_size 的最高位字节为 0x56，因为这样设置后，largebin_chunk的bk_nextsize域指向的target_chunk的size域为0x56</p>
 <p>接着设置<code>unsorted_bin-&gt;bk=target-0x10</code>，<code>large_bin-&gt;bk=target-0x8</code>，<code>large_bin-&gt;bk_nextsize=target-0x28-shift_amount(地址位移次数)</code>。</p>
 <p>接着申请 alloc_size 大小即可申请到 target。</p>
 <h3 id="原理-7"><a href="#原理-7" class="headerlink" title="原理"></a>原理</h3><p>主要是结合了 unsorted_bin_attack 和 large_bin_attack 来进行任意写。先利用 unsorted_bin_attack 来写入 bin_at(av,victim_index) 到 target，再利用 large_bin_attack 构造 fake_chunk 并将 target-0x10 的地址链入 unsorted_bin 中。</p>
