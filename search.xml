@@ -1228,9 +1228,11 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/2022/08/08/heap/</url>
+    <title>heap简介</title>
+    <url>/2022/07/09/heap/</url>
     <content><![CDATA[<p>堆是一种数据结构，分配给每个程序的内存空间。与栈不同，堆内存动态分配获得，且堆内存是自低地址向高地址生长的。</p>
+<span id="more"></span>
+
 <h2 id="堆的分配与回收"><a href="#堆的分配与回收" class="headerlink" title="堆的分配与回收"></a>堆的分配与回收</h2><p>Linux 内存管理的基本思想为：延迟分配。即只有在真正访问一个地址时才建立这个地址的物理映射区，在这之前系统只为它分配了一个虚拟内存区。这与 glibc 的延迟绑定机制有点类似。</p>
 <p>并且在调用 malloc 之前，heap 大小为0。首次调用 malloc 时，在分配前会首先获取一个较大的空间，即 top chunk，并且对于 main_arena 和 non_main_arena 来说，分配和增大 top chunk 的方式不同，在后面会提及。</p>
 <p>glibc 的 malloc 族函数，主要对 sbrk 和 mmap 函数进行了封装。</p>
@@ -1403,6 +1405,11 @@
 <p><strong>参考</strong></p>
 <p><a href="https://paper.seebug.org/papers/Archive/refs/heap/glibc%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86ptmalloc%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90.pdf">Glibc 内存管理-Ptmalloc2 源代码分析</a><br><a href="https://ctf-wiki.org/">ctf-wiki</a></p>
 ]]></content>
+      <tags>
+        <tag>笔记</tag>
+        <tag>pwn</tag>
+        <tag>heap</tag>
+      </tags>
   </entry>
   <entry>
     <title>covteamctf_pwn_wp</title>

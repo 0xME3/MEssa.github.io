@@ -502,242 +502,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/08/08/heap/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/08/08/heap/" class="post-title-link" itemprop="url">Untitled</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-08-08 16:52:01" itemprop="dateCreated datePublished" datetime="2022-08-08T16:52:01+08:00">2022-08-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-19 16:03:30" itemprop="dateModified" datetime="2023-11-19T16:03:30+08:00">2023-11-19</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>堆是一种数据结构，分配给每个程序的内存空间。与栈不同，堆内存动态分配获得，且堆内存是自低地址向高地址生长的。</p>
-<h2 id="堆的分配与回收"><a href="#堆的分配与回收" class="headerlink" title="堆的分配与回收"></a>堆的分配与回收</h2><p>Linux 内存管理的基本思想为：延迟分配。即只有在真正访问一个地址时才建立这个地址的物理映射区，在这之前系统只为它分配了一个虚拟内存区。这与 glibc 的延迟绑定机制有点类似。</p>
-<p>并且在调用 malloc 之前，heap 大小为0。首次调用 malloc 时，在分配前会首先获取一个较大的空间，即 top chunk，并且对于 main_arena 和 non_main_arena 来说，分配和增大 top chunk 的方式不同，在后面会提及。</p>
-<p>glibc 的 malloc 族函数，主要对 sbrk 和 mmap 函数进行了封装。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">  malloc(size_t n)</span></span><br><span class="line"><span class="comment">  Returns a pointer to a newly allocated chunk of at least n</span></span><br><span class="line"><span class="comment">  bytes, or null if no space is available. Additionally, on </span></span><br><span class="line"><span class="comment">  failure, errno is set to ENOMEM on ANSI C systems.</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">  If n is zero, malloc returns a minimum-sized chunk. (The</span></span><br><span class="line"><span class="comment">  minimum size is 16 bytes on most 32bit systems, and 24 or 32</span></span><br><span class="line"><span class="comment">  bytes on 64bit systems.)  On most systems, size_t is an unsigned</span></span><br><span class="line"><span class="comment">  type, so calls with negative arguments are interpreted as</span></span><br><span class="line"><span class="comment">  requests for huge amounts of space, which will often fail. The</span></span><br><span class="line"><span class="comment">  maximum supported value of n differs across systems, but is in</span></span><br><span class="line"><span class="comment">  all cases less than the maximum representable value of a</span></span><br><span class="line"><span class="comment">  size_t.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">  free(void* p)</span></span><br><span class="line"><span class="comment">  Releases the chunk of memory pointed to by p, that had been</span></span><br><span class="line"><span class="comment">  previously allocated using malloc or a related routine such as</span></span><br><span class="line"><span class="comment">  realloc. It has no effect if p is null. It can have arbitrary</span></span><br><span class="line"><span class="comment">  (i.e., bad!) effects if p has already been freed.</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">  Unless disabled (using mallopt), freeing very large spaces will</span></span><br><span class="line"><span class="comment">  when possible, automatically trigger operations that give</span></span><br><span class="line"><span class="comment">  back unused memory to the system, thus reducing program</span></span><br><span class="line"><span class="comment">  footprint.</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/figure/brk%26mmap.png" alt="malloc"></p>
-<h3 id="s-brk"><a href="#s-brk" class="headerlink" title="(s)brk"></a>(s)brk</h3><p>对 heap 的操作，操作系统提供了 brk() 函数，C运行时库提供了 sbrk() 函数。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">brk</span><span class="params">(<span class="keyword">void</span> *addr)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">sbrk</span><span class="params">(<span class="keyword">intptr_t</span> increment)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>brk、sbrk 作用是用来改变数据段的大小。</p>
-<p>具体的操作是增加 program break 的位置，program break 是用来定义进程数据段的结束，也是未初始化数据段的第一个位置。</p>
-<p>brk 是设置 program break 的值为参数 addr。</p>
-<p>sbrk 则是增加数据段的的长度，也就是增大 program break 的大小。</p>
-<ul>
-<li>返回 program break 改变后的地址，当 increment=0 时，返回原地址</li>
-</ul>
-<h3 id="mmap、munmap"><a href="#mmap、munmap" class="headerlink" title="mmap、munmap"></a>mmap、munmap</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">mmap</span><span class="params">(<span class="keyword">void</span> *addr, <span class="keyword">size_t</span> length, <span class="keyword">int</span> prot, <span class="keyword">int</span> flags,<span class="keyword">int</span> fd, <span class="keyword">off_t</span> offset)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">munmap</span><span class="params">(<span class="keyword">void</span> *addr, <span class="keyword">size_t</span> length)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>mmap 会在进程的虚拟地址内创建一个新的映射空间，这块映射空间的其实位置由 addr 决定，length 决定映射空间的大小。munmap 会删除特定区域的映射。</p>
-<p>而整个堆内存由 ptmalloc 进行管理。</p>
-<h2 id="ptmalloc-内存管理概述"><a href="#ptmalloc-内存管理概述" class="headerlink" title="ptmalloc 内存管理概述"></a>ptmalloc 内存管理概述</h2><h3 id="相关数据结构"><a href="#相关数据结构" class="headerlink" title="相关数据结构"></a>相关数据结构</h3><h4 id="chunk"><a href="#chunk" class="headerlink" title="chunk"></a>chunk</h4><p>ptmalloc 给用户分配的空间会在前后加上一些控制信息，将这个整体称作chunk：</p>
-<p><img src="https://s2.loli.net/2022/03/16/WhTe1Hxin3oE6SY.png" alt="chunk结构"></p>
-<p>每个字段的具体的解释如下</p>
-<ul>
-<li><p>size of previous chunk(prev_size)</p>
-<p>如果该 chunk 的<strong>物理相邻的前一地址 chunk（两个指针的地址差值为前一 chunk 大小）</strong>是空闲的话，那该字段记录的是前一个 chunk 的大小 (包括 chunk 头)。否则，该字段可以用来存储物理相邻的前一个 chunk 的数据。<strong>这里的前一 chunk 指的是较低地址的 chunk</strong> 。</p>
-</li>
-<li><p>size of chunk</p>
-<p>该 chunk 的大小，大小必须是 2 * SIZE_SZ 的整数倍。如果申请的内存大小不是 2 * SIZE_SZ  的整数倍，会被转换满足大小的最小的 2 * SIZE_SZ 的倍数。32 位系统中，SIZE_SZ 是 4；64 位系统中，SIZE_SZ 是  8。 该字段的低三个比特位对 chunk 的大小没有影响，它们从高到低分别表示</p>
-<ul>
-<li> NON_MAIN_ARENA，记录当前 chunk 是否不属于主线程，1 表示不属于，0 表示属于。</li>
-<li>IS_MAPPED，记录当前 chunk 是否是由 mmap 分配的。 </li>
-<li>PREV_INUSE，记录前一个 chunk 块是否被分配。一般来说，堆中第一个被分配的内存块的 size 字段的 P 位都会被设置为 1，以便于防止访问前面的非法内存。当一个 chunk 的 size 的 P 位为 0 时，我们能通过 prev_size 字段来获取上一个 chunk 的大小以及地址。这也方便进行空闲 chunk 之间的合并。</li>
-</ul>
-</li>
-</ul>
-<p>再介绍一下其中一些值得注意的点：</p>
-<ol>
-<li>prev_size 区域只有当上一个区域释放后才会使用，其大小为用户申请的大小，否则会被用作上一个块的 mem 区域使用。这样能使 chunk 的空间变小，称作空间复用。</li>
-<li>一般来说用户申请的区域都是 2*size_t 大小，若申请的大小与 2*size_t 取模后的空间小于size_t则会遇见第一条的情况；大于则再多申请 2*size_t 的空间。因此堆是相当对齐的。</li>
-</ol>
-<p>而 chunk 在空闲的时候不仅有下一块 prev_size 的变化，其 mem 空间还会加如许多其他信息，空闲 chunk 在内存中的结构如图所示：</p>
-<p><img src="https://s2.loli.net/2022/03/16/kLPGpAorDF5h1TY.png" alt="空闲chunk结构"></p>
-<p>这个图相比于上一张图，多了4个指针：</p>
-<ul>
-<li>Forward pointer to next chunk in list(fd)：指向前一个空闲的chunk</li>
-<li>Back pointer to previous chunk in list(bk)：指向后一个空闲的chunk</li>
-<li>Forward pointer to next chunk size in list(fd_nextsize)：前一个与当前 chunk 大小不同的空闲 chunk</li>
-<li>Back pointer to previous chunk size in list(bk_nextsize)：后一个当前 chunk 大小不同的空闲 chunk</li>
-</ul>
-<p>ptmalloc 通过前两个指针将大小相近的 chunk 连成一个双向链表。后两个指针是 large bin 中空闲 chunk 才有的。作用等下介绍。</p>
-<p>除此之外，当 chunk 空闲时，其 M 状态不存在，只有 AP 状态。</p>
-<h4 id="arena"><a href="#arena" class="headerlink" title="arena"></a>arena</h4><p>arena 分为 main_arena &amp; non_main_arena。且曾经分配区只有一个 main_arena，且每次分配内存都会对 main_arena 加锁，待分配完成后才会释放。当我们进行多线程操作时，这种设计就显得及其拖沓，影响效率。</p>
-<p>pwndbg 中展示了 main_arena 的结构如下</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p/x main_arena</span><br><span class="line"><span class="variable">$1</span> = &#123;</span><br><span class="line">  mutex = 0x0, </span><br><span class="line">  flags = 0x0, </span><br><span class="line">  fastbinsY = &#123;0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0&#125;, </span><br><span class="line">  top = 0x0, </span><br><span class="line">  last_remainder = 0x0, </span><br><span class="line">  bins = &#123;0x0 &lt;repeats 254 <span class="built_in">times</span>&gt;&#125;, </span><br><span class="line">  binmap = &#123;0x0, 0x0, 0x0, 0x0&#125;, </span><br><span class="line">  next = 0x7ffff7dd1b20, </span><br><span class="line">  next_free = 0x0, </span><br><span class="line">  attached_threads = 0x1, </span><br><span class="line">  system_mem = 0x0, </span><br><span class="line">  max_system_mem = 0x0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="空闲的-chunk-容器"><a href="#空闲的-chunk-容器" class="headerlink" title="空闲的 chunk 容器"></a>空闲的 chunk 容器</h4><h5 id="total-bins"><a href="#total-bins" class="headerlink" title="total bins"></a>total bins</h5><p>当用户 free chunk 后，该 chunk 不会立即归还给系统，ptmalloc 会统一管理 heap 和 mmap 映射区域中的空闲 chunk，在用户下一次申请时，会首先在这些空闲 chunk 中挑选一块给用户，这样能降低内存分配的开销。</p>
-<p>ptmalloc 将相似大小的 chunk 用双向链表连接起来，这个双向链表称为bin。ptmalloc 一共维护了136个bin。其中10个为 fast bin ，占用一个数组；剩下的126个 bin，占用一个数组，其中有一个为 unsorted bin，62个 small bin，63个 large bin。</p>
-<p>这些成员的地址都可以在 main_arena.bins 中看见。</p>
-<h6 id="fast-bins"><a href="#fast-bins" class="headerlink" title="fast bins"></a>fast bins</h6><p>我们将 chunk_size 小于 0x80 的 chunk 称为 fast chunk，因为这个大小范围内的 chunk 在释放后会被放入 fast bin 中。当用户申请内存的大小属于这个范围内，将会优先在这里遍历寻找合适的chunk。</p>
-<p>这个数组中存储的元素是双向链表的头节点地址，并且对应不同大小的数组的链表对应不同数组的下标。得到对应下标的宏定义：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> fastbin_index(sz)                                                      \</span></span><br><span class="line"><span class="meta">    ((((unsigned int) (sz)) &gt;&gt; (SIZE_SZ == 8 ? 4 : 3)) - 2)</span></span><br></pre></td></tr></table></figure>
-
-<p>fast bin 使用 fd 指针寻址，即在链表中按照先进先出(FIFO)的顺序被取出(队列)。</p>
-<h6 id="bins"><a href="#bins" class="headerlink" title="bins"></a>bins</h6><p><strong>unsorted bin</strong></p>
-<p>如果被释放的 chunk 不属于 fast_chunk 的范围，那么这些 chunk 就会被放到 unsorted bin 中。</p>
-<p>在 malloc 的过程中，会将 unsorted bin 中的 chunk 重新分配给 small bins 和 large bins，<a href="">分配流程中讲</a>。</p>
-<p><strong>small bin</strong></p>
-<p>small bins 中每个 chunk 的大小与其所在的 bin 的下标的关系为：chunk_size = 2 * SIZE_SZ *index，具体如下</p>
-<table>
-<thead>
-<tr>
-<th>下标</th>
-<th>SIZE_SZ=4（32 位）</th>
-<th>SIZE_SZ=8（64 位）</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>2</td>
-<td>16</td>
-<td>32</td>
-</tr>
-<tr>
-<td>3</td>
-<td>24</td>
-<td>48</td>
-</tr>
-<tr>
-<td>4</td>
-<td>32</td>
-<td>64</td>
-</tr>
-<tr>
-<td>5</td>
-<td>40</td>
-<td>80</td>
-</tr>
-<tr>
-<td>x</td>
-<td>2*4*x</td>
-<td>2*8*x</td>
-</tr>
-<tr>
-<td>63</td>
-<td>504</td>
-<td>1008</td>
-</tr>
-</tbody></table>
-<p>得到对应下标的宏定义如下</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> smallbin_index(sz) \</span></span><br><span class="line"><span class="meta">  ((SMALLBIN_WIDTH == 16 ? (((unsigned) (sz)) &gt;&gt; 4) : (((unsigned) (sz)) &gt;&gt; 3))\</span></span><br><span class="line"><span class="meta">   + SMALLBIN_CORRECTION)</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>large bin</strong></p>
-<p>large bins 中每个 bin 中的 chunk 的大小不一致，而是处于一定区间范围内。此外，这 63 个 bin 被分成了 6 组，每组 bin 中的 chunk 大小之间的公差一致，具体如下</p>
-<table>
-<thead>
-<tr>
-<th>组</th>
-<th>数量</th>
-<th>公差</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>32</td>
-<td>64B</td>
-</tr>
-<tr>
-<td>2</td>
-<td>16</td>
-<td>512B</td>
-</tr>
-<tr>
-<td>3</td>
-<td>8</td>
-<td>4096B</td>
-</tr>
-<tr>
-<td>4</td>
-<td>4</td>
-<td>32768B</td>
-</tr>
-<tr>
-<td>5</td>
-<td>2</td>
-<td>262144B</td>
-</tr>
-<tr>
-<td>6</td>
-<td>1</td>
-<td>不限制</td>
-</tr>
-</tbody></table>
-<p>得到对应下标的宏定义如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> largebin_index(sz) \</span></span><br><span class="line"><span class="meta">  (SIZE_SZ == 8 ? largebin_index_64 (sz)                                     \</span></span><br><span class="line"><span class="meta">   : MALLOC_ALIGNMENT == 16 ? largebin_index_32_big (sz)                     \</span></span><br><span class="line"><span class="meta">   : largebin_index_32 (sz))</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="Top-chunk"><a href="#Top-chunk" class="headerlink" title="Top chunk"></a>Top chunk</h4><p>top chunk对于主分配区和非主分配区来说是不一样的，这里仅介绍针对 main_arena 的。</p>
-<p>对于 main_arena，top chunk 会在第一次调用 malloc 时被分配一块chunk_size + 128KB &amp; align 4KB 大小的空间并且作为初始 heap。</p>
-<p>分配时，当用户无法从 total bins 中分配时，就会从 top chunk 中分配内存，可以直接取出一块内存给用户。在回收内存时，若与 top chunk 相邻且大小不属于 fast_chunk，就会与 top chunk 合并，<a href="">流程中再细琐</a>。</p>
-<p>若 top chunk 没有空闲内存，ptmalloc 会调用 sbrk() 将进程 heap 的边界上移，然后修改 top chunk 的大小。</p>
-<h4 id="mmaped-chunk"><a href="#mmaped-chunk" class="headerlink" title="mmaped chunk"></a>mmaped chunk</h4><p>当前需要分配的 chunk 太大时，total bins 都不能满足要求，甚至top chunk 本身也不能满足分配需求时，ptmalloc 会使用 mmap 来直接使用内存映射来将页映射到进程空间。这样分配的 chunk 在被 free 时会直接解除映射，将内存归还给操作系统。</p>
-<h4 id="last-remainder"><a href="#last-remainder" class="headerlink" title="last remainder"></a>last remainder</h4><p>chunk 的一种中间态，当需要分配一个 chunk，但在 bins 中找不到合适的 chunk 时，如果 last remainder 中存在大小适合或大一点的 chunk，就会直接使用或分裂成两个 chunk，剩下的那个变成新的 last remainder chunk。</p>
-<h4 id="tcache"><a href="#tcache" class="headerlink" title="tcache"></a>tcache</h4><p>tcache是glibc 2.26之后引入的一种技术，同bin一起提升堆的管理效率，使用的优先级比fastbin还高。</p>
-<p>新增了两个结构体:</p>
-<ul>
-<li>tcache_entry</li>
-<li>tcache_perthread_struct</li>
-</ul>
-<p>tcache_entry用于链接空闲的chunk结构体;tcache_perthread_struct是用来管理tcache链表。</p>
-<p>tcache的范围很大，不超过0x408(加上header为0x418)的chunk释放后都将放入tcache bins，因此有0x40个bin，每个bin中最多有TCACHE_FILL_COUNT(默认为7)个空闲chunk。</p>
-<p><strong>参考</strong></p>
-<p><a target="_blank" rel="noopener" href="https://paper.seebug.org/papers/Archive/refs/heap/glibc%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86ptmalloc%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90.pdf">Glibc 内存管理-Ptmalloc2 源代码分析</a><br><a target="_blank" rel="noopener" href="https://ctf-wiki.org/">ctf-wiki</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
     <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/07/27/DASCTF2022/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1003,6 +767,78 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2022/07/23/qwb%E5%BE%80%E5%B9%B4%E9%83%A8%E5%88%86pwn-wp/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
+    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/07/13/%E8%93%9D%E5%B8%BD%E6%9D%AF2022-pwn-wp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/myavatar.png">
+      <meta itemprop="name" content="MEssa_Rabbit">
+      <meta itemprop="description" content="菜狗一个">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Rabbit hole">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/13/%E8%93%9D%E5%B8%BD%E6%9D%AF2022-pwn-wp/" class="post-title-link" itemprop="url">蓝帽杯2022初赛_pwn_wp</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-07-13 09:59:12" itemprop="dateCreated datePublished" datetime="2022-07-13T09:59:12+08:00">2022-07-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-07-24 18:42:40" itemprop="dateModified" datetime="2022-07-24T18:42:40+08:00">2022-07-24</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- 还是太菜 -->
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/07/13/%E8%93%9D%E5%B8%BD%E6%9D%AF2022-pwn-wp/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
