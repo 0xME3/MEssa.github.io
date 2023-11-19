@@ -20,30 +20,36 @@
     var CONFIG = {"hostname":"www.rabb1t.xyz","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="菜狗一个">
-<meta property="og:type" content="website">
+  <meta name="description" content="堆是一种数据结构，分配给每个程序的内存空间。与栈不同，堆内存动态分配获得，且堆内存是自低地址向高地址生长的。 堆的分配与回收Linux 内存管理的基本思想为：延迟分配。即只有在真正访问一个地址时才建立这个地址的物理映射区，在这之前系统只为它分配了一个虚拟内存区。这与 glibc 的延迟绑定机制有点类似。 并且在调用 malloc 之前，heap 大小为0。首次调用 malloc 时，在分配前会首先">
+<meta property="og:type" content="article">
 <meta property="og:title" content="Rabbit hole">
-<meta property="og:url" content="http://www.rabb1t.xyz/index.html">
+<meta property="og:url" content="http://www.rabb1t.xyz/2022/08/08/heap/index.html">
 <meta property="og:site_name" content="Rabbit hole">
-<meta property="og:description" content="菜狗一个">
+<meta property="og:description" content="堆是一种数据结构，分配给每个程序的内存空间。与栈不同，堆内存动态分配获得，且堆内存是自低地址向高地址生长的。 堆的分配与回收Linux 内存管理的基本思想为：延迟分配。即只有在真正访问一个地址时才建立这个地址的物理映射区，在这之前系统只为它分配了一个虚拟内存区。这与 glibc 的延迟绑定机制有点类似。 并且在调用 malloc 之前，heap 大小为0。首次调用 malloc 时，在分配前会首先">
 <meta property="og:locale">
+<meta property="og:image" content="https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/figure/brk%26mmap.png">
+<meta property="og:image" content="https://s2.loli.net/2022/03/16/WhTe1Hxin3oE6SY.png">
+<meta property="og:image" content="https://s2.loli.net/2022/03/16/kLPGpAorDF5h1TY.png">
+<meta property="article:published_time" content="2022-08-08T08:52:01.300Z">
+<meta property="article:modified_time" content="2023-11-19T08:03:30.000Z">
 <meta property="article:author" content="MEssa_Rabbit">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/figure/brk%26mmap.png">
 
-<link rel="canonical" href="http://www.rabb1t.xyz/">
+<link rel="canonical" href="http://www.rabb1t.xyz/2022/08/08/heap/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'default'
   };
 </script>
 
-  <title>Rabbit hole</title>
+  <title> | Rabbit hole</title>
   
 
 
@@ -148,357 +154,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2023/02/20/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/02/20/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0/" class="post-title-link" itemprop="url">操作系统实现</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-02-20 14:43:17" itemprop="dateCreated datePublished" datetime="2023-02-20T14:43:17+08:00">2023-02-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-06-07 20:24:17" itemprop="dateModified" datetime="2023-06-07T20:24:17+08:00">2023-06-07</time>
-              </span>
-
-          
-
-        </div>
-      </header>
 
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>新坑，算《操作系统真相还原》的笔记吧。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/02/20/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0/">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/09/25/MTCTF2022-pwn-wp/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/09/25/MTCTF2022-pwn-wp/" class="post-title-link" itemprop="url">MTCTF2022_初赛pwn_wp</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-09-25 18:25:14 / Modified: 18:41:24" itemprop="dateCreated datePublished" datetime="2022-09-25T18:25:14+08:00">2022-09-25</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>比赛时只做出了两道题。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/09/25/MTCTF2022-pwn-wp/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/09/13/6-S081-Fall2020-lab/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/09/13/6-S081-Fall2020-lab/" class="post-title-link" itemprop="url">6.S081_Fall2020_lab</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-09-13 14:36:51" itemprop="dateCreated datePublished" datetime="2022-09-13T14:36:51+08:00">2022-09-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-02-05 10:57:11" itemprop="dateModified" datetime="2023-02-05T10:57:11+08:00">2023-02-05</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- 试试看自己能坚持写完吗。 -->
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/09/13/6-S081-Fall2020-lab/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/08/25/musl%E5%88%9D%E8%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/08/25/musl%E5%88%9D%E8%AF%86/" class="post-title-link" itemprop="url">musl初识</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-08-25 21:26:14" itemprop="dateCreated datePublished" datetime="2022-08-25T21:26:14+08:00">2022-08-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-29 16:55:55" itemprop="dateModified" datetime="2022-08-29T16:55:55+08:00">2022-08-29</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>musl 库中关于堆的一些基本知识</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/08/25/musl%E5%88%9D%E8%AF%86/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/08/24/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22022-%E5%88%9D%E8%B5%9B-pwn/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/08/24/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22022-%E5%88%9D%E8%B5%9B-pwn/" class="post-title-link" itemprop="url">巅峰极客2022-初赛-pwn</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-08-24 15:29:00 / Modified: 15:32:54" itemprop="dateCreated datePublished" datetime="2022-08-24T15:29:00+08:00">2022-08-24</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- 难度适中 -->
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/08/24/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22022-%E5%88%9D%E8%B5%9B-pwn/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
@@ -514,10 +173,9 @@
       <meta itemprop="name" content="Rabbit hole">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
+        <h1 class="post-title" itemprop="name headline">
           
-            <a href="/2022/08/08/heap/" class="post-title-link" itemprop="url">Untitled</a>
-        </h2>
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -547,7 +205,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>堆是一种数据结构，分配给每个程序的内存空间。与栈不同，堆内存动态分配获得，且堆内存是自低地址向高地址生长的。</p>
+        <p>堆是一种数据结构，分配给每个程序的内存空间。与栈不同，堆内存动态分配获得，且堆内存是自低地址向高地址生长的。</p>
 <h2 id="堆的分配与回收"><a href="#堆的分配与回收" class="headerlink" title="堆的分配与回收"></a>堆的分配与回收</h2><p>Linux 内存管理的基本思想为：延迟分配。即只有在真正访问一个地址时才建立这个地址的物理映射区，在这之前系统只为它分配了一个虚拟内存区。这与 glibc 的延迟绑定机制有点类似。</p>
 <p>并且在调用 malloc 之前，heap 大小为0。首次调用 malloc 时，在分配前会首先获取一个较大的空间，即 top chunk，并且对于 main_arena 和 non_main_arena 来说，分配和增大 top chunk 的方式不同，在后面会提及。</p>
 <p>glibc 的 malloc 族函数，主要对 sbrk 和 mmap 函数进行了封装。</p>
@@ -720,313 +378,34 @@
 <p><strong>参考</strong></p>
 <p><a target="_blank" rel="noopener" href="https://paper.seebug.org/papers/Archive/refs/heap/glibc%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86ptmalloc%E6%BA%90%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90.pdf">Glibc 内存管理-Ptmalloc2 源代码分析</a><br><a target="_blank" rel="noopener" href="https://ctf-wiki.org/">ctf-wiki</a></p>
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/07/27/DASCTF2022/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/27/DASCTF2022/" class="post-title-link" itemprop="url">DASCTF2022_部分pwn_wp</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-07-27 23:40:16" itemprop="dateCreated datePublished" datetime="2022-07-27T23:40:16+08:00">2022-07-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-11-09 18:12:08" itemprop="dateModified" datetime="2022-11-09T18:12:08+08:00">2022-11-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>部分</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/27/DASCTF2022/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
-    </div>
 
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">IO_FILE部分相关函数详述</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-07-27 20:40:50" itemprop="dateCreated datePublished" datetime="2022-07-27T20:40:50+08:00">2022-07-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-17 18:26:16" itemprop="dateModified" datetime="2023-11-17T18:26:16+08:00">2023-11-17</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>主要是 __fopen_internal、_IO_file_xsgetn、_IO_file_xsputn、_IO_new_fclose</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/27/DASCTF2022/" rel="prev" title="DASCTF2022_部分pwn_wp">
+      <i class="fa fa-chevron-left"></i> DASCTF2022_部分pwn_wp
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/08/24/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22022-%E5%88%9D%E8%B5%9B-pwn/" rel="next" title="巅峰极客2022-初赛-pwn">
+      巅峰极客2022-初赛-pwn <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
+    
   </article>
   
   
   
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/07/27/FILE%E7%BB%93%E6%9E%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/27/FILE%E7%BB%93%E6%9E%84/" class="post-title-link" itemprop="url">FILE结构及利用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-07-27 15:21:05" itemprop="dateCreated datePublished" datetime="2022-07-27T15:21:05+08:00">2022-07-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-18 11:31:20" itemprop="dateModified" datetime="2023-11-18T11:31:20+08:00">2023-11-18</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>FILE结构体概述</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/27/FILE%E7%BB%93%E6%9E%84/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/07/23/qwb%E5%BE%80%E5%B9%B4%E9%83%A8%E5%88%86pwn-wp/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/23/qwb%E5%BE%80%E5%B9%B4%E9%83%A8%E5%88%86pwn-wp/" class="post-title-link" itemprop="url">强网杯往年部分pwn_wp</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-07-23 21:51:34" itemprop="dateCreated datePublished" datetime="2022-07-23T21:51:34+08:00">2022-07-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-07-27 15:18:14" itemprop="dateModified" datetime="2022-07-27T15:18:14+08:00">2022-07-27</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>待续</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/23/qwb%E5%BE%80%E5%B9%B4%E9%83%A8%E5%88%86pwn-wp/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
-  </nav>
 
 
 
@@ -1078,6 +457,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A0%86%E7%9A%84%E5%88%86%E9%85%8D%E4%B8%8E%E5%9B%9E%E6%94%B6"><span class="nav-number">1.</span> <span class="nav-text">堆的分配与回收</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#s-brk"><span class="nav-number">1.1.</span> <span class="nav-text">(s)brk</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mmap%E3%80%81munmap"><span class="nav-number">1.2.</span> <span class="nav-text">mmap、munmap</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ptmalloc-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">ptmalloc 内存管理概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">相关数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#chunk"><span class="nav-number">2.1.1.</span> <span class="nav-text">chunk</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#arena"><span class="nav-number">2.1.2.</span> <span class="nav-text">arena</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B2%E7%9A%84-chunk-%E5%AE%B9%E5%99%A8"><span class="nav-number">2.1.3.</span> <span class="nav-text">空闲的 chunk 容器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#total-bins"><span class="nav-number">2.1.3.1.</span> <span class="nav-text">total bins</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#fast-bins"><span class="nav-number">2.1.3.1.1.</span> <span class="nav-text">fast bins</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#bins"><span class="nav-number">2.1.3.1.2.</span> <span class="nav-text">bins</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Top-chunk"><span class="nav-number">2.1.4.</span> <span class="nav-text">Top chunk</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mmaped-chunk"><span class="nav-number">2.1.5.</span> <span class="nav-text">mmaped chunk</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#last-remainder"><span class="nav-number">2.1.6.</span> <span class="nav-text">last remainder</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#tcache"><span class="nav-number">2.1.7.</span> <span class="nav-text">tcache</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
