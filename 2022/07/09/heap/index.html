@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://s2.loli.net/2022/03/16/WhTe1Hxin3oE6SY.png">
 <meta property="og:image" content="https://s2.loli.net/2022/03/16/kLPGpAorDF5h1TY.png">
 <meta property="article:published_time" content="2022-07-09T04:21:23.000Z">
-<meta property="article:modified_time" content="2023-11-19T09:03:22.000Z">
+<meta property="article:modified_time" content="2023-11-19T09:08:54.000Z">
 <meta property="article:author" content="MEssa_Rabbit">
 <meta property="article:tag" content="笔记">
 <meta property="article:tag" content="pwn">
@@ -194,7 +194,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-19 17:03:22" itemprop="dateModified" datetime="2023-11-19T17:03:22+08:00">2023-11-19</time>
+                <time title="Modified: 2023-11-19 17:08:54" itemprop="dateModified" datetime="2023-11-19T17:08:54+08:00">2023-11-19</time>
               </span>
 
           
@@ -274,10 +274,10 @@
 <p>这个数组中存储的元素是双向链表的头节点地址，并且对应不同大小的数组的链表对应不同数组的下标。得到对应下标的宏定义：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> fastbin_index(sz)                                                      \</span></span><br><span class="line"><span class="meta">    ((((unsigned int) (sz)) &gt;&gt; (SIZE_SZ == 8 ? 4 : 3)) - 2)</span></span><br></pre></td></tr></table></figure>
 
-<p>fast bin 使用 fd 指针寻址，即在链表中按照先进先出(FIFO)的顺序被取出(队列)。</p>
+<p>fast bin 使用 fd 指针寻址，即在链表中按照先进先出(FILO)的顺序被取出(队列)。</p>
 <h6 id="bins"><a href="#bins" class="headerlink" title="bins"></a>bins</h6><p><strong>unsorted bin</strong></p>
 <p>如果被释放的 chunk 不属于 fast_chunk 的范围，那么这些 chunk 就会被放到 unsorted bin 中。</p>
-<p>在 malloc 的过程中，会将 unsorted bin 中的 chunk 重新分配给 small bins 和 large bins，<a href="">分配流程中讲</a>。</p>
+<p>在 malloc 的过程中，会将 unsorted bin 中的 chunk 重新分配给 small bins 和 large bins，<a target="_blank" rel="noopener" href="https://messap.github.io/2022/07/12/%E5%A0%86%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B/">分配流程中讲</a>。</p>
 <p><strong>small bin</strong></p>
 <p>small bins 中每个 chunk 的大小与其所在的 bin 的下标的关系为：chunk_size = 2 * SIZE_SZ *index，具体如下</p>
 <table>
@@ -368,7 +368,7 @@
 
 <h4 id="Top-chunk"><a href="#Top-chunk" class="headerlink" title="Top chunk"></a>Top chunk</h4><p>top chunk对于主分配区和非主分配区来说是不一样的，这里仅介绍针对 main_arena 的。</p>
 <p>对于 main_arena，top chunk 会在第一次调用 malloc 时被分配一块chunk_size + 128KB &amp; align 4KB 大小的空间并且作为初始 heap。</p>
-<p>分配时，当用户无法从 total bins 中分配时，就会从 top chunk 中分配内存，可以直接取出一块内存给用户。在回收内存时，若与 top chunk 相邻且大小不属于 fast_chunk，就会与 top chunk 合并，<a href="">流程中再细琐</a>。</p>
+<p>分配时，当用户无法从 total bins 中分配时，就会从 top chunk 中分配内存，可以直接取出一块内存给用户。在回收内存时，若与 top chunk 相邻且大小不属于 fast_chunk，就会与 top chunk 合并，<a target="_blank" rel="noopener" href="https://messap.github.io/2022/07/12/%E5%A0%86%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B/">流程中再细说</a>。</p>
 <p>若 top chunk 没有空闲内存，ptmalloc 会调用 sbrk() 将进程 heap 的边界上移，然后修改 top chunk 的大小。</p>
 <h4 id="mmaped-chunk"><a href="#mmaped-chunk" class="headerlink" title="mmaped chunk"></a>mmaped chunk</h4><p>当前需要分配的 chunk 太大时，total bins 都不能满足要求，甚至top chunk 本身也不能满足分配需求时，ptmalloc 会使用 mmap 来直接使用内存映射来将页映射到进程空间。这样分配的 chunk 在被 free 时会直接解除映射，将内存归还给操作系统。</p>
 <h4 id="last-remainder"><a href="#last-remainder" class="headerlink" title="last remainder"></a>last remainder</h4><p>chunk 的一种中间态，当需要分配一个 chunk，但在 bins 中找不到合适的 chunk 时，如果 last remainder 中存在大小适合或大一点的 chunk，就会直接使用或分裂成两个 chunk，剩下的那个变成新的 last remainder chunk。</p>
