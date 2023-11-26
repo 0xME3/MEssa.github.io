@@ -326,9 +326,9 @@
       </tags>
   </entry>
   <entry>
-    <title>GCC保护机制</title>
+    <title>linux保护机制</title>
     <url>/2022/03/08/GCC%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/</url>
-    <content><![CDATA[<p>简单介绍Linux下的GCC保护机制。</p>
+    <content><![CDATA[<p>简单介绍Linux下的保护机制。</p>
 <span id="more"></span>
 
 <h2 id="地址随机化-ASLR-PIE"><a href="#地址随机化-ASLR-PIE" class="headerlink" title="地址随机化(ASLR/PIE)"></a>地址随机化(ASLR/PIE)</h2><p>在我们之前介绍的ROP攻击中，我们的主要目的是插入一个指向攻击代码的<strong>指针</strong>，这个代码可以是我们输入的(ret2shellcode)，也可以是程序中有的(ret2text、ret2libc)。</p>
@@ -2360,29 +2360,172 @@
       </tags>
   </entry>
   <entry>
-    <title>参数入栈顺序</title>
+    <title>函数调用约定</title>
     <url>/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/</url>
-    <content><![CDATA[<p>调用函数时，会生成一个栈帧，而这个过程中会涉及到如何向该调用函数传参的问题。</p>
+    <content><![CDATA[<p>调用函数时，所有函数(包括库函数)调用都必须遵守一套调用约定。主要规定调用函数时如何使用通用寄存器，包括函数参数的传递顺序和方式、栈的维护方式，名字修饰(Name-mangling)策略。</p>
 <span id="more"></span>
 
-<p>使用c编写一个程序</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d %d %d&quot;</span>, i, ++i, i++);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	test();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后运行程序，输出结果为’2 2 0’。</p>
-<p>结果说明函数的参数的入栈顺序是从右往左的：</p>
-<ol>
-<li>先执行<code>i++</code>，将返回的<code>0</code>压入栈，此时<code>i=1</code></li>
-<li>再执行<code>++i</code>，将返回的<code>2</code>压入栈，此时<code>i=2</code></li>
-<li>最后压入<code>i</code></li>
-</ol>
-<p>以上是我们试出的结果，实际上这是因为函数调用中会遵循<strong>函数调用约定</strong>。该规则规定了以为下几方面：</p>
+<h1 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h1><h2 id="x86-x64"><a href="#x86-x64" class="headerlink" title="x86/x64"></a>x86/x64</h2><h3 id="通用寄存器"><a href="#通用寄存器" class="headerlink" title="通用寄存器"></a>通用寄存器</h3><table>
+<thead>
+<tr>
+<th>64bit</th>
+<th>32bit</th>
+<th>16bit</th>
+<th>8bit</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RAX</td>
+<td>EAX</td>
+<td>AX</td>
+<td>AL</td>
+</tr>
+<tr>
+<td>RBX</td>
+<td>EBX</td>
+<td>BX</td>
+<td>BL</td>
+</tr>
+<tr>
+<td>RCX</td>
+<td>ECX</td>
+<td>CX</td>
+<td>CL</td>
+</tr>
+<tr>
+<td>RDX</td>
+<td>EDX</td>
+<td>DX</td>
+<td>DL</td>
+</tr>
+<tr>
+<td>RSI</td>
+<td>ESI</td>
+<td>SI</td>
+<td>SIL</td>
+</tr>
+<tr>
+<td>RDI</td>
+<td>EDI</td>
+<td>DI</td>
+<td>DIL</td>
+</tr>
+<tr>
+<td>RBP</td>
+<td>EBP</td>
+<td>BP</td>
+<td>BPL</td>
+</tr>
+<tr>
+<td>RSP</td>
+<td>ESP</td>
+<td>SP</td>
+<td>SPL</td>
+</tr>
+<tr>
+<td>R8</td>
+<td>R8D</td>
+<td>R8W</td>
+<td>R8B</td>
+</tr>
+<tr>
+<td>R9</td>
+<td>R9D</td>
+<td>R9W</td>
+<td>R9B</td>
+</tr>
+<tr>
+<td>R10</td>
+<td>R10D</td>
+<td>R10W</td>
+<td>R10B</td>
+</tr>
+<tr>
+<td>R11</td>
+<td>R11D</td>
+<td>R11W</td>
+<td>R11B</td>
+</tr>
+<tr>
+<td>R12</td>
+<td>R12D</td>
+<td>R12W</td>
+<td>R12B</td>
+</tr>
+<tr>
+<td>R13</td>
+<td>R13D</td>
+<td>R13W</td>
+<td>R13B</td>
+</tr>
+<tr>
+<td>R14</td>
+<td>R14D</td>
+<td>R14W</td>
+<td>R14B</td>
+</tr>
+<tr>
+<td>R15</td>
+<td>R15D</td>
+<td>R15W</td>
+<td>R15B</td>
+</tr>
+<tr>
+<td><em>加上<code>L</code>即说明是该寄存器的低8位，若加上<code>h</code>则说明是该寄存器的高8位，因此8bit寄存器不止表中列出的，如<code>AX</code>寄存器(长度为2字节)的低八位为<code>AL</code>、高八位为<code>AH</code>(长度为1字节)</em></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>而这些寄存器在一次函数调用中充当的角色:</p>
 <ul>
-<li>函数参数的传递顺序和方法</li>
-<li>栈的维护方式</li>
-<li>名字修饰(name-mangling)策略</li>
+<li>x64<ul>
+<li>RBP: 基址针寄存器(Base Pointer Register)，该指针保存当前被调用函数(callee)栈帧的底部指针。而函数的栈帧将会保存调用函数(caller)栈帧的指针。</li>
+<li>RSP: 堆栈指针寄存器(Stack Pointer Register)，该指针保存当前被调用函数栈帧的顶部指针。</li>
+<li>RDI: 作为被调用函数的参数1</li>
+<li>RSI: 作为被调用函数的参数2</li>
+<li>RDX: 作为被调用函数的参数3</li>
+<li>RCX: 作为被调用函数的参数4</li>
+<li>R8: 作为被调用函数的参数5</li>
+<li>R9: 作为被调用函数的参数6</li>
+<li>RAX: 累加器(Accumulator)，用来执行算术操作，存放函数的返回值。</li>
+<li>RBX: 基地址寄存器(Base Register)，主要用于在内存寻址时存放基地址。</li>
 </ul>
-<p>其中最常见的参数传递方式是通过<strong>堆栈传参</strong>：调用函数将参数压入栈中，被调用函数以相对栈基指针的偏移来访问栈中参数，类似于访问<code>bp[offset]</code>。而对于有多个参数的函数，调用约定规定将参数从右到左(或从左到右)依次入栈。某些约定还允许通过寄存器来传参。</p>
-<p>常见调用约定具体可见该<a href="https://www.cnblogs.com/clover-toeic/p/3756668.html">文章</a>。</p>
+</li>
+<li>x86: 和x64的区别为，传参时使用栈，其他几乎一致。<ul>
+<li>ECX: 计数寄存器(Count Register)，用来标记循环次数(REP和LOOP指令)。</li>
+<li>EDX: 数据寄存器(Data Register)，进行计算时用来保存操作数，且总是被用来放整数除法产生的余数。</li>
+</ul>
+</li>
+</ul>
+<p>另外还需要知道的寄存器为IP寄存器(EIP, RIP)，或者也叫PC寄存器，用来存放当前代码段即将被执行的下一条指令的偏移。然后取出指令并执行时，会获取该指令的长度得到下一条指令的地址，并保存。</p>
+<p>其他寄存器如段寄存器和状态寄存器可以看这篇<a href="https://zhuanlan.zhihu.com/p/502718676">总结</a></p>
+<h1 id="函数调用约定"><a href="#函数调用约定" class="headerlink" title="函数调用约定"></a>函数调用约定</h1><p>首先是<a href="https://messap.github.io/2022/03/04/%E6%A0%88%E4%BB%8B%E7%BB%8D/">栈介绍</a>，可以看到函数调用的过程其实是十分有规律的，是因为编译器在编译代码时，遵循了函数调用约定(不唯一)，这个约定在不同平台都是一致的，差异仅在寄存器不同，但并没有讲到参数的传递过程。</p>
+<h2 id="x86"><a href="#x86" class="headerlink" title="x86"></a>x86</h2><p>x86平台下常用的有三种调用约定，__cdecl、__stdcall、__fastcall。</p>
+<p>若想使用不同约定去编译，则需要将约定作为修饰符写在函数名前，如<code>windows: int __cdecl TestFunc(int); Linux: int __attribute__((__cdecl__)) TestFunc(int);</code>。</p>
+<h3 id="cdecl调用约定"><a href="#cdecl调用约定" class="headerlink" title="__cdecl调用约定"></a>__cdecl调用约定</h3><p>又称C调用约定，是C/C++编译器默认的函数调用约定。</p>
+<p><strong>参数传递顺序</strong></p>
+<p>参数按照从右到左的顺序入栈，且支持可变参数，即直接通过相对于<code>offset(%bp)</code>来获取参数，返回值保存在EAX中。</p>
+<p><strong>栈的维护方式</strong></p>
+<p>由被调函数抬栈(执行<code>sub xxx, sp</code>指令)，调用函数清理被调函数的参数(执行<code>add xxx, sp</code>指令)。</p>
+<p><strong>函数名修饰</strong></p>
+<p><code>_name@number</code></p>
+<h3 id="stdcall调用约定"><a href="#stdcall调用约定" class="headerlink" title="__stdcall调用约定"></a>__stdcall调用约定</h3><p>Pascal程序缺省调用方式，WinAPI也多采用该调用约定。</p>
+<p><strong>参数传递顺序</strong></p>
+<p>参数从右向左顺序入栈，除指针或引用类型参数外所有参数采用传值方式传递，不支持可变参数，返回值在EAX中。</p>
+<p><strong>栈的维护方式</strong></p>
+<p>由被调函数抬栈(执行<code>sub xxx, sp</code>指令)，被调函数清理参数(执行<code>ret xxx</code>指令)。</p>
+<p><strong>函数名修饰</strong></p>
+<p><code>_name</code></p>
+<h3 id="fastcall调用约定"><a href="#fastcall调用约定" class="headerlink" title="__fastcall调用约定"></a>__fastcall调用约定</h3><p><strong>参数传递顺序</strong></p>
+<p>参数从右向左顺序入栈，但前两个参数保存在ECX和EDX中，不支持可变参数，返回值在EAX中。</p>
+<p><strong>栈的维护方式</strong></p>
+<p>由被调函数抬栈(执行<code>sub xxx, sp</code>指令)，被调函数清理参数(执行<code>ret xxx</code>指令)。</p>
+<p><strong>函数名修饰</strong></p>
+<p><code>@name@number</code></p>
+<h2 id="x64"><a href="#x64" class="headerlink" title="x64"></a>x64</h2><p>而x64平台下更加规范，只能使用默认的调用约定，因此使用修饰符指定调用约定时会被忽略。</p>
+<p>参数按照从右到左的顺序保存进寄存器同时也会入栈(多余了?)，保存进寄存器中的参数只有前6个，返回值保存在RAX中，由被调函数退栈。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://www.cnblogs.com/FrankChen831X/p/10482718.html">x86寄存器总结</a><br><a href="https://www.cnblogs.com/clover-toeic/p/3755401.html">C语言函数调用栈(一)</a><br><a href="https://www.cnblogs.com/clover-toeic/p/3756668.html">C语言函数调用栈(二)</a></p>
 ]]></content>
       <tags>
         <tag>笔记</tag>
@@ -2670,15 +2813,14 @@
 <h3 id="Pop"><a href="#Pop" class="headerlink" title="Pop"></a>Pop</h3><p>即出栈，取出栈顶元素。</p>
 <p>在程序运行时栈中也是以入栈与出栈为基本操作。</p>
 <h2 id="栈上的局部储存"><a href="#栈上的局部储存" class="headerlink" title="栈上的局部储存"></a>栈上的局部储存</h2><p>到目前为止，大部分过程都不会出现超过寄存器大小的本地存储区域了，不过有时，局部数据还是要存放在内存中，包括：寄存器不足而存放、一个变量的地址要存放、某些局部变量是数组或结构体只能存放在内存中。</p>
-<p>而过程中产生的局部变量存储在栈帧中，过程的参数存储在该栈帧前。并且通过入栈顺序和数据大小能轻易计算出与栈帧的偏移，并通过<code>lea</code>指令与<code>rbp</code>寄存器中保存的栈帧地址来得到变量的地址，从而使用。(入栈顺序参考这篇<a href="http://www.rabb1t.xyz/2022/03/04/%E5%85%A5%E6%A0%88%E9%A1%BA%E5%BA%8F/">文章</a>)</p>
-<h2 id="函数调用栈"><a href="#函数调用栈" class="headerlink" title="函数调用栈"></a>函数调用栈</h2><p>在介绍函数调用栈之前，简单介绍一下过程。</p>
-<h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p>前面提到在程序运行中，栈会有属于自己的一块空间，并且会分配<strong>过程的栈帧</strong>。实际上，软件中将封装代码的方式称为过程，过程用一组指定参数和一个可选的返回值实现了某种功能。因此我们能想到：函数、方法、处理函数等都是<strong>过程的形式</strong>。</p>
+<p>而过程中产生的局部变量存储在栈帧中，过程的参数存储在该栈帧前。并且通过入栈顺序和数据大小能轻易计算出与栈帧的偏移，并通过<code>lea</code>指令与<code>rbp</code>寄存器中保存的栈帧地址来得到变量的地址，从而使用。<a href="https://messap.github.io/2022/03/04/%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A/">函数调用约定</a></p>
+<h2 id="函数调用栈的过程"><a href="#函数调用栈的过程" class="headerlink" title="函数调用栈的过程"></a>函数调用栈的过程</h2><p>简单介绍一下过程。</p>
+<p>前面提到在程序运行中，栈会有属于自己的一块空间，并且会分配<strong>过程的栈帧</strong>。实际上，软件中将封装代码的方式称为过程，过程用一组指定参数和一个可选的返回值实现了某种功能。因此我们能想到：函数、方法、处理函数等都是<strong>过程的形式</strong>。</p>
 <p>而函数调用栈的过程，实际上对应了计算机提供给过程执行的支持：<strong>传递控制、传递数据、分配和释放内存</strong>。</p>
-<h3 id="函数调用栈的过程"><a href="#函数调用栈的过程" class="headerlink" title="函数调用栈的过程"></a>函数调用栈的过程</h3><ol>
-<li><p>先是<strong>传递数据</strong>，将此函数所使用到的参数依次入栈，然后得到数据与栈帧指针的偏移来利用数据。</p>
-</li>
-<li><p>再是<strong>转移控制</strong></p>
+<p>具体过程为:</p>
 <ol>
+<li>先是<strong>传递数据</strong>，将此函数所使用到的参数依次入栈，然后得到数据与栈帧指针的偏移来利用数据。</li>
+<li>再是<strong>转移控制</strong><ol>
 <li>执行了<code>call</code>指令，进行两步操作：<ol>
 <li>将当前<code>ip</code>或<code>cs和ip</code>压入栈中，即<code>push ip</code></li>
 <li>转移，与<code>jmp</code>原理相同</li>
@@ -2686,29 +2828,25 @@
 </li>
 </ol>
 </li>
-<li><p>接着执行函数<strong>分配内存</strong>：</p>
-<ol>
+<li>接着执行函数<strong>分配内存</strong>：<ol>
 <li>将<code>bp</code>压入栈，即<code>push bp</code></li>
 <li>减小栈指针，即<code>sub sp,idata</code>，分配了足够大的栈帧空间</li>
 </ol>
 </li>
-<li><p>函数终止，开始<strong>释放内存</strong>：</p>
-<ol>
-<li><p>执行<code>leave</code>指令，进行两步操作：</p>
-<ol>
+<li>函数终止，开始<strong>释放内存</strong>：<ol>
+<li>执行<code>leave</code>指令，进行两步操作：<ol>
 <li>释放栈空间，即<code>mov sp,bp</code></li>
 <li>恢复栈帧，即<code>pop bp</code></li>
 </ol>
 </li>
-<li><p>最后<strong>恢复控制</strong>，执行<code>ret</code>指令：</p>
-<ul>
+<li>最后<strong>恢复控制</strong>，执行<code>ret</code>指令：<ul>
 <li>修改<code>ip</code>内容为栈顶中的内容，即<code>pop ip</code></li>
 </ul>
 </li>
 </ol>
 </li>
 </ol>
-<p>至此算是一个函数调用的过程，由此可以看出<strong>过程能够递归的调用它们自身</strong>，并且每个过程都有属于自己的栈帧。</p>
+<p>至此算是一个函数调用的过程，且无论是在32位平台还是64位平台都是如此，由此可以看出<strong>过程能够递归的调用它们自身</strong>，并且每个过程都有属于自己的栈帧。</p>
 ]]></content>
       <tags>
         <tag>笔记</tag>
@@ -2776,6 +2914,20 @@
       </tags>
   </entry>
   <entry>
+    <title>windows保护机制</title>
+    <url>/2023/11/22/windows%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/</url>
+    <content><![CDATA[<p>windows pwn 基础——程序保护。</p>
+<span id="more"></span>
+
+
+]]></content>
+      <tags>
+        <tag>笔记</tag>
+        <tag>pwn</tag>
+        <tag>windows</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>tags</title>
     <url>/tags/index.html</url>
     <content><![CDATA[]]></content>
@@ -2788,7 +2940,7 @@
   <entry>
     <title>Friends</title>
     <url>/links/index.html</url>
-    <content><![CDATA[<p>Joe1sn:<a href="https://blog.joe1sn.top/;https://joe1sn.eu.org">https://blog.joe1sn.top/;https://joe1sn.eu.org</a><br>cnitlrt:<a href="https://cnitlrt.github.io/">https://cnitlrt.github.io/</a><br>e4l4:<a href="https://blog.e4l4.com/">https://blog.e4l4.com/</a><br>sxdxwb:<a href="https://blog.csdn.net/qq_59950255/">https://blog.csdn.net/qq_59950255/</a><br>J0k3r:<a href="https://www.yuque.com/joker-krzh1/">https://www.yuque.com/joker-krzh1/</a><br>cri1stur:<a href="https://cri1stur.github.io/">https://cri1stur.github.io/</a><br>kaikaix:<a href="https://kaikaix.github.io/">https://kaikaix.github.io/</a><br>sohaha:<a href="https://blog.csdn.net/weixin_61283545?spm=1000.2115.3001.5343/">https://blog.csdn.net/weixin_61283545?spm=1000.2115.3001.5343/</a><br>malabis:<a href="http://www.malabis.site/">www.malabis.site/</a></p>
+    <content><![CDATA[<p>Joe1sn:<a href="https://blog.joe1sn.top/">https://blog.joe1sn.top/</a><br>       <a href="https://joe1sn.eu.org/">https://joe1sn.eu.org</a><br>cnitlrt:<a href="https://cnitlrt.github.io/">https://cnitlrt.github.io/</a><br>e4l4:<a href="https://blog.e4l4.com/">https://blog.e4l4.com/</a><br>sxdxwb:<a href="https://blog.csdn.net/qq_59950255/">https://blog.csdn.net/qq_59950255/</a><br>J0k3r:<a href="https://www.yuque.com/joker-krzh1/">https://www.yuque.com/joker-krzh1/</a><br>cri1stur:<a href="https://cri1stur.github.io/">https://cri1stur.github.io/</a><br>kaikaix:<a href="https://kaikaix.github.io/">https://kaikaix.github.io/</a><br>sohaha:<a href="https://blog.csdn.net/weixin_61283545?spm=1000.2115.3001.5343/">https://blog.csdn.net/weixin_61283545?spm=1000.2115.3001.5343/</a><br>malabis:<a href="http://www.malabis.site/">www.malabis.site/</a></p>
 ]]></content>
   </entry>
 </search>
