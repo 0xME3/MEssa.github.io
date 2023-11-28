@@ -1188,18 +1188,14 @@
       </tags>
   </entry>
   <entry>
-    <title>FSOP</title>
-    <url>/2022/05/27/FSOP/</url>
-    <content><![CDATA[<p>劫持 _IO_list_all 并伪造链表</p>
+    <title></title>
+    <url>/2023/02/25/FSOP/</url>
+    <content><![CDATA[<p>通过劫持 _IO_list_all 来将伪造IO_FILE，再通过调用__overflow来执行伪造虚表中的函数。</p>
 <span id="more"></span>
 
-
 <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>_IO_list_all 中保存着 IO_FILE 结构体的链表，因此我们将伪造的 fake_FILE 插入其中。</p>
-<p>由于链表通过 _chain 来链接，而 _chain 相对 IO_FILE 的偏移为 0x68，所以最常见的插入链表操作为：</p>
-<ul>
-<li>伪造一个 fake_FILE 并放入 0x60 大小的 smallbin 中，这个位置正好相对于 main_arena+88(&amp;bin[0]) 的偏移为 0x68，所以我们使用 unsortedbin_attack 将 IO_list_all 覆盖为 main_arena+88 即可。</li>
-<li>通过largebing_attack，将</li>
-</ul>
+<p>由于链表通过 _chain 来链接，而 _chain 相对 IO_FILE 的偏移为 0x68，所以最常见的插入链表操作为：<br>伪造一个 fake_FILE 并放入 0x60 大小的 smallbin 中，这个位置正好相对于 main_arena+88(&amp;bin[0]) 的偏移为 0x68，所以我们使用 unsortedbin_attack 将 IO_list_all 覆盖为 main_arena+88 即可。</p>
+<p>当然如果能直接</p>
 <h2 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h2><p>通过调用 _IO_flush_all_lockp，来刷新 _IO_list_all 链表中所有项的文件流，意味着会调用 vtable 中的 _IO_overflow。</p>
 <p>调用 _IO_flush_all_lockp 的情况有：</p>
 <ol>
@@ -1207,7 +1203,7 @@
 <li>当执行 exit 函数时</li>
 <li>当执行流从 main 函数返回时</li>
 </ol>
-<p>而当系统检测 memory corruption 时，流程为:</p>
+<p>而当 glibc 检测 memory corruption 时，流程为:</p>
 <ol>
 <li>调用 abort()</li>
 <li>调用 _IO_flush_all_lockp()</li>
@@ -1220,12 +1216,6 @@
 <p>因此需要伪造的内容有 _mode&lt;=0, _IO_write_ptr&gt;_IO_write_base, IO_overflow=something。</p>
 <p>以上成员相对于 IO_FILE 首地址到偏移分别为 0xc0, 0x28, 0x20, *0xd8+24。</p>
 ]]></content>
-      <tags>
-        <tag>笔记</tag>
-        <tag>pwn</tag>
-        <tag>CTF</tag>
-        <tag>FSOP</tag>
-      </tags>
   </entry>
   <entry>
     <title>heap简介</title>
@@ -2911,6 +2901,38 @@
         <tag>pwn</tag>
         <tag>writeup</tag>
         <tag>CTf</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>IO_FILE利用</title>
+    <url>/2022/08/10/IO-FILE%E5%88%A9%E7%94%A8/</url>
+    <content><![CDATA[<p>对FILE结构体的利用，主要是通过控制_flags和jumps表来控制程序执行流程。</p>
+<span id="more"></span>
+
+<p>根据之前介绍的fread, fwrite, fopen, fclose(<a href="https://messap.github.io/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/">IO_FILE部分相关函数详述</a>)</p>
+<p>我们可以发现，文件流中最常被调用的函数是_IO_overflow(underflow)，在缓冲区和文件的不停交互中会一直被调用，所以针对该指针，有了一些利用方法。</p>
+<h1 id="leak"><a href="#leak" class="headerlink" title="leak"></a>leak</h1><p>因为<a href="https://messap.github.io/2022/07/27/FILE%E7%BB%93%E6%9E%84/#flags">_flags</a>能控制文件流执行过程，因此当我们控制stdout的_flags与缓冲区指针，就能完成泄露。</p>
+<p>首先根据<a href="https://messap.github.io/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/#fwrite">fwrite分析</a>中遇到的第一个对于_flags的检测:</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 检查是否有 _IO_LINE_BUF 和 _IO_CURRENTLY_PUTTING 标志  </span></span><br><span class="line"><span class="comment">// 表示只需要输出一行或立即输出  </span></span><br><span class="line"><span class="keyword">if</span> ((f-&gt;_flags &amp; _IO_LINE_BUF) &amp;&amp; (f-&gt;_flags &amp; _IO_CURRENTLY_PUTTING))</span><br></pre></td></tr></table></figure>
+<p>因此我们只需要将_flags设置为<code>_IO_MAGIC|_IO_LINE_BUF|_IO_CURRENTLY_PUTTING</code>即<code>0xfbad1800</code>。</p>
+<p>然后是缓冲区指针，正常情况下(不应该输出内容时)，<code>write_base==write_ptr==write_end</code>，若我们覆盖了write_base(或者write_ptr)的最后一字节内容，则在fwrite中。</p>
+<ul>
+<li>_io_finish会以_IO_buf_base为参数跳转至fp+0xe8处的值。设置虚表地址为io_str_jump-0x8(异常总会调用虚表+0x18处的函数)设置_IO_buf_base为<code>/bin/sh</code>字符串地址，设置0xe8偏移处为system函数。相较io_overflow不会有one_gadget不可用的情况</li>
+</ul>
+<p>实际上其他文件流的相关函数其实还是挺复杂的:</p>
+<ul>
+<li>程序调用 exit 后，会遍历_IO_list_all,调用_IO_2_1_stdout_下的vatable中_setbuf函数</li>
+</ul>
+<h1 id="劫持vtable"><a href="#劫持vtable" class="headerlink" title="劫持vtable"></a>劫持vtable</h1><p>进行 IO 操作都需要调用 _IO_FILE_plus 结构中的 vtable 中的指针进行调用。所以我们可以覆盖其中的函数指针，或者修改 vtable 为一个伪造地址，从而布置函数指针。</p>
+<p>glibc 2.24加入了对虚函数表的检测，在调用虚函数之前会先检查虚函数地址是否合法, 需要在一个正确的section内。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">void</span> _IO_vtable_check (<span class="keyword">void</span>) attribute_hidden;</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">const</span> struct _IO_jump_t *</span></span><br><span class="line"><span class="function"><span class="title">IO_validate_vtable</span> <span class="params">(<span class="keyword">const</span> struct _IO_jump_t *vtable)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">uintptr_t</span> section_length = __stop___libc_IO_vtables -__start___libc_IO_vtables;</span><br><span class="line">  <span class="keyword">uintptr_t</span> ptr = (<span class="keyword">uintptr_t</span>) vtable;</span><br><span class="line">  <span class="keyword">uintptr_t</span> offset = ptr -(<span class="keyword">uintptr_t</span>)__start___libc_IO_vtables;</span><br><span class="line">  <span class="keyword">if</span> (__glibc_unlikely (offset &gt;= section_length))</span><br><span class="line">    _IO_vtable_check ();</span><br><span class="line">  <span class="keyword">return</span> vtable;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因此伪造vtable的流程为：计算 _IO_vtable 段的长度(section_length)，用当前虚表指针的地址减去_IO_vtable 段的开始地址，如果vtable相对于开始地址的偏移大于等于section_length，那么就会进入_IO_vtable_check进行更详细的检查，否则的话会正常调用。如果vtable是非法的，进入_IO_vtable_check函数后会触发abort。</p>
+<p>或者直接将 vtable 指向的 _IO_jump_t 改成 _IO_wfile_jumps、_IO_wfile_jumps_mmap、_IO_wfile_jumps_maybe_mmap等jump类地址应该都会满足检测.</p>
+]]></content>
+      <tags>
+        <tag>笔记</tag>
+        <tag>pwn</tag>
       </tags>
   </entry>
   <entry>
