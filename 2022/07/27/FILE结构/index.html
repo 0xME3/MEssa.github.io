@@ -17,13 +17,13 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"www.rabb1t.xyz","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"messap.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="FILE结构体概述">
 <meta property="og:type" content="article">
 <meta property="og:title" content="FILE结构">
-<meta property="og:url" content="http://www.rabb1t.xyz/2022/07/27/FILE%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:url" content="https://messap.github.io/2022/07/27/FILE%E7%BB%93%E6%9E%84/index.html">
 <meta property="og:site_name" content="Rabbit hole">
 <meta property="og:description" content="FILE结构体概述">
 <meta property="og:locale">
@@ -34,7 +34,7 @@
 <meta property="article:tag" content="IO_FILE">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://www.rabb1t.xyz/2022/07/27/FILE%E7%BB%93%E6%9E%84/">
+<link rel="canonical" href="https://messap.github.io/2022/07/27/FILE%E7%BB%93%E6%9E%84/">
 
 
 <script id="page-configurations">
@@ -159,7 +159,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/07/27/FILE%E7%BB%93%E6%9E%84/">
+    <link itemprop="mainEntityOfPage" href="https://messap.github.io/2022/07/27/FILE%E7%BB%93%E6%9E%84/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/myavatar.png">
@@ -287,7 +287,7 @@
 <li>调用_IO_file_close_it关闭文件并释放缓冲区。</li>
 <li>释放FILE内存以及确认文件关闭。</li>
 </ul>
-<p>详细流程在此<a target="_blank" rel="noopener" href="https://messap.github.io/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/">IO_FILE部分相关函数详述</a></p>
+<p>详细流程在此<a href="https://messap.github.io/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/">IO_FILE部分相关函数详述</a></p>
 <h3 id="offset"><a href="#offset" class="headerlink" title="offset"></a>offset</h3><p>具体偏移如下,</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">amd64:</span><br><span class="line">0x0:&#x27;_flags&#x27;,</span><br><span class="line">0x8:&#x27;_IO_read_ptr&#x27;,</span><br><span class="line">0x10:&#x27;_IO_read_end&#x27;,</span><br><span class="line">0x18:&#x27;_IO_read_base&#x27;,</span><br><span class="line">0x20:&#x27;_IO_write_base&#x27;,</span><br><span class="line">0x28:&#x27;_IO_write_ptr&#x27;,</span><br><span class="line">0x30:&#x27;_IO_write_end&#x27;,</span><br><span class="line">0x38:&#x27;_IO_buf_base&#x27;,</span><br><span class="line">0x40:&#x27;_IO_buf_end&#x27;,</span><br><span class="line">0x48:&#x27;_IO_save_base&#x27;,</span><br><span class="line">0x50:&#x27;_IO_backup_base&#x27;,</span><br><span class="line">0x58:&#x27;_IO_save_end&#x27;,</span><br><span class="line">0x60:&#x27;_markers&#x27;,</span><br><span class="line">0x68:&#x27;_chain&#x27;,</span><br><span class="line">0x70:&#x27;_fileno&#x27;,</span><br><span class="line">0x74:&#x27;_flags2&#x27;,</span><br><span class="line">0x78:&#x27;_old_offset&#x27;,</span><br><span class="line">0x80:&#x27;_cur_column&#x27;,</span><br><span class="line">0x82:&#x27;_vtable_offset&#x27;,</span><br><span class="line">0x83:&#x27;_shortbuf&#x27;,</span><br><span class="line">0x88:&#x27;_lock&#x27;,</span><br><span class="line">0x90:&#x27;_offset&#x27;,</span><br><span class="line">0x98:&#x27;_codecvt&#x27;,</span><br><span class="line">0xa0:&#x27;_wide_data&#x27;,</span><br><span class="line">0xa8:&#x27;_freeres_list&#x27;,</span><br><span class="line">0xb0:&#x27;_freeres_buf&#x27;,</span><br><span class="line">0xb8:&#x27;__pad5&#x27;,</span><br><span class="line">0xc0:&#x27;_mode&#x27;,</span><br><span class="line">0xc4:&#x27;_unused2&#x27;,</span><br><span class="line">0xd8:&#x27;vtable&#x27;</span><br></pre></td></tr></table></figure>
 
@@ -407,7 +407,7 @@
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/0xME3" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;0xME3" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+        <a href="https://github.com/MEssap" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;MEssap" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
         <a href="mailto:messap2001@foxmail.com" title="E-Mail → mailto:messap2001@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>

@@ -17,13 +17,13 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"www.rabb1t.xyz","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"messap.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta name="description" content="堆是一种数据结构，分配给每个程序的内存空间。与栈不同，堆内存动态分配获得，且堆内存是自低地址向高地址生长的。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="heap简介">
-<meta property="og:url" content="http://www.rabb1t.xyz/2022/07/09/heap/index.html">
+<meta property="og:url" content="https://messap.github.io/2022/07/09/heap/index.html">
 <meta property="og:site_name" content="Rabbit hole">
 <meta property="og:description" content="堆是一种数据结构，分配给每个程序的内存空间。与栈不同，堆内存动态分配获得，且堆内存是自低地址向高地址生长的。">
 <meta property="og:locale">
@@ -39,7 +39,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/figure/brk%26mmap.png">
 
-<link rel="canonical" href="http://www.rabb1t.xyz/2022/07/09/heap/">
+<link rel="canonical" href="https://messap.github.io/2022/07/09/heap/">
 
 
 <script id="page-configurations">
@@ -164,7 +164,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://www.rabb1t.xyz/2022/07/09/heap/">
+    <link itemprop="mainEntityOfPage" href="https://messap.github.io/2022/07/09/heap/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/myavatar.png">
@@ -277,7 +277,7 @@
 <p>fast bin 使用 fd 指针寻址，即在链表中按照先进先出(FILO)的顺序被取出(队列)。</p>
 <h6 id="bins"><a href="#bins" class="headerlink" title="bins"></a>bins</h6><p><strong>unsorted bin</strong></p>
 <p>如果被释放的 chunk 不属于 fast_chunk 的范围，那么这些 chunk 就会被放到 unsorted bin 中。</p>
-<p>在 malloc 的过程中，会将 unsorted bin 中的 chunk 重新分配给 small bins 和 large bins，<a target="_blank" rel="noopener" href="https://messap.github.io/2022/07/12/%E5%A0%86%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B/">分配流程中讲</a>。</p>
+<p>在 malloc 的过程中，会将 unsorted bin 中的 chunk 重新分配给 small bins 和 large bins，<a href="https://messap.github.io/2022/07/12/%E5%A0%86%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B/">分配流程中讲</a>。</p>
 <p><strong>small bin</strong></p>
 <p>small bins 中每个 chunk 的大小与其所在的 bin 的下标的关系为：chunk_size = 2 * SIZE_SZ *index，具体如下</p>
 <table>
@@ -368,7 +368,7 @@
 
 <h4 id="Top-chunk"><a href="#Top-chunk" class="headerlink" title="Top chunk"></a>Top chunk</h4><p>top chunk对于主分配区和非主分配区来说是不一样的，这里仅介绍针对 main_arena 的。</p>
 <p>对于 main_arena，top chunk 会在第一次调用 malloc 时被分配一块chunk_size + 128KB &amp; align 4KB 大小的空间并且作为初始 heap。</p>
-<p>分配时，当用户无法从 total bins 中分配时，就会从 top chunk 中分配内存，可以直接取出一块内存给用户。在回收内存时，若与 top chunk 相邻且大小不属于 fast_chunk，就会与 top chunk 合并，<a target="_blank" rel="noopener" href="https://messap.github.io/2022/07/12/%E5%A0%86%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B/">流程中再细说</a>。</p>
+<p>分配时，当用户无法从 total bins 中分配时，就会从 top chunk 中分配内存，可以直接取出一块内存给用户。在回收内存时，若与 top chunk 相邻且大小不属于 fast_chunk，就会与 top chunk 合并，<a href="https://messap.github.io/2022/07/12/%E5%A0%86%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B/">流程中再细说</a>。</p>
 <p>若 top chunk 没有空闲内存，ptmalloc 会调用 sbrk() 将进程 heap 的边界上移，然后修改 top chunk 的大小。</p>
 <h4 id="mmaped-chunk"><a href="#mmaped-chunk" class="headerlink" title="mmaped chunk"></a>mmaped chunk</h4><p>当前需要分配的 chunk 太大时，total bins 都不能满足要求，甚至top chunk 本身也不能满足分配需求时，ptmalloc 会使用 mmap 来直接使用内存映射来将页映射到进程空间。这样分配的 chunk 在被 free 时会直接解除映射，将内存归还给操作系统。</p>
 <h4 id="last-remainder"><a href="#last-remainder" class="headerlink" title="last remainder"></a>last remainder</h4><p>chunk 的一种中间态，当需要分配一个 chunk，但在 bins 中找不到合适的 chunk 时，如果 last remainder 中存在大小适合或大一点的 chunk，就会直接使用或分裂成两个 chunk，剩下的那个变成新的 last remainder chunk。</p>
@@ -497,7 +497,7 @@
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/0xME3" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;0xME3" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+        <a href="https://github.com/MEssap" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;MEssap" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
         <a href="mailto:messap2001@foxmail.com" title="E-Mail → mailto:messap2001@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
