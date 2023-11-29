@@ -228,7 +228,7 @@
   </entry>
   <entry>
     <title>FILE结构</title>
-    <url>/2022/07/27/FILE%E7%BB%93%E6%9E%84/</url>
+    <url>/2022/05/27/FILE%E7%BB%93%E6%9E%84/</url>
     <content><![CDATA[<p>FILE结构体概述</p>
 <span id="more"></span>
 
@@ -1188,8 +1188,8 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/2023/02/25/FSOP/</url>
+    <title>FSOP</title>
+    <url>/2022/03/08/FSOP/</url>
     <content><![CDATA[<p>通过劫持 _IO_list_all 来将伪造IO_FILE，再通过调用__overflow来执行伪造虚表中的函数。</p>
 <span id="more"></span>
 
@@ -1216,6 +1216,10 @@
 <p>因此需要伪造的内容有 _mode&lt;=0, _IO_write_ptr&gt;_IO_write_base, IO_overflow=something。</p>
 <p>以上成员相对于 IO_FILE 首地址到偏移分别为 0xc0, 0x28, 0x20, *0xd8+24。</p>
 ]]></content>
+      <tags>
+        <tag>笔记</tag>
+        <tag>pwn</tag>
+      </tags>
   </entry>
   <entry>
     <title>heap简介</title>
