@@ -1190,12 +1190,12 @@
   <entry>
     <title>FSOP</title>
     <url>/2022/03/08/FSOP/</url>
-    <content><![CDATA[<p>通过劫持 _IO_list_all 来将伪造IO_FILE，再通过调用__overflow来执行伪造虚表中的函数。</p>
+    <content><![CDATA[<p>通过劫持 _IO_list_all和伪造IO_FILE_plus，控制__overflow指针来控制程序流程。</p>
 <span id="more"></span>
 
 <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>_IO_list_all 中保存着 IO_FILE 结构体的链表，因此我们将伪造的 fake_FILE 插入其中。</p>
-<p>由于链表通过 _chain 来链接，而 _chain 相对 IO_FILE 的偏移为 0x68，所以最常见的插入链表操作为：<br>伪造一个 fake_FILE 并放入 0x60 大小的 smallbin 中，这个位置正好相对于 main_arena+88(&amp;bin[0]) 的偏移为 0x68，所以我们使用 unsortedbin_attack 将 IO_list_all 覆盖为 main_arena+88 即可。</p>
-<p>当然如果能直接</p>
+<p>由于链表通过 _chain 来链接，而 _chain 相对 IO_FILE 的偏移为 0x68，可见能够插入链表的操作为：<br>伪造一个 fake_FILE 并放入 0x60 大小的 smallbin 中，这个位置正好相对于 main_arena+88(&amp;bin[0]) 的偏移为 0x68，所以我们使用 unsortedbin_attack 将 IO_list_all 覆盖为 main_arena+88 即可。</p>
+<p>当然如果能直接劫持_IO_list_all为任意值更好。</p>
 <h2 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h2><p>通过调用 _IO_flush_all_lockp，来刷新 _IO_list_all 链表中所有项的文件流，意味着会调用 vtable 中的 _IO_overflow。</p>
 <p>调用 _IO_flush_all_lockp 的情况有：</p>
 <ol>
