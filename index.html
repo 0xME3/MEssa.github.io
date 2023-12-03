@@ -1,1034 +1,610 @@
-<!DOCTYPE html>
-<html lang="default">
+<!DOCTYPE HTML>
+<html>
 <head>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/bigbug_favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/bitbug_favicon_16x16.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta charset="utf-8">
+  
+  <title>Rabbit hole | We don&#39;t choose who we are, but we do choose who we become.</title>
 
-<link rel="stylesheet" href="/css/main.css">
+  
+  <meta name="author" content="MEssa_Rabbit">
+  
 
-
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"messap.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
-  </script>
-
+  
   <meta name="description" content="菜狗一个">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Rabbit hole">
-<meta property="og:url" content="https://messap.github.io/index.html">
-<meta property="og:site_name" content="Rabbit hole">
-<meta property="og:description" content="菜狗一个">
-<meta property="og:locale">
-<meta property="article:author" content="MEssa_Rabbit">
-<meta name="twitter:card" content="summary">
-
-<link rel="canonical" href="https://messap.github.io/">
-
-
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : true,
-    isPost : false,
-    lang   : 'default'
-  };
-</script>
-
-  <title>Rabbit hole</title>
   
 
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  
+
+  <meta property="og:site_name" content="Rabbit hole"/>
+
+  
+  <meta property="og:image" content="/favicon.ico"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Rabbit hole" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">Rabbit hole</a>
+    </h1>
+    <p class="site-description">We don&#39;t choose who we are, but we do choose who we become.</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2023/02/20/操作系统实现/"><span>操作系统实现</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2023/02/20/操作系统实现/" rel="bookmark">
+        <time class="entry-date published" datetime="2023-02-20T06:43:17.000Z">
+          2023-02-20
+        </time>
+      </a>
+    </span>
+  </div>
 
 
+  
 
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
-
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
-
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
-
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>新坑，算《操作系统真相还原》的笔记吧。</p>
+        
+      
     </div>
+
   </div>
 
-  <div class="site-meta">
+  <div class="article-footer">
+    <div class="article-meta pull-left">
 
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">Rabbit hole</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-      <p class="site-subtitle" itemprop="description">We don't choose who we are, but we do choose who we become.</p>
-  </div>
+    
 
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/操作系统/">操作系统</a><a href="/tags/note/">note</a>
+    </span>
+    
+
     </div>
+
+    
   </div>
-</div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2022/09/25/MTCTF2022-pwn-wp/"><span>MTCTF2022_初赛pwn_wp</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2022/09/25/MTCTF2022-pwn-wp/" rel="bookmark">
+        <time class="entry-date published" datetime="2022-09-25T10:25:14.000Z">
+          2022-09-25
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>比赛时只做出了两道题。</p>
+        
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/pwn/">pwn</a><a href="/tags/CTF/">CTF</a><a href="/tags/writeup/">writeup</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2022/09/13/6-S081-Fall2020-lab/"><span>6.S081_Fall2020_lab</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2022/09/13/6-S081-Fall2020-lab/" rel="bookmark">
+        <time class="entry-date published" datetime="2022-09-13T06:36:51.000Z">
+          2022-09-13
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <!-- 试试看自己能坚持写完吗。 -->
+        
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/笔记/">笔记</a><a href="/tags/操作系统/">操作系统</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2022/08/25/musl初识/"><span>musl初识</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2022/08/25/musl初识/" rel="bookmark">
+        <time class="entry-date published" datetime="2022-08-25T13:26:14.000Z">
+          2022-08-25
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>musl 库中关于堆的一些基本知识</p>
+        
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/笔记/">笔记</a><a href="/tags/pwn/">pwn</a><a href="/tags/heap/">heap</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2022/08/24/巅峰极客2022-初赛-pwn/"><span>巅峰极客2022-初赛-pwn</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2022/08/24/巅峰极客2022-初赛-pwn/" rel="bookmark">
+        <time class="entry-date published" datetime="2022-08-24T07:29:00.000Z">
+          2022-08-24
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <!-- 难度适中 -->
+        
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/pwn/">pwn</a><a href="/tags/CTF/">CTF</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2022/08/10/IO-FILE利用/"><span>IO_FILE利用</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2022/08/10/IO-FILE利用/" rel="bookmark">
+        <time class="entry-date published" datetime="2022-08-10T08:04:09.000Z">
+          2022-08-10
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>对FILE结构体的利用，主要是通过控制_flags和jumps表来控制程序执行流程。</p>
+        
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/笔记/">笔记</a><a href="/tags/pwn/">pwn</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2022/07/27/DASCTF2022/"><span>DASCTF2022_部分pwn_wp</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2022/07/27/DASCTF2022/" rel="bookmark">
+        <time class="entry-date published" datetime="2022-07-27T15:40:16.000Z">
+          2022-07-27
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>部分</p>
+        
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/pwn/">pwn</a><a href="/tags/CTF/">CTF</a><a href="/tags/writeup/">writeup</a><a href="/tags/DASCTF/">DASCTF</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2022/07/27/IO-FILE部分函数详解/"><span>IO_FILE部分相关函数详述</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2022/07/27/IO-FILE部分函数详解/" rel="bookmark">
+        <time class="entry-date published" datetime="2022-07-27T12:40:50.000Z">
+          2022-07-27
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>主要是 __fopen_internal、_IO_file_xsgetn、_IO_file_xsputn、_IO_new_fclose</p>
+        
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/笔记/">笔记</a><a href="/tags/IO-FILE/">IO_FILE</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2022/07/27/FILE结构/"><span>FILE结构</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2022/07/27/FILE结构/" rel="bookmark">
+        <time class="entry-date published" datetime="2022-07-27T07:21:05.000Z">
+          2022-07-27
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>FILE结构体概述</p>
+        
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/笔记/">笔记</a><a href="/tags/IO-FILE/">IO_FILE</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2022/07/23/qwb往年部分pwn-wp/"><span>强网杯往年部分pwn_wp</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2022/07/23/qwb往年部分pwn-wp/" rel="bookmark">
+        <time class="entry-date published" datetime="2022-07-23T13:51:34.000Z">
+          2022-07-23
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>待续</p>
+        
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/pwn/">pwn</a><a href="/tags/CTF/">CTF</a><a href="/tags/writeup/">writeup</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
 
 
 
 
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
-
-  </li>
-        <li class="menu-item menu-item-tags">
-
-    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
-
-  </li>
-        <li class="menu-item menu-item-friends">
-
-    <a href="/links/" rel="section"><i class="fa-links fa-fw"></i>friends</a>
-
-  </li>
-  </ul>
+<nav class="pagination">
+  
+  
+  <a href="/page/2/" class="pagination-next">Next</a>
+  
 </nav>
-
-
-
-
-</div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
-  <div class="reading-progress-bar"></div>
-
-
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content index posts-expand">
-            
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="https://messap.github.io/2023/02/20/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/02/20/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0/" class="post-title-link" itemprop="url">操作系统实现</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2023-02-20 14:43:17" itemprop="dateCreated datePublished" datetime="2023-02-20T14:43:17+08:00">2023-02-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-06-07 20:24:17" itemprop="dateModified" datetime="2023-06-07T20:24:17+08:00">2023-06-07</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>新坑，算《操作系统真相还原》的笔记吧。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/02/20/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0/">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="https://messap.github.io/2022/09/25/MTCTF2022-pwn-wp/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/09/25/MTCTF2022-pwn-wp/" class="post-title-link" itemprop="url">MTCTF2022_初赛pwn_wp</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-09-25 18:25:14 / Modified: 18:41:24" itemprop="dateCreated datePublished" datetime="2022-09-25T18:25:14+08:00">2022-09-25</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>比赛时只做出了两道题。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/09/25/MTCTF2022-pwn-wp/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="https://messap.github.io/2022/09/13/6-S081-Fall2020-lab/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/09/13/6-S081-Fall2020-lab/" class="post-title-link" itemprop="url">6.S081_Fall2020_lab</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-09-13 14:36:51" itemprop="dateCreated datePublished" datetime="2022-09-13T14:36:51+08:00">2022-09-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-02-05 10:57:11" itemprop="dateModified" datetime="2023-02-05T10:57:11+08:00">2023-02-05</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- 试试看自己能坚持写完吗。 -->
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/09/13/6-S081-Fall2020-lab/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="https://messap.github.io/2022/08/25/musl%E5%88%9D%E8%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/08/25/musl%E5%88%9D%E8%AF%86/" class="post-title-link" itemprop="url">musl初识</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-08-25 21:26:14" itemprop="dateCreated datePublished" datetime="2022-08-25T21:26:14+08:00">2022-08-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-08-29 16:55:55" itemprop="dateModified" datetime="2022-08-29T16:55:55+08:00">2022-08-29</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>musl 库中关于堆的一些基本知识</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/08/25/musl%E5%88%9D%E8%AF%86/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="https://messap.github.io/2022/08/24/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22022-%E5%88%9D%E8%B5%9B-pwn/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/08/24/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22022-%E5%88%9D%E8%B5%9B-pwn/" class="post-title-link" itemprop="url">巅峰极客2022-初赛-pwn</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-08-24 15:29:00 / Modified: 15:32:54" itemprop="dateCreated datePublished" datetime="2022-08-24T15:29:00+08:00">2022-08-24</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- 难度适中 -->
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/08/24/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22022-%E5%88%9D%E8%B5%9B-pwn/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="https://messap.github.io/2022/08/10/IO-FILE%E5%88%A9%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/08/10/IO-FILE%E5%88%A9%E7%94%A8/" class="post-title-link" itemprop="url">IO_FILE利用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-08-10 16:04:09" itemprop="dateCreated datePublished" datetime="2022-08-10T16:04:09+08:00">2022-08-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-29 20:20:10" itemprop="dateModified" datetime="2023-11-29T20:20:10+08:00">2023-11-29</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>对FILE结构体的利用，主要是通过控制_flags和jumps表来控制程序执行流程。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/08/10/IO-FILE%E5%88%A9%E7%94%A8/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="https://messap.github.io/2022/07/27/DASCTF2022/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/27/DASCTF2022/" class="post-title-link" itemprop="url">DASCTF2022_部分pwn_wp</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-07-27 23:40:16" itemprop="dateCreated datePublished" datetime="2022-07-27T23:40:16+08:00">2022-07-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-11-09 18:12:08" itemprop="dateModified" datetime="2022-11-09T18:12:08+08:00">2022-11-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>部分</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/27/DASCTF2022/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="https://messap.github.io/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/" class="post-title-link" itemprop="url">IO_FILE部分相关函数详述</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-07-27 20:40:50" itemprop="dateCreated datePublished" datetime="2022-07-27T20:40:50+08:00">2022-07-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-17 18:26:16" itemprop="dateModified" datetime="2023-11-17T18:26:16+08:00">2023-11-17</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>主要是 __fopen_internal、_IO_file_xsgetn、_IO_file_xsputn、_IO_new_fclose</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="https://messap.github.io/2022/07/27/FILE%E7%BB%93%E6%9E%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/27/FILE%E7%BB%93%E6%9E%84/" class="post-title-link" itemprop="url">FILE结构</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-07-27 15:21:05" itemprop="dateCreated datePublished" datetime="2022-07-27T15:21:05+08:00">2022-07-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-03 17:06:20" itemprop="dateModified" datetime="2023-12-03T17:06:20+08:00">2023-12-03</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>FILE结构体概述</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/27/FILE%E7%BB%93%E6%9E%84/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
-    <link itemprop="mainEntityOfPage" href="https://messap.github.io/2022/07/23/qwb%E5%BE%80%E5%B9%B4%E9%83%A8%E5%88%86pwn-wp/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/myavatar.png">
-      <meta itemprop="name" content="MEssa_Rabbit">
-      <meta itemprop="description" content="菜狗一个">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Rabbit hole">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/23/qwb%E5%BE%80%E5%B9%B4%E9%83%A8%E5%88%86pwn-wp/" class="post-title-link" itemprop="url">强网杯往年部分pwn_wp</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2022-07-23 21:51:34" itemprop="dateCreated datePublished" datetime="2022-07-23T21:51:34+08:00">2022-07-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-07-27 15:18:14" itemprop="dateModified" datetime="2022-07-27T15:18:14+08:00">2022-07-27</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>待续</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/23/qwb%E5%BE%80%E5%B9%B4%E9%83%A8%E5%88%86pwn-wp/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
-  </nav>
-
-
-
-          </div>
-          
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
-        </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          Table of Contents
-        </li>
-        <li class="sidebar-nav-overview">
-          Overview
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-      </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="MEssa_Rabbit"
-      src="/images/myavatar.png">
-  <p class="site-author-name" itemprop="name">MEssa_Rabbit</p>
-  <div class="site-description" itemprop="description">菜狗一个</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives">
-          <span class="site-state-item-count">33</span>
-          <span class="site-state-item-name">posts</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-tags">
-            <a href="/tags/">
-          
-        <span class="site-state-item-count">18</span>
-        <span class="site-state-item-name">tags</span></a>
-      </div>
-  </nav>
-</div>
-  <div class="links-of-author motion-element">
-      <span class="links-of-author-item">
-        <a href="https://github.com/MEssap" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;MEssap" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
-      </span>
-      <span class="links-of-author-item">
-        <a href="mailto:messap2001@foxmail.com" title="E-Mail → mailto:messap2001@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
-      </span>
-  </div>
-
-
-
-      </div>
-
-    </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
     </main>
 
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2023</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">MEssa_Rabbit</span>
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    </br>
+    
+    &copy; 2023 MEssa_Rabbit
+    
+  </p>
+</footer>
+    
+    
+  </div>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
-  </div>
-
-        
-
-
-
-
-
-
-
-
-      </div>
-    </footer>
-  </div>
-
-  
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/pisces.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-
 </body>
 </html>

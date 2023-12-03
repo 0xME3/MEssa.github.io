@@ -290,7 +290,7 @@
 <p>位于 /libio/iofopen.c 中，很短，只是调用了 __fopen_internal。</p>
 <h6 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h6><figure class="highlight c"><table><tr><td class="code"><pre><span class="line">_IO_FILE * _IO_new_fopen (<span class="keyword">const</span> <span class="keyword">char</span> *filename, <span class="keyword">const</span> <span class="keyword">char</span> *mode)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">return</span> __fopen_internal (filename, mode, <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>__fopen_internal 主要是四个部分：<a href="http://blog.rabb1t.xyz/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/">详情</a></p>
+<p>__fopen_internal 主要是四个部分：<a href="https://messap.github.io/2022/07/27/IO-FILE%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3/">IO_FILE部分相关函数详述</a></p>
 <ul>
 <li>malloc分配内存空间。</li>
 <li>_IO_no_init 对file结构体进行null初始化。</li>
@@ -2532,7 +2532,10 @@
   <entry>
     <title>操作系统实现</title>
     <url>/2023/02/20/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0/</url>
-    <content><![CDATA[<h1 id="前置"><a href="#前置" class="headerlink" title="前置"></a>前置</h1><h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><p>qemu, nasm, dd</p>
+    <content><![CDATA[<p>新坑，算《操作系统真相还原》的笔记吧。</p>
+<span id="more"></span>
+
+<h1 id="前置"><a href="#前置" class="headerlink" title="前置"></a>前置</h1><h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><p>qemu, nasm, dd</p>
 <h3 id="qemu-gdb-debug"><a href="#qemu-gdb-debug" class="headerlink" title="qemu+gdb debug"></a>qemu+gdb debug</h3><ul>
 <li>在qemu-system加上参数<code>-s -S</code>，默认端口是1234</li>
 <li>使用gdb连接该端口(<code>target remote :1234</code>)后即可调试，需要注意的是，在实模式下调试，使用的地址都是物理地址，因此下断点使用<code>hbreak</code></li>
